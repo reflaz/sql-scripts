@@ -18,8 +18,8 @@ USE scglv3;
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-06-05';
-SET @extractend = '2017-06-12';-- This MUST be D + 1
+SET @extractstart = '2017-07-04';
+SET @extractend = '2017-07-10';-- This MUST be D + 1
 
 SELECT 
     threshold_order,
@@ -40,18 +40,7 @@ FROM
         ac.*,
             CASE
                 WHEN ac.tax_class = 'international' THEN 'CB'
-                WHEN order_value < 30000 THEN '30000'
-                WHEN order_value < 50000 THEN '50000'
-                WHEN order_value < 75000 THEN '75000'
-                WHEN order_value < 100000 THEN '100000'
-                WHEN order_value < 150000 THEN '150000'
-                WHEN order_value < 200000 THEN '200000'
-                WHEN order_value < 250000 THEN '250000'
-                WHEN order_value < 300000 THEN '300000'
-                WHEN order_value < 350000 THEN '350000'
-                WHEN order_value < 400000 THEN '400000'
-                WHEN order_value < 500000 THEN '500000'
-                ELSE '>= 500000'
+                ELSE sfrc.value_threshold
             END 'threshold_order',
             CASE
                 WHEN ac.is_marketplace = 0 THEN IFNULL(ac.shipping_surcharge, 0) / 1.1
@@ -68,8 +57,15 @@ FROM
             END 'bu'
     FROM
         scglv3.anondb_calculate ac
+    LEFT JOIN scglv3.shipping_fee_rate_card sfrc ON ac.id_district = sfrc.destination_zone
+        AND sfrc.leadtime = 'Standard'
+        AND ac.origin = sfrc.origin
+        AND sfrc.charging_level = 'Source'
+        AND sfrc.threshold_level = 'Source'
+        AND is_live = 1
     WHERE
         ac.order_date >= @extractstart
             AND ac.order_date < @extractend
             AND ac.chargeable_weight_3pl / qty <= 400
             AND ac.shipment_scheme IN ('CROSS BORDER' , 'RETAIL', 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')) ac
+GROUP BY threshold_order

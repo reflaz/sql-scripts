@@ -497,7 +497,14 @@ CREATE TABLE `shipping_fee_rate_card` (
     `is_live` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0',
     `charging_mechanism` VARCHAR(50) DEFAULT NULL,
     PRIMARY KEY (`id_shipping_fee_rate_card`),
-    KEY `idx_shipping_fee_rate_card` (`origin` , `destination_zone` , `leadtime` , `is_live`)
+    KEY (`origin`),
+    KEY (`leadtime`),
+    KEY (`destination_zone`),
+    KEY (`product_class`),
+    KEY (`fee_type`),
+    KEY (`charging_level`),
+    KEY (`threshold_level`),
+    KEY (`is_live`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8;
 
 CREATE TABLE `shipping_fee_rate_card_kg` (
@@ -511,7 +518,10 @@ CREATE TABLE `shipping_fee_rate_card_kg` (
     `step_rate` DECIMAL(10 , 2 ) NOT NULL DEFAULT '0.00',
     `is_live` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0',
     PRIMARY KEY (`id_shipping_fee_rate_card_kg`),
-    KEY `idx_shipping_fee_rate_card_kg` (`origin` , `destination_zone` , `leadtime` , `is_live`)
+    KEY (`origin`),
+    KEY (`leadtime`),
+    KEY (`destination_zone`),
+    KEY (`is_live`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8;
 
 CREATE TABLE `shipment_scheme` (
