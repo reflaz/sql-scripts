@@ -1,0 +1,221 @@
+/*-----------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------
+Shipping Charges and Gain/Loss AnonDB Population Extract
+
+Prepared by		: R Maliangkay
+Modified by		: RM
+Version			: 1.0
+Changes made	: 
+
+Instructions	: Run the query on any date. The result should be shipping data for last week shipment reimbursement. After the
+				  result extracted, please check if the period is correct!
+-------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+-- DO NOT CHANGE THIS!
+SET @extractend = DATE(DATE_ADD(NOW(), INTERVAL 2 - IF(DAYOFWEEK(NOW()) = 1, 8, DAYOFWEEK(NOW())) DAY)); -- this must be the day after (h+1)
+SET @extractstart = DATE_ADD(@extractend,INTERVAL -7 DAY);
+
+SELECT 
+    *,
+    GREATEST(IFNULL(CASE
+                        WHEN
+                            simple_weight > 0
+                                OR (simple_length * simple_width * simple_height) > 0
+                        THEN
+                            simple_weight
+                        ELSE config_weight
+                    END,
+                    0),
+            IFNULL(CASE
+                        WHEN
+                            simple_weight > 0
+                                OR (simple_length * simple_width * simple_height) > 0
+                        THEN
+                            (simple_length * simple_width * simple_height) / 6000
+                        ELSE config_length * config_width * config_height / 6000
+                    END,
+                    0)) 'chargeable_weight'
+FROM
+    (SELECT 
+        soi.bob_id_sales_order_item,
+            ascsoi.id_sales_order_item 'sc_sales_order_item',
+            so.order_nr,
+            so.payment_method,
+            soi.sku,
+            cc.primary_category,
+            sup.id_supplier 'bob_id_supplier',
+            ascsel.short_code 'short_code',
+            sup.name 'seller_name',
+            sup.type 'seller_type',
+            CASE
+                WHEN ascsel.tax_class = 0 THEN 'local'
+                WHEN ascsel.tax_class = 1 THEN 'international'
+            END 'tax_class',
+            soi.unit_price,
+            soi.paid_price,
+            soi.shipping_amount,
+            soi.shipping_surcharge,
+            soi.marketplace_commission_fee,
+            soi.coupon_money_value,
+            soi.cart_rule_discount,
+            so.coupon_code,
+            sovt.name 'coupon_type',
+            soi.cart_rule_display_names,
+            sois.name 'last_status',
+            so.created_at 'order_date',
+            MIN(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'first_shipped_date',
+            MAX(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'last_shipped_date',
+            MIN(IF(soish.fk_sales_order_item_status = 27, soish.created_at, NULL)) 'delivered_date',
+            MIN(IF(soish.fk_sales_order_item_status = 44, soish.created_at, NULL)) 'not_delivered_date',
+            MIN(IF(soish.fk_sales_order_item_status = 6, soish.created_at, NULL)) 'closed_date',
+            MIN(IF(soish.fk_sales_order_item_status = 56, soish.created_at, NULL)) 'refund_completed_date',
+            ppt.name 'pickup_provider_type',
+            result.package_number,
+            result.id_package_dispatching,
+            NULL AS 'invoice_tracking_number',
+            NULL AS 'invoice_shipment_provider',
+            result.first_tracking_number,
+            result.first_shipment_provider,
+            result.last_tracking_number,
+            result.last_shipment_provider,
+            CASE
+                WHEN sa.city LIKE '%bandung%' THEN 'Bandung'
+                WHEN
+                    sup.type = 'supplier'
+                        OR ascsel.tax_class = 1
+                        OR st.name = 'warehouse'
+                        OR soi.fk_mwh_warehouse <> 1
+                        OR sfom.origin IS NULL
+                THEN
+                    CASE
+                        WHEN soi.fk_mwh_warehouse = 1 THEN 'DKI Jakarta'
+                        WHEN soi.fk_mwh_warehouse = 2 THEN 'East Java'
+                        WHEN soi.fk_mwh_warehouse = 3 THEN 'North Sumatera'
+                        WHEN soi.fk_mwh_warehouse = 4 THEN 'DKI Jakarta'
+                    END
+                ELSE sfom.origin
+            END 'origin',
+            soa.city,
+            dst.id_customer_address_region 'id_district',
+            cc.package_length 'config_length',
+            cc.package_width 'config_width',
+            cc.package_height 'config_height',
+            cc.package_weight 'config_weight',
+            cspu.length 'simple_length',
+            cspu.width 'simple_width',
+            cspu.height 'simple_height',
+            cspu.weight 'simple_weight',
+            st.name 'shipping_type',
+            soi.delivery_type,
+            soi.is_marketplace,
+            soi.is_express_shipping,
+            soi.fast_delivery,
+            0 'retail_cogs',
+            NULL 'payment_cost_logic',
+            CASE
+                WHEN soi.is_marketplace = 0 THEN NULL
+                ELSE (SELECT 
+                        SUM(IFNULL(value, 0))
+                    FROM
+                        asc_live.transaction
+                    WHERE
+                        ref = ascsoi.id_sales_order_item
+                            AND fk_transaction_type = 7)
+            END 'shipping_fee',
+            CASE
+                WHEN soi.is_marketplace = 0 THEN NULL
+                ELSE (SELECT 
+                        SUM(IFNULL(value, 0))
+                    FROM
+                        asc_live.transaction
+                    WHERE
+                        ref = ascsoi.id_sales_order_item
+                            AND fk_transaction_type = 8)
+            END 'shipping_fee_credit',
+            CASE
+                WHEN soi.is_marketplace = 0 THEN NULL
+                ELSE (SELECT 
+                        SUM(IFNULL(value, 0))
+                    FROM
+                        asc_live.transaction
+                    WHERE
+                        ref = ascsoi.id_sales_order_item
+                            AND fk_transaction_type IN (36 , 37))
+            END 'seller_cr_db_item'
+    FROM
+        (SELECT 
+        pck.id_package,
+            pck.package_number,
+            pd.id_package_dispatching,
+            pdh.tracking_number 'first_tracking_number',
+            sp1.shipment_provider_name 'first_shipment_provider',
+            pd.tracking_number 'last_tracking_number',
+            sp2.shipment_provider_name 'last_shipment_provider'
+    FROM
+        (SELECT 
+        fk_package
+    FROM
+        oms_live.oms_package_status_history
+    WHERE
+        created_at >= @extractstart
+            AND created_at < @extractend
+            AND fk_package_status IN (6)
+    GROUP BY fk_package) result
+    LEFT JOIN oms_live.oms_package pck ON result.fk_package = pck.id_package
+    LEFT JOIN oms_live.oms_package_dispatching pd ON pck.id_package = pd.fk_package
+    LEFT JOIN oms_live.oms_package_dispatching_history pdh ON pd.id_package_dispatching = pdh.fk_package_dispatching
+        AND pdh.id_package_dispatching_history = (SELECT 
+            MIN(id_package_dispatching_history)
+        FROM
+            oms_live.oms_package_dispatching_history
+        WHERE
+            fk_package_dispatching = pd.id_package_dispatching
+                AND tracking_number IS NOT NULL)
+    LEFT JOIN oms_live.oms_shipment_provider sp1 ON pdh.fk_shipment_provider = sp1.id_shipment_provider
+    LEFT JOIN oms_live.oms_shipment_provider sp2 ON pd.fk_shipment_provider = sp2.id_shipment_provider
+    HAVING first_shipment_provider IN ('Acommerce' , 'JNE', 'FIRST LOGISTICS', 'Seller Fleet')
+        AND last_shipment_provider IN ('Acommerce' , 'JNE', 'FIRST LOGISTICS', 'Seller Fleet')) result
+    LEFT JOIN oms_live.oms_package_item pi ON result.id_package = pi.fk_package
+    LEFT JOIN oms_live.ims_sales_order_item soi ON pi.fk_sales_order_item = soi.id_sales_order_item
+    LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
+    LEFT JOIN oms_live.ims_sales_order_item_status sois ON soi.fk_sales_order_item_status = sois.id_sales_order_item_status
+    LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
+        AND soish.fk_sales_order_item_status IN (5 , 27, 44, 6, 56)
+    LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON so.fk_voucher_type = sovt.id_sales_order_voucher_type
+    LEFT JOIN oms_live.ims_sales_order_address soa ON so.fk_sales_order_address_shipping = soa.id_sales_order_address
+    LEFT JOIN oms_live.ims_customer_address_region dst ON soa.fk_customer_address_region = dst.id_customer_address_region
+    LEFT JOIN oms_live.ims_supplier osup ON soi.bob_id_supplier = osup.bob_id_supplier
+    LEFT JOIN oms_live.oms_pickup_provider_type ppt ON osup.fk_pickup_provider_type = ppt.id_pickup_provider_type
+    LEFT JOIN oms_live.oms_shipping_type st ON soi.fk_shipping_type = st.id_shipping_type
+    LEFT JOIN bob_live.sales_order_item bsoi ON soi.bob_id_sales_order_item = bsoi.id_sales_order_item
+    LEFT JOIN bob_live.catalog_simple cs ON soi.sku = cs.sku
+    LEFT JOIN bob_live.catalog_config cc ON cc.id_catalog_config = cs.fk_catalog_config
+    LEFT JOIN bob_live.catalog_simple_package_unit cspu ON cs.id_catalog_simple = cspu.fk_catalog_simple
+    LEFT JOIN bob_live.supplier sup ON soi.bob_id_supplier = sup.id_supplier
+    LEFT JOIN bob_live.supplier_address sa ON sup.id_supplier = sa.fk_supplier
+        AND sa.id_supplier_address = (SELECT 
+            MAX(id_supplier_address)
+        FROM
+            bob_live.supplier_address
+        WHERE
+            fk_supplier = sup.id_supplier
+                AND fk_country_region IS NOT NULL
+                AND address_type = 'warehouse')
+    LEFT JOIN bob_live.shipping_fee_origin_mapping sfom ON sa.fk_country_region = sfom.fk_country_region
+        AND sfom.id_shipping_fee_origin_mapping = (SELECT 
+            MAX(id_shipping_fee_origin_mapping)
+        FROM
+            bob_live.shipping_fee_origin_mapping
+        WHERE
+            fk_country_region = sa.fk_country_region
+                AND origin <> 'Cross Border'
+                AND is_live = 1)
+    LEFT JOIN asc_live.seller ascsel ON sup.id_supplier = ascsel.src_id
+    LEFT JOIN asc_live.sales_order_item ascsoi ON soi.id_sales_order_item = ascsoi.src_id
+    GROUP BY soi.id_sales_order_item
+    HAVING (first_shipment_provider = 'Acommerce'
+        AND tax_class = 'local')
+        OR (payment_method <> 'CashOnDelivery'
+        AND tax_class = 'local'
+        AND shipping_type <> 'warehouse')) result

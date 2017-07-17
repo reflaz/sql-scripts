@@ -1,0 +1,25 @@
+SELECT 
+    'bob_id_sales_order_item',
+    'order_nr',
+    'order_date',
+    'shipped_date',
+    'delivered_date',
+    'delivered_date',
+    'shipping_surcharge',
+    'package_dimension',
+    'sku',
+    'tracking_number',
+    'shipment_provider',
+    'origin',
+    'dest_city',
+    'sc_seller_id',
+    'seller_name',
+    'volumetric_weight',
+    'package_weight',
+    'rounded_weight',
+    'rate',
+    'calculated_shipping_surcharge',
+    'difference',
+    'remarks'
+FROM
+    reimbursement

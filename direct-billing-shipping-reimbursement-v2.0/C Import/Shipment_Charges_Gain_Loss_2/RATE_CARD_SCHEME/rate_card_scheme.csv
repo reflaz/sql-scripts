@@ -1,0 +1,5 @@
+id_rate_card_scheme,rate_card_scheme,shipment_cost_discount,shipment_cost_vat,active
+0,NA,NULL,NULL,1
+1,JNE,NULL,NULL,1
+2,LEL,NULL,NULL,1
+3,CB,NULL,NULL,1

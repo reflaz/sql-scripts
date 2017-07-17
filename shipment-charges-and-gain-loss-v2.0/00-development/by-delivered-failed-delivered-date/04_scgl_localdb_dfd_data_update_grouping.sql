@@ -1,0 +1,832 @@
+/*-----------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------
+Shipping Charges and Gain/Loss Data Grouping
+
+Prepared by		: R Maliangkay
+Modified by		: RM
+Version			: 1.0
+Changes made	: 
+
+Instructions	: - Run the query by pressing the execute button
+                  - Wait until the query finished
+                  - Close the query WITHOUT SAVING ANY CHANGES
+-------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------*/
+USE scgl;
+
+SET @extractstart = '2017-03-14';
+SET @extractend = '2017-03-24';
+
+SET SQL_SAFE_UPDATES = 0;
+
+UPDATE scgl.anondb_extract ae
+        JOIN
+    scgl.anondb_extract_update upd ON ae.bob_id_sales_order_item = upd.bob_id_sales_order_item 
+SET 
+    ae.marketplace_commission_fee = upd.marketplace_commission_fee,
+    ae.last_status = upd.last_status,
+    ae.first_shipped_date = upd.first_shipped_date,
+    ae.last_shipped_date = upd.last_shipped_date,
+    ae.delivered_date = upd.delivered_date,
+    ae.not_delivered_date = upd.not_delivered_date,
+    ae.closed_date = upd.closed_date,
+    ae.refund_completed_date = upd.refund_completed_date,
+    ae.package_number = upd.package_number,
+    ae.id_package_dispatching = upd.id_package_dispatching,
+    ae.first_tracking_number = upd.first_tracking_number,
+    ae.first_shipment_provider = upd.first_shipment_provider,
+    ae.last_tracking_number = upd.last_tracking_number,
+    ae.last_shipment_provider = upd.last_shipment_provider,
+    ae.config_length = upd.config_length,
+    ae.config_width = upd.config_width,
+    ae.config_height = upd.config_height,
+    ae.config_weight = upd.config_weight,
+    ae.simple_length = upd.simple_length,
+    ae.simple_width = upd.simple_width,
+    ae.simple_height = upd.simple_height,
+    ae.simple_weight = upd.simple_weight,
+    ae.sc_fee_1 = upd.sc_fee_1,
+    ae.sc_fee_2 = upd.sc_fee_2,
+    ae.sc_fee_3 = upd.sc_fee_3;
+    
+INSERT INTO scgl.anondb_extract 
+SELECT 
+    upd.*
+FROM
+    scgl.anondb_extract_update upd
+        LEFT JOIN
+    scgl.anondb_extract ae ON upd.bob_id_sales_order_item = ae.bob_id_sales_order_item
+WHERE
+    ae.bob_id_sales_order_item IS NULL;
+
+TRUNCATE scgl.anondb_extract_update;
+
+DELETE FROM scgl.anondb_calculate 
+WHERE
+    ((delivered_date >= @extractstart
+    AND delivered_date < @extractend)
+    OR (not_delivered_date >= @extractstart
+    AND not_delivered_date < @extractend))
+    AND id_package_dispatching IS NULL;
+    
+UPDATE scgl.anondb_calculate ac
+        JOIN
+    (SELECT 
+        bob_id_sales_order_item,
+            sc_sales_order_item,
+            order_nr,
+            payment_method,
+            sku,
+            primary_category,
+            bob_id_supplier,
+            short_code,
+            seller_name,
+            seller_type,
+            tax_class,
+            temp_unit_price AS unit_price,
+            temp_paid_price AS paid_price,
+            temp_shipping_amount AS shipping_amount,
+            temp_shipping_surcharge_old AS shipping_surcharge_old,
+            temp_shipping_surcharge AS shipping_surcharge,
+            shipping_fee_to_customer,
+            temp_marketplace_commission_fee AS marketplace_commission_fee,
+            temp_coupon_money_value AS coupon_money_value,
+            temp_cart_rule_discount AS cart_rule_discount,
+            coupon_code,
+            coupon_type,
+            cart_rule_display_names,
+            last_status,
+            order_date,
+            first_shipped_date,
+            last_shipped_date,
+            delivered_date,
+            not_delivered_date,
+            closed_date,
+            refund_completed_date,
+            pickup_provider_type,
+            package_number,
+            id_package_dispatching,
+            invoice_tracking_number,
+            invoice_shipment_provider,
+            first_tracking_number,
+            first_shipment_provider,
+            last_tracking_number,
+            last_shipment_provider,
+            origin,
+            city,
+            id_district,
+            config_length,
+            config_width,
+            config_height,
+            config_weight,
+            simple_length,
+            simple_width,
+            simple_height,
+            simple_weight,
+            shipping_type,
+            delivery_type,
+            is_marketplace,
+            is_express_shipping,
+            fast_delivery,
+            temp_retail_cogs AS retail_cogs,
+            payment_cost_logic,
+            shipping_fee,
+            shipping_fee_credit,
+            seller_cr_db_item,
+            qty,
+            temp_formula_weight AS formula_weight,
+            CASE
+                WHEN
+                    fk_shipment_scheme = 1 -- OR order_date >= '2017-04-01' OR first_shipped_date >= '2017-04-01' OR delivered_date >= '2017-04-01' OR not_delivered_date >= '2017-04-01'
+                THEN
+                    CASE
+                        WHEN temp_formula_weight = 0 THEN 0
+                        WHEN temp_formula_weight < 1 THEN 1
+                        WHEN MOD(temp_formula_weight, 1) <= 0.3 THEN FLOOR(temp_formula_weight)
+                        ELSE CEIL(temp_formula_weight)
+                    END
+                ELSE CEIL(temp_formula_weight)
+            END 'rounded_weight',
+            chargeable_weight AS chargeable_weight,
+            CASE
+                WHEN
+                    fk_shipment_scheme = 1 OR order_date >= '2017-04-01' OR first_shipped_date >= '2017-04-01' OR delivered_date >= '2017-04-01' OR not_delivered_date >= '2017-04-01'
+                THEN
+                    CASE
+                        WHEN chargeable_weight = 0 THEN 0
+                        WHEN chargeable_weight < 1 THEN 1
+                        WHEN MOD(chargeable_weight, 1) <= 0.3 THEN FLOOR(chargeable_weight)
+                        ELSE CEIL(chargeable_weight)
+                    END
+                ELSE CEIL(chargeable_weight)
+            END 'rounded_chargeable_weight',
+            chargeable_qty,
+            0 AS fk_campaign,
+            0 AS campaign,
+            0 AS fk_rate_card_scheme,
+            0 AS rate_card_scheme,
+            0 AS fk_shipment_scheme,
+            0 AS shipment_scheme,
+            0 AS fk_zone_type,
+            0 AS zone_type,
+            0 AS shipment_fee_mp_seller_rate,
+            0 AS shipment_fee_mp_seller,
+            0 AS sel_ins_fee,
+            0 AS sel_ins_fee_vat,
+            0 AS total_insurance_fee,
+            0 AS total_shipment_fee_mp_seller,
+            0 AS shipment_cost_rate,
+            0 AS shipment_cost_discount,
+            0 AS shipment_cost_vat,
+            0 AS total_shipment_cost,
+            0 AS pickup_cost,
+            0 AS pickup_cost_discount,
+            0 AS pickup_cost_vat,
+            0 AS total_pickup_cost,
+            0 AS insurance_rate,
+            0 AS insurance_vat,
+            0 AS sp_ins_charge,
+            0 AS sp_ins_charge_vat,
+            0 AS total_insurance_charge,
+            0 AS total_delivery_cost,
+            active
+    FROM
+        (SELECT 
+        *,
+            SUM(IFNULL(unit_price, 0)) 'temp_unit_price',
+            SUM(IFNULL(paid_price, 0)) 'temp_paid_price',
+            SUM(IFNULL(shipping_amount, 0)) 'temp_shipping_amount',
+            SUM(IFNULL(shipping_surcharge_old, 0)) 'temp_shipping_surcharge_old',
+            SUM(IFNULL(shipping_surcharge, 0)) 'temp_shipping_surcharge',
+            SUM(CASE
+                WHEN is_marketplace = 0 THEN (IFNULL(shipping_amount, 0) / 1.1) + (IFNULL(shipping_surcharge, 0) / 1.1)
+                ELSE IFNULL(shipping_amount, 0) + IFNULL(shipping_surcharge, 0)
+            END) 'shipping_fee_to_customer',
+            SUM(IFNULL(marketplace_commission_fee, 0)) 'temp_marketplace_commission_fee',
+            SUM(IFNULL(coupon_money_value, 0)) 'temp_coupon_money_value',
+            SUM(IFNULL(cart_rule_discount, 0)) 'temp_cart_rule_discount',
+            SUM(IFNULL(retail_cogs, 0)) 'temp_retail_cogs',
+            SUM(IFNULL(weight, 0)) 'temp_weight',
+            SUM(IFNULL(volumetric_weight, 0)) 'temp_volumetric_weight',
+            CASE
+                WHEN
+                    fk_shipment_scheme = 1
+                THEN
+                    CASE
+                        WHEN
+                            first_shipped_date >= '2017-01-01'
+                                OR order_date >= '2017-01-01'
+                        THEN
+                            CASE
+                                WHEN SUM(IF(free = 0, IFNULL(weight, 0), 0)) > SUM(IF(free = 0, IFNULL(volumetric_weight, 0), 0)) THEN SUM(IF(free = 0, IFNULL(weight, 0), 0))
+                                ELSE SUM(IF(free = 0, IFNULL(volumetric_weight, 0), 0))
+                            END
+                        WHEN SUM(IF(bulky = 0 AND free = 0, IFNULL(weight, 0), 0)) > SUM(IF(bulky = 0 AND free = 0, IFNULL(volumetric_weight, 0), 0)) THEN SUM(IF(bulky = 0 AND free = 0, IFNULL(weight, 0), 0))
+                        ELSE SUM(IF(bulky = 0 AND free = 0, IFNULL(volumetric_weight, 0), 0))
+                    END
+                ELSE CASE
+                    WHEN SUM(IFNULL(weight, 0)) > SUM(IFNULL(volumetric_weight, 0)) THEN SUM(IFNULL(weight, 0))
+                    ELSE SUM(IFNULL(volumetric_weight, 0))
+                END
+            END 'temp_formula_weight',
+            MAX(bulky) 'temp_bulky',
+            CASE
+                WHEN
+                    fk_shipment_scheme = 1
+                THEN
+                    CASE
+                        WHEN
+                            first_shipped_date >= '2017-01-01'
+                                OR order_date >= '2017-01-01'
+                        THEN
+                            LEAST(CASE
+                                WHEN SUM(IF(free = 0, IFNULL(weight, 0), 0)) > SUM(IF(free = 0, IFNULL(volumetric_weight, 0), 0)) THEN SUM(IF(free = 0, IFNULL(weight, 0), 0))
+                                ELSE SUM(IF(free = 0, IFNULL(volumetric_weight, 0), 0))
+                            END, 2)
+                        WHEN SUM(IF(bulky = 0 AND free = 0, IFNULL(weight, 0), 0)) > SUM(IF(bulky = 0 AND free = 0, IFNULL(volumetric_weight, 0), 0)) THEN SUM(IF(bulky = 0 AND free = 0, IFNULL(weight, 0), 0))
+                        ELSE SUM(IF(bulky = 0 AND free = 0, IFNULL(volumetric_weight, 0), 0))
+                    END
+                ELSE CASE
+                    WHEN
+                        first_shipped_date >= '2017-01-01'
+                            OR order_date >= '2017-01-01'
+                    THEN
+                        LEAST(CASE
+                            WHEN SUM(IFNULL(weight, 0)) > SUM(IFNULL(volumetric_weight, 0)) THEN SUM(IFNULL(weight, 0))
+                            ELSE SUM(IFNULL(volumetric_weight, 0))
+                        END, 2)
+                    WHEN SUM(IF(bulky = 0, IFNULL(weight, 0), 0)) > SUM(IF(bulky = 0, IFNULL(volumetric_weight, 0), 0)) THEN SUM(IF(bulky = 0, IFNULL(weight, 0), 0))
+                    ELSE SUM(IF(bulky = 0, IFNULL(volumetric_weight, 0), 0))
+                END
+            END 'chargeable_weight',
+            COUNT(bob_id_sales_order_item) 'qty',
+            CASE
+                WHEN
+                    first_shipped_date >= '2017-01-01'
+                        OR order_date >= '2017-01-01'
+                THEN
+                    COUNT(bob_id_sales_order_item)
+                ELSE SUM(IF(bulky = 1 OR free = 1, 0, 1))
+            END 'chargeable_qty',
+            SUM(IFNULL(sc_fee_1, 0)) 'shipping_fee',
+            SUM(IFNULL(sc_fee_2, 0)) 'shipping_fee_credit',
+            SUM(IFNULL(sc_fee_3, 0)) 'seller_cr_db_item'
+    FROM
+        (SELECT 
+        ae.bob_id_sales_order_item,
+            ae.sc_sales_order_item,
+            ae.order_nr,
+            ae.payment_method,
+            ae.sku,
+            ae.primary_category,
+            ae.bob_id_supplier,
+            ae.short_code,
+            ae.seller_name,
+            ae.seller_type,
+            ae.tax_class,
+            ae.unit_price,
+            ae.paid_price,
+            ae.shipping_amount,
+            ae.shipping_surcharge 'shipping_surcharge_old',
+            ae.shipping_surcharge 'shipping_surcharge',
+            ae.marketplace_commission_fee,
+            ae.coupon_money_value,
+            ae.cart_rule_discount,
+            ae.coupon_code,
+            ae.coupon_type,
+            ae.cart_rule_display_names,
+            ae.last_status,
+            ae.order_date,
+            ae.first_shipped_date,
+            ae.last_shipped_date,
+            ae.delivered_date,
+            ae.not_delivered_date,
+            ae.closed_date,
+            ae.refund_completed_date,
+            ae.pickup_provider_type,
+            ae.package_number,
+            ae.id_package_dispatching,
+            ae.invoice_tracking_number,
+            ae.invoice_shipment_provider,
+            ae.first_tracking_number,
+            ae.first_shipment_provider,
+            ae.last_tracking_number,
+            ae.last_shipment_provider,
+            ae.origin,
+            ae.city,
+            ae.id_district,
+            ae.config_length,
+            ae.config_width,
+            ae.config_height,
+            ae.config_weight,
+            ae.simple_length,
+            ae.simple_width,
+            ae.simple_height,
+            ae.simple_weight,
+            ae.shipping_type,
+            ae.delivery_type,
+            ae.is_marketplace,
+            ae.is_express_shipping,
+            ae.fast_delivery,
+            ae.retail_cogs,
+            ae.payment_cost_logic,
+            ae.sc_fee_1,
+            ae.sc_fee_2,
+            ae.sc_fee_3,
+            ae.weight,
+            ae.volumetric_weight,
+            ae.fk_shipment_scheme,
+            ae.active,
+            CASE
+                WHEN
+                    fk_shipment_scheme = 1
+                        AND formula_weight > 7.3
+                THEN
+                    1
+                WHEN
+                    fk_shipment_scheme <> 1
+                        AND formula_weight > 7
+                THEN
+                    1
+                ELSE 0
+            END 'bulky',
+            IF(formula_weight <= 0.17, 1, 0) 'free'
+    FROM
+        (SELECT 
+        ae.*,
+            IFNULL(CASE
+                WHEN
+                    ae.simple_weight > 0
+                        OR (ae.simple_length * ae.simple_width * ae.simple_height) > 0
+                THEN
+                    ae.simple_weight
+                ELSE ae.config_weight
+            END, 0) 'weight',
+            IFNULL(CASE
+                WHEN
+                    ae.simple_weight > 0
+                        OR (ae.simple_length * ae.simple_width * ae.simple_height) > 0
+                THEN
+                    (ae.simple_length * ae.simple_width * ae.simple_height) / 6000
+                ELSE ae.config_length * ae.config_width * ae.config_height / 6000
+            END, 0) 'volumetric_weight',
+            GREATEST(IFNULL(CASE
+                WHEN
+                    ae.simple_weight > 0
+                        OR (ae.simple_length * ae.simple_width * ae.simple_height) > 0
+                THEN
+                    ae.simple_weight
+                ELSE ae.config_weight
+            END, 0), IFNULL(CASE
+                WHEN
+                    ae.simple_weight > 0
+                        OR (ae.simple_length * ae.simple_width * ae.simple_height) > 0
+                THEN
+                    (ae.simple_length * ae.simple_width * ae.simple_height) / 6000
+                ELSE ae.config_length * ae.config_width * ae.config_height / 6000
+            END, 0)) 'formula_weight',
+            CASE
+                WHEN ae.tax_class = 'international' THEN 5
+                WHEN ae.delivery_type = 'digital' THEN 0
+                WHEN
+                    ae.first_shipment_provider = 'Digital Delivery'
+                        OR ae.last_shipment_provider = 'Digital Delivery'
+                THEN
+                    0
+                WHEN
+                    ae.delivery_type IN ('express' , 'nextday', 'sameday')
+                        AND ae.last_shipment_provider LIKE '%Go-Jek%'
+                THEN
+                    7
+                WHEN ae.is_marketplace = 0 THEN 3
+                WHEN ae.shipping_type = 'warehouse' THEN 4
+                WHEN
+                    ae.first_shipment_provider = 'Acommerce'
+                        AND ae.last_shipment_provider = 'Acommerce'
+                THEN
+                    1
+                WHEN
+                    ae.payment_method <> 'CashOnDelivery'
+                        AND ae.first_shipment_provider IN ('JNE' , 'FIRST LOGISTICS', 'Seller Fleet')
+                        AND ae.last_shipment_provider IN ('JNE' , 'FIRST LOGISTICS', 'Seller Fleet')
+                THEN
+                    1
+                ELSE 2
+            END 'fk_shipment_scheme',
+            CASE
+                WHEN
+                    ae.first_shipped_date >= '2017-01-01'
+                        OR ae.order_date >= '2017-01-01'
+                THEN
+                    1
+                ELSE 0
+            END 'active'
+    FROM
+        scgl.anondb_extract ae
+    WHERE
+        ((ae.delivered_date >= @extractstart
+            AND ae.delivered_date < @extractend)
+            OR (ae.not_delivered_date >= @extractstart
+            AND ae.not_delivered_date < @extractend))) ae) ae
+    GROUP BY order_nr , id_package_dispatching , bob_id_supplier) ae) ae ON ac.order_nr = ae.order_nr
+        AND ae.id_package_dispatching = ac.id_package_dispatching
+        AND ae.bob_id_supplier = ac.bob_id_supplier 
+SET 
+    ac.marketplace_commission_fee = ae.marketplace_commission_fee,
+    ac.last_status = ae.last_status,
+    ac.first_shipped_date = ae.first_shipped_date,
+    ac.last_shipped_date = ae.last_shipped_date,
+    ac.delivered_date = ae.delivered_date,
+    ac.not_delivered_date = ae.not_delivered_date,
+    ac.closed_date = ae.closed_date,
+    ac.refund_completed_date = ae.refund_completed_date,
+    ac.package_number = ae.package_number,
+    ac.id_package_dispatching = ae.id_package_dispatching,
+    ac.first_tracking_number = ae.first_tracking_number,
+    ac.first_shipment_provider = ae.first_shipment_provider,
+    ac.last_tracking_number = ae.last_tracking_number,
+    ac.last_shipment_provider = ae.last_shipment_provider,
+    ac.config_length = ae.config_length,
+    ac.config_width = ae.config_width,
+    ac.config_height = ae.config_height,
+    ac.config_weight = ae.config_weight,
+    ac.simple_length = ae.simple_length,
+    ac.simple_width = ae.simple_width,
+    ac.simple_height = ae.simple_height,
+    ac.simple_weight = ae.simple_weight,
+    ac.sc_fee_1 = ae.shipping_fee,
+    ac.sc_fee_2 = ae.shipping_fee_credit,
+    ac.sc_fee_3 = ae.seller_cr_db_item,
+    ac.qty = ae.qty,
+    ac.formula_weight = ae.formula_weight,
+    ac.rounded_weight = ae.rounded_weight,
+    ac.chargeable_weight = ae.chargeable_weight,
+    ac.rounded_chargeable_weight = ae.rounded_chargeable_weight,
+    ac.chargeable_qty = ae.chargeable_qty,
+    ac.active = ae.active;
+
+INSERT INTO anondb_calculate
+SELECT 
+    bob_id_sales_order_item,
+    sc_sales_order_item,
+    order_nr,
+    payment_method,
+    sku,
+    primary_category,
+    bob_id_supplier,
+    short_code,
+    seller_name,
+    seller_type,
+    tax_class,
+    temp_unit_price AS unit_price,
+    temp_paid_price AS paid_price,
+    temp_shipping_amount AS shipping_amount,
+    temp_shipping_surcharge_old AS shipping_surcharge_old,
+    temp_shipping_surcharge AS shipping_surcharge,
+    shipping_fee_to_customer,
+    temp_marketplace_commission_fee AS marketplace_commission_fee,
+    temp_coupon_money_value AS coupon_money_value,
+    temp_cart_rule_discount AS cart_rule_discount,
+    coupon_code,
+    coupon_type,
+    cart_rule_display_names,
+    last_status,
+    order_date,
+    first_shipped_date,
+    last_shipped_date,
+    delivered_date,
+    not_delivered_date,
+    closed_date,
+    refund_completed_date,
+    pickup_provider_type,
+    package_number,
+    id_package_dispatching,
+    invoice_tracking_number,
+    invoice_shipment_provider,
+    first_tracking_number,
+    first_shipment_provider,
+    last_tracking_number,
+    last_shipment_provider,
+    origin,
+    city,
+    id_district,
+    config_length,
+    config_width,
+    config_height,
+    config_weight,
+    simple_length,
+    simple_width,
+    simple_height,
+    simple_weight,
+    shipping_type,
+    delivery_type,
+    is_marketplace,
+    is_express_shipping,
+    fast_delivery,
+    temp_retail_cogs AS retail_cogs,
+    payment_cost_logic,
+    shipping_fee,
+    shipping_fee_credit,
+    seller_cr_db_item,
+    qty,
+    temp_formula_weight AS formula_weight,
+    CASE
+        WHEN
+            fk_shipment_scheme = 1 -- OR order_date >= '2017-04-01' OR first_shipped_date >= '2017-04-01' OR delivered_date >= '2017-04-01' OR not_delivered_date >= '2017-04-01'
+        THEN
+            CASE
+                WHEN temp_formula_weight = 0 THEN 0
+                WHEN temp_formula_weight < 1 THEN 1
+                WHEN MOD(temp_formula_weight, 1) <= 0.3 THEN FLOOR(temp_formula_weight)
+                ELSE CEIL(temp_formula_weight)
+            END
+        ELSE CEIL(temp_formula_weight)
+    END 'rounded_weight',
+    chargeable_weight AS chargeable_weight,
+    CASE
+        WHEN
+            fk_shipment_scheme = 1 OR order_date >= '2017-04-01' OR first_shipped_date >= '2017-04-01' OR delivered_date >= '2017-04-01' OR not_delivered_date >= '2017-04-01'
+        THEN
+            CASE
+                WHEN chargeable_weight = 0 THEN 0
+                WHEN chargeable_weight < 1 THEN 1
+                WHEN MOD(chargeable_weight, 1) <= 0.3 THEN FLOOR(chargeable_weight)
+                ELSE CEIL(chargeable_weight)
+            END
+        ELSE CEIL(chargeable_weight)
+    END 'rounded_chargeable_weight',
+    chargeable_qty,
+    0 AS fk_campaign,
+    0 AS campaign,
+    0 AS fk_rate_card_scheme,
+    0 AS rate_card_scheme,
+    0 AS fk_shipment_scheme,
+    0 AS shipment_scheme,
+    0 AS fk_zone_type,
+    0 AS zone_type,
+    0 AS shipment_fee_mp_seller_rate,
+    0 AS shipment_fee_mp_seller,
+    0 AS sel_ins_fee,
+    0 AS sel_ins_fee_vat,
+    0 AS total_insurance_fee,
+    0 AS total_shipment_fee_mp_seller,
+    0 AS shipment_cost_rate,
+    0 AS shipment_cost_discount,
+    0 AS shipment_cost_vat,
+    0 AS total_shipment_cost,
+    0 AS pickup_cost,
+    0 AS pickup_cost_discount,
+    0 AS pickup_cost_vat,
+    0 AS total_pickup_cost,
+    0 AS insurance_rate,
+    0 AS insurance_vat,
+    0 AS sp_ins_charge,
+    0 AS sp_ins_charge_vat,
+    0 AS total_insurance_charge,
+    0 AS total_delivery_cost,
+    active
+FROM
+    (SELECT 
+        *,
+            SUM(IFNULL(unit_price, 0)) 'temp_unit_price',
+            SUM(IFNULL(paid_price, 0)) 'temp_paid_price',
+            SUM(IFNULL(shipping_amount, 0)) 'temp_shipping_amount',
+            SUM(IFNULL(shipping_surcharge_old, 0)) 'temp_shipping_surcharge_old',
+            SUM(IFNULL(shipping_surcharge, 0)) 'temp_shipping_surcharge',
+            SUM(CASE
+                WHEN is_marketplace = 0 THEN (IFNULL(shipping_amount, 0) / 1.1) + (IFNULL(shipping_surcharge, 0) / 1.1)
+                ELSE IFNULL(shipping_amount, 0) + IFNULL(shipping_surcharge, 0)
+            END) 'shipping_fee_to_customer',
+            SUM(IFNULL(marketplace_commission_fee, 0)) 'temp_marketplace_commission_fee',
+            SUM(IFNULL(coupon_money_value, 0)) 'temp_coupon_money_value',
+            SUM(IFNULL(cart_rule_discount, 0)) 'temp_cart_rule_discount',
+            SUM(IFNULL(retail_cogs, 0)) 'temp_retail_cogs',
+            SUM(IFNULL(weight, 0)) 'temp_weight',
+            SUM(IFNULL(volumetric_weight, 0)) 'temp_volumetric_weight',
+            CASE
+                WHEN
+                    fk_shipment_scheme = 1
+                THEN
+                    CASE
+                        WHEN
+                            first_shipped_date >= '2017-01-01'
+                                OR order_date >= '2017-01-01'
+                        THEN
+                            CASE
+                                WHEN SUM(IF(free = 0, IFNULL(weight, 0), 0)) > SUM(IF(free = 0, IFNULL(volumetric_weight, 0), 0)) THEN SUM(IF(free = 0, IFNULL(weight, 0), 0))
+                                ELSE SUM(IF(free = 0, IFNULL(volumetric_weight, 0), 0))
+                            END
+                        WHEN SUM(IF(bulky = 0 AND free = 0, IFNULL(weight, 0), 0)) > SUM(IF(bulky = 0 AND free = 0, IFNULL(volumetric_weight, 0), 0)) THEN SUM(IF(bulky = 0 AND free = 0, IFNULL(weight, 0), 0))
+                        ELSE SUM(IF(bulky = 0 AND free = 0, IFNULL(volumetric_weight, 0), 0))
+                    END
+                ELSE CASE
+                    WHEN SUM(IFNULL(weight, 0)) > SUM(IFNULL(volumetric_weight, 0)) THEN SUM(IFNULL(weight, 0))
+                    ELSE SUM(IFNULL(volumetric_weight, 0))
+                END
+            END 'temp_formula_weight',
+            MAX(bulky) 'temp_bulky',
+            CASE
+                WHEN
+                    fk_shipment_scheme = 1
+                THEN
+                    CASE
+                        WHEN
+                            first_shipped_date >= '2017-01-01'
+                                OR order_date >= '2017-01-01'
+                        THEN
+                            LEAST(CASE
+                                WHEN SUM(IF(free = 0, IFNULL(weight, 0), 0)) > SUM(IF(free = 0, IFNULL(volumetric_weight, 0), 0)) THEN SUM(IF(free = 0, IFNULL(weight, 0), 0))
+                                ELSE SUM(IF(free = 0, IFNULL(volumetric_weight, 0), 0))
+                            END, 2)
+                        WHEN SUM(IF(bulky = 0 AND free = 0, IFNULL(weight, 0), 0)) > SUM(IF(bulky = 0 AND free = 0, IFNULL(volumetric_weight, 0), 0)) THEN SUM(IF(bulky = 0 AND free = 0, IFNULL(weight, 0), 0))
+                        ELSE SUM(IF(bulky = 0 AND free = 0, IFNULL(volumetric_weight, 0), 0))
+                    END
+                ELSE CASE
+                    WHEN
+                        first_shipped_date >= '2017-01-01'
+                            OR order_date >= '2017-01-01'
+                    THEN
+                        LEAST(CASE
+                            WHEN SUM(IFNULL(weight, 0)) > SUM(IFNULL(volumetric_weight, 0)) THEN SUM(IFNULL(weight, 0))
+                            ELSE SUM(IFNULL(volumetric_weight, 0))
+                        END, 2)
+                    WHEN SUM(IF(bulky = 0, IFNULL(weight, 0), 0)) > SUM(IF(bulky = 0, IFNULL(volumetric_weight, 0), 0)) THEN SUM(IF(bulky = 0, IFNULL(weight, 0), 0))
+                    ELSE SUM(IF(bulky = 0, IFNULL(volumetric_weight, 0), 0))
+                END
+            END 'chargeable_weight',
+            COUNT(bob_id_sales_order_item) 'qty',
+            CASE
+                WHEN
+                    first_shipped_date >= '2017-01-01'
+                        OR order_date >= '2017-01-01'
+                THEN
+                    COUNT(bob_id_sales_order_item)
+                ELSE SUM(IF(bulky = 1 OR free = 1, 0, 1))
+            END 'chargeable_qty',
+            SUM(IFNULL(sc_fee_1, 0)) 'shipping_fee',
+            SUM(IFNULL(sc_fee_2, 0)) 'shipping_fee_credit',
+            SUM(IFNULL(sc_fee_3, 0)) 'seller_cr_db_item'
+    FROM
+        (SELECT 
+        ae.bob_id_sales_order_item,
+            ae.sc_sales_order_item,
+            ae.order_nr,
+            ae.payment_method,
+            ae.sku,
+            ae.primary_category,
+            ae.bob_id_supplier,
+            ae.short_code,
+            ae.seller_name,
+            ae.seller_type,
+            ae.tax_class,
+            ae.unit_price,
+            ae.paid_price,
+            ae.shipping_amount,
+            ae.shipping_surcharge 'shipping_surcharge_old',
+            ae.shipping_surcharge 'shipping_surcharge',
+            ae.marketplace_commission_fee,
+            ae.coupon_money_value,
+            ae.cart_rule_discount,
+            ae.coupon_code,
+            ae.coupon_type,
+            ae.cart_rule_display_names,
+            ae.last_status,
+            ae.order_date,
+            ae.first_shipped_date,
+            ae.last_shipped_date,
+            ae.delivered_date,
+            ae.not_delivered_date,
+            ae.closed_date,
+            ae.refund_completed_date,
+            ae.pickup_provider_type,
+            ae.package_number,
+            ae.id_package_dispatching,
+            ae.invoice_tracking_number,
+            ae.invoice_shipment_provider,
+            ae.first_tracking_number,
+            ae.first_shipment_provider,
+            ae.last_tracking_number,
+            ae.last_shipment_provider,
+            ae.origin,
+            ae.city,
+            ae.id_district,
+            ae.config_length,
+            ae.config_width,
+            ae.config_height,
+            ae.config_weight,
+            ae.simple_length,
+            ae.simple_width,
+            ae.simple_height,
+            ae.simple_weight,
+            ae.shipping_type,
+            ae.delivery_type,
+            ae.is_marketplace,
+            ae.is_express_shipping,
+            ae.fast_delivery,
+            ae.retail_cogs,
+            ae.payment_cost_logic,
+            ae.sc_fee_1,
+            ae.sc_fee_2,
+            ae.sc_fee_3,
+            ae.weight,
+            ae.volumetric_weight,
+            ae.fk_shipment_scheme,
+            ae.active,
+            CASE
+                WHEN
+                    fk_shipment_scheme = 1
+                        AND formula_weight > 7.3
+                THEN
+                    1
+                WHEN
+                    fk_shipment_scheme <> 1
+                        AND formula_weight > 7
+                THEN
+                    1
+                ELSE 0
+            END 'bulky',
+            IF(formula_weight <= 0.17, 1, 0) 'free'
+    FROM
+        (SELECT 
+        ae.*,
+            IFNULL(CASE
+                WHEN
+                    ae.simple_weight > 0
+                        OR (ae.simple_length * ae.simple_width * ae.simple_height) > 0
+                THEN
+                    ae.simple_weight
+                ELSE ae.config_weight
+            END, 0) 'weight',
+            IFNULL(CASE
+                WHEN
+                    ae.simple_weight > 0
+                        OR (ae.simple_length * ae.simple_width * ae.simple_height) > 0
+                THEN
+                    (ae.simple_length * ae.simple_width * ae.simple_height) / 6000
+                ELSE ae.config_length * ae.config_width * ae.config_height / 6000
+            END, 0) 'volumetric_weight',
+            GREATEST(IFNULL(CASE
+                WHEN
+                    ae.simple_weight > 0
+                        OR (ae.simple_length * ae.simple_width * ae.simple_height) > 0
+                THEN
+                    ae.simple_weight
+                ELSE ae.config_weight
+            END, 0), IFNULL(CASE
+                WHEN
+                    ae.simple_weight > 0
+                        OR (ae.simple_length * ae.simple_width * ae.simple_height) > 0
+                THEN
+                    (ae.simple_length * ae.simple_width * ae.simple_height) / 6000
+                ELSE ae.config_length * ae.config_width * ae.config_height / 6000
+            END, 0)) 'formula_weight',
+            CASE
+                WHEN ae.tax_class = 'international' THEN 5
+                WHEN ae.delivery_type = 'digital' THEN 0
+                WHEN
+                    ae.first_shipment_provider = 'Digital Delivery'
+                        OR ae.last_shipment_provider = 'Digital Delivery'
+                THEN
+                    0
+                WHEN
+                    ae.delivery_type IN ('express' , 'nextday', 'sameday')
+                        AND ae.last_shipment_provider LIKE '%Go-Jek%'
+                THEN
+                    7
+                WHEN ae.is_marketplace = 0 THEN 3
+                WHEN ae.shipping_type = 'warehouse' THEN 4
+                WHEN
+                    ae.first_shipment_provider = 'Acommerce'
+                        AND ae.last_shipment_provider = 'Acommerce'
+                THEN
+                    1
+                WHEN
+                    ae.payment_method <> 'CashOnDelivery'
+                        AND ae.first_shipment_provider IN ('JNE' , 'FIRST LOGISTICS', 'Seller Fleet')
+                        AND ae.last_shipment_provider IN ('JNE' , 'FIRST LOGISTICS', 'Seller Fleet')
+                THEN
+                    1
+                ELSE 2
+            END 'fk_shipment_scheme',
+            CASE
+                WHEN
+                    ae.first_shipped_date >= '2017-01-01'
+                        OR ae.order_date >= '2017-01-01'
+                THEN
+                    1
+                ELSE 0
+            END 'active'
+    FROM
+        scgl.anondb_extract ae
+    LEFT JOIN scgl.anondb_calculate ac ON ae.order_nr = ac.order_nr
+        AND IFNULL(ae.id_package_dispatching,1) = IFNULL(ac.id_package_dispatching,1)
+        AND ae.bob_id_supplier = ac.bob_id_supplier
+    WHERE
+        ((ae.delivered_date >= @extractstart
+            AND ae.delivered_date < @extractend)
+            OR (ae.not_delivered_date >= @extractstart
+            AND ae.not_delivered_date < @extractend))
+            AND ac.bob_id_sales_order_item IS NULL) ae) ae
+    GROUP BY order_nr , id_package_dispatching , bob_id_supplier) ae;
+    
+SET SQL_SAFE_UPDATES = 0;

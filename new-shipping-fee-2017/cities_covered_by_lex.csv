@@ -1,0 +1,629 @@
+id_region,region,id_city,city,id_district,district
+29,Bali,7119,"Kab. Badung",7120,Petang
+29,Bali,7119,"Kab. Badung",7121,Mengwi
+29,Bali,7119,"Kab. Badung",7122,"Kuta Utara"
+29,Bali,7119,"Kab. Badung",7123,"Kuta Selatan"
+29,Bali,7119,"Kab. Badung",7124,Kuta
+29,Bali,7119,"Kab. Badung",7125,Abiansemal
+29,Bali,7119,"Kab. Badung",17315,Jimbaran
+29,Bali,7119,"Kab. Badung",17316,Legian
+29,Bali,7119,"Kab. Badung",17317,"Ngurah Rai"
+29,Bali,7119,"Kab. Badung",17318,"Nusa Dua"
+29,Bali,7119,"Kab. Badung",17319,Sanur
+35,"Jawa Barat",6270,"Kab. Bandung",6271,Soreang
+35,"Jawa Barat",6270,"Kab. Bandung",6272,"Solokan Jeruk"
+35,"Jawa Barat",6270,"Kab. Bandung",6273,Rancaekek
+35,"Jawa Barat",6270,"Kab. Bandung",6274,"Ranca Bali"
+35,"Jawa Barat",6270,"Kab. Bandung",6275,Pasirjambu
+35,"Jawa Barat",6270,"Kab. Bandung",6276,Paseh
+35,"Jawa Barat",6270,"Kab. Bandung",6277,Pangalengan
+35,"Jawa Barat",6270,"Kab. Bandung",6278,Pameungpeuk
+35,"Jawa Barat",6270,"Kab. Bandung",6279,Pacet
+35,"Jawa Barat",6270,"Kab. Bandung",6280,Nagreg
+35,"Jawa Barat",6270,"Kab. Bandung",6281,Margahayu
+35,"Jawa Barat",6270,"Kab. Bandung",6282,Margaasih
+35,"Jawa Barat",6270,"Kab. Bandung",6283,Majalaya
+35,"Jawa Barat",6270,"Kab. Bandung",6284,Kutawaringin
+35,"Jawa Barat",6270,"Kab. Bandung",6285,Kertasari
+35,"Jawa Barat",6270,"Kab. Bandung",6286,Katapang
+35,"Jawa Barat",6270,"Kab. Bandung",6287,Ibun
+35,"Jawa Barat",6270,"Kab. Bandung",6288,Dayeuhkolot
+35,"Jawa Barat",6270,"Kab. Bandung",6289,Ciwidey
+35,"Jawa Barat",6270,"Kab. Bandung",6290,Ciparay
+35,"Jawa Barat",6270,"Kab. Bandung",6291,Cimeunyan
+35,"Jawa Barat",6270,"Kab. Bandung",6292,Cimaung
+35,"Jawa Barat",6270,"Kab. Bandung",6293,Cileunyi
+35,"Jawa Barat",6270,"Kab. Bandung",6294,Cilengkrang
+35,"Jawa Barat",6270,"Kab. Bandung",6295,Cikancung
+35,"Jawa Barat",6270,"Kab. Bandung",6296,Cicalengka
+35,"Jawa Barat",6270,"Kab. Bandung",6297,Cangkuang
+35,"Jawa Barat",6270,"Kab. Bandung",6298,Bojongsoang
+35,"Jawa Barat",6270,"Kab. Bandung",6299,Banjaran
+35,"Jawa Barat",6270,"Kab. Bandung",6300,Baleendah
+35,"Jawa Barat",6270,"Kab. Bandung",6301,Arjasari
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6255,Sindangkerta
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6256,Rongga
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6257,Parongpong
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6258,Padalarang
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6259,Ngamprah
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6260,Lembang
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6261,Gununghalu
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6262,Cisarua
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6263,Cipongkor
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6264,Cipeundeuy
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6265,Cipatat
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6266,Cililin
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6267,"Cikalong Wetan"
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6268,Cihampelas
+35,"Jawa Barat",6254,"Kab. Bandung Barat",6269,Batujajar
+35,"Jawa Barat",6254,"Kab. Bandung Barat",17382,Cimareme
+19,"Di Yogyakarta",6704,"Kab. Bantul",6705,Srandakan
+19,"Di Yogyakarta",6704,"Kab. Bantul",6706,Sewon
+19,"Di Yogyakarta",6704,"Kab. Bantul",6707,Sedayu
+19,"Di Yogyakarta",6704,"Kab. Bantul",6708,Sanden
+19,"Di Yogyakarta",6704,"Kab. Bantul",6709,Pundong
+19,"Di Yogyakarta",6704,"Kab. Bantul",6710,Pleret
+19,"Di Yogyakarta",6704,"Kab. Bantul",6711,Piyungan
+19,"Di Yogyakarta",6704,"Kab. Bantul",6712,Pandak
+19,"Di Yogyakarta",6704,"Kab. Bantul",6713,Pajangan
+19,"Di Yogyakarta",6704,"Kab. Bantul",6714,Kretek
+19,"Di Yogyakarta",6704,"Kab. Bantul",6715,Kasihan
+19,"Di Yogyakarta",6704,"Kab. Bantul",6716,Jetis
+19,"Di Yogyakarta",6704,"Kab. Bantul",6717,Imogiri
+19,"Di Yogyakarta",6704,"Kab. Bantul",6718,Dlingo
+19,"Di Yogyakarta",6704,"Kab. Bantul",6719,Bantul
+19,"Di Yogyakarta",6704,"Kab. Bantul",6720,Banguntapan
+19,"Di Yogyakarta",6704,"Kab. Bantul",6721,"Bambang Lipuro"
+35,"Jawa Barat",6230,"Kab. Bekasi",6231,Tarumajaya
+35,"Jawa Barat",6230,"Kab. Bekasi",6232,"Tambun Utara"
+35,"Jawa Barat",6230,"Kab. Bekasi",6233,"Tambun Selatan"
+35,"Jawa Barat",6230,"Kab. Bekasi",6234,Tambelang
+35,"Jawa Barat",6230,"Kab. Bekasi",6235,Sukawangi
+35,"Jawa Barat",6230,"Kab. Bekasi",6236,Sukatani
+35,"Jawa Barat",6230,"Kab. Bekasi",6237,Sukakarya
+35,"Jawa Barat",6230,"Kab. Bekasi",6238,Setu
+35,"Jawa Barat",6230,"Kab. Bekasi",6239,"Serang Baru"
+35,"Jawa Barat",6230,"Kab. Bekasi",6240,Pebayuran
+35,"Jawa Barat",6230,"Kab. Bekasi",6241,"Muara Gembong"
+35,"Jawa Barat",6230,"Kab. Bekasi",6242,"Kedung Waringin"
+35,"Jawa Barat",6230,"Kab. Bekasi",6243,Karangbahagia
+35,"Jawa Barat",6230,"Kab. Bekasi",6244,"Cikarang Utara"
+35,"Jawa Barat",6230,"Kab. Bekasi",6245,"Cikarang Timur"
+35,"Jawa Barat",6230,"Kab. Bekasi",6246,"Cikarang Selatan"
+35,"Jawa Barat",6230,"Kab. Bekasi",6247,"Cikarang Pusat"
+35,"Jawa Barat",6230,"Kab. Bekasi",6248,"Cikarang Barat"
+35,"Jawa Barat",6230,"Kab. Bekasi",6249,Cibitung
+35,"Jawa Barat",6230,"Kab. Bekasi",6250,Cibarusah
+35,"Jawa Barat",6230,"Kab. Bekasi",6251,Cabangbungin
+35,"Jawa Barat",6230,"Kab. Bekasi",6252,Bojongmangu
+35,"Jawa Barat",6230,"Kab. Bekasi",6253,Babelan
+35,"Jawa Barat",6230,"Kab. Bekasi",17381,Cikarang
+35,"Jawa Barat",6189,"Kab. Bogor",6190,Tenjolaya
+35,"Jawa Barat",6189,"Kab. Bogor",6191,Tenjo
+35,"Jawa Barat",6189,"Kab. Bogor",6192,Tanjungsari
+35,"Jawa Barat",6189,"Kab. Bogor",6193,Tamansari
+35,"Jawa Barat",6189,"Kab. Bogor",6194,Tajurhalang
+35,"Jawa Barat",6189,"Kab. Bogor",6195,Sukaraja
+35,"Jawa Barat",6189,"Kab. Bogor",6196,Sukamakmur
+35,"Jawa Barat",6189,"Kab. Bogor",6197,Sukajaya
+35,"Jawa Barat",6189,"Kab. Bogor",6198,Rumpin
+35,"Jawa Barat",6189,"Kab. Bogor",6199,"Ranca Bungur"
+35,"Jawa Barat",6189,"Kab. Bogor",6200,"Parung Panjang"
+35,"Jawa Barat",6189,"Kab. Bogor",6201,Parung
+35,"Jawa Barat",6189,"Kab. Bogor",6202,Pamijahan
+35,"Jawa Barat",6189,"Kab. Bogor",6203,Nanggung
+35,"Jawa Barat",6189,"Kab. Bogor",6204,Megamendung
+35,"Jawa Barat",6189,"Kab. Bogor",6205,Leuwisadeng
+35,"Jawa Barat",6189,"Kab. Bogor",6206,Leuwiliang
+35,"Jawa Barat",6189,"Kab. Bogor",6207,"Klapa Nunggal (Kelapa Nunggal)"
+35,"Jawa Barat",6189,"Kab. Bogor",6208,Kemang
+35,"Jawa Barat",6189,"Kab. Bogor",6209,Jonggol
+35,"Jawa Barat",6189,"Kab. Bogor",6210,Jasinga
+35,"Jawa Barat",6189,"Kab. Bogor",6211,"Gunung Sindur"
+35,"Jawa Barat",6189,"Kab. Bogor",6212,"Gunung Putri"
+35,"Jawa Barat",6189,"Kab. Bogor",6213,Dramaga
+35,"Jawa Barat",6189,"Kab. Bogor",6214,Citeureup
+35,"Jawa Barat",6189,"Kab. Bogor",6215,Ciseeng
+35,"Jawa Barat",6189,"Kab. Bogor",6216,Cisarua
+35,"Jawa Barat",6189,"Kab. Bogor",6217,Ciomas
+35,"Jawa Barat",6189,"Kab. Bogor",6218,Cileungsi
+35,"Jawa Barat",6189,"Kab. Bogor",6219,Cijeruk
+35,"Jawa Barat",6189,"Kab. Bogor",6220,Cigudeg
+35,"Jawa Barat",6189,"Kab. Bogor",6221,Cigombong
+35,"Jawa Barat",6189,"Kab. Bogor",6222,Cibungbulang
+35,"Jawa Barat",6189,"Kab. Bogor",6223,Cibinong
+35,"Jawa Barat",6189,"Kab. Bogor",6224,Ciawi
+35,"Jawa Barat",6189,"Kab. Bogor",6225,Ciampea
+35,"Jawa Barat",6189,"Kab. Bogor",6226,Cariu
+35,"Jawa Barat",6189,"Kab. Bogor",6227,Caringin
+35,"Jawa Barat",6189,"Kab. Bogor",6228,Bojonggede
+35,"Jawa Barat",6189,"Kab. Bogor",6229,"Babakan Madang"
+46,"Jawa Tengah",5603,"Kab. Boyolali",5604,Wonosegoro
+46,"Jawa Tengah",5603,"Kab. Boyolali",5605,Teras
+46,"Jawa Tengah",5603,"Kab. Boyolali",5606,Simo
+46,"Jawa Tengah",5603,"Kab. Boyolali",5607,Selo
+46,"Jawa Tengah",5603,"Kab. Boyolali",5608,Sawit
+46,"Jawa Tengah",5603,"Kab. Boyolali",5609,Sambi
+46,"Jawa Tengah",5603,"Kab. Boyolali",5610,Nogosari
+46,"Jawa Tengah",5603,"Kab. Boyolali",5611,Ngemplak
+46,"Jawa Tengah",5603,"Kab. Boyolali",5612,Musuk
+46,"Jawa Tengah",5603,"Kab. Boyolali",5613,Mojosongo
+46,"Jawa Tengah",5603,"Kab. Boyolali",5614,Klego
+46,"Jawa Tengah",5603,"Kab. Boyolali",5615,Kemusu
+46,"Jawa Tengah",5603,"Kab. Boyolali",5616,Karanggede
+46,"Jawa Tengah",5603,"Kab. Boyolali",5617,Juwangi
+46,"Jawa Tengah",5603,"Kab. Boyolali",5618,Cepogo
+46,"Jawa Tengah",5603,"Kab. Boyolali",5619,Boyolali
+46,"Jawa Tengah",5603,"Kab. Boyolali",5620,Banyudono
+46,"Jawa Tengah",5603,"Kab. Boyolali",5621,Andong
+46,"Jawa Tengah",5603,"Kab. Boyolali",5622,Ampel
+23,"Jawa Timur",4936,"Kab. Gresik",4937,"Wringin Anom"
+23,"Jawa Timur",4936,"Kab. Gresik",4938,"Ujung Pangkah"
+23,"Jawa Timur",4936,"Kab. Gresik",4939,Tambak
+23,"Jawa Timur",4936,"Kab. Gresik",4940,Sidayu
+23,"Jawa Timur",4936,"Kab. Gresik",4941,Sangkapura
+23,"Jawa Timur",4936,"Kab. Gresik",4942,Panceng
+23,"Jawa Timur",4936,"Kab. Gresik",4943,Menganti
+23,"Jawa Timur",4936,"Kab. Gresik",4944,Manyar
+23,"Jawa Timur",4936,"Kab. Gresik",4945,Kedamean
+23,"Jawa Timur",4936,"Kab. Gresik",4946,Kebomas
+23,"Jawa Timur",4936,"Kab. Gresik",4947,Gresik
+23,"Jawa Timur",4936,"Kab. Gresik",4948,Dukun
+23,"Jawa Timur",4936,"Kab. Gresik",4949,"Duduk Sampeyan"
+23,"Jawa Timur",4936,"Kab. Gresik",4950,Driyorejo
+23,"Jawa Timur",4936,"Kab. Gresik",4951,Cerme
+23,"Jawa Timur",4936,"Kab. Gresik",4952,Bungah
+23,"Jawa Timur",4936,"Kab. Gresik",4953,Benjeng
+23,"Jawa Timur",4936,"Kab. Gresik",4954,"Balong Panggang"
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5491,Tawangmangu
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5492,Tasikmadu
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5493,Ngargoyoso
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5494,Mojogedang
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5495,Matesih
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5496,Kerjo
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5497,Kebakkramat
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5498,Karangpandan
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5499,Karanganyar
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5500,Jumapolo
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5501,Jumantono
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5502,Jenawi
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5503,Jatiyoso
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5504,Jatipuro
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5505,Jaten
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5506,Gondangrejo
+46,"Jawa Tengah",5490,"Kab. Karanganyar",5507,Colomadu
+46,"Jawa Tengah",5415,"Kab. Klaten",5416,Wonosari
+46,"Jawa Tengah",5415,"Kab. Klaten",5417,Wedi
+46,"Jawa Tengah",5415,"Kab. Klaten",5418,Tulung
+46,"Jawa Tengah",5415,"Kab. Klaten",5419,Trucuk
+46,"Jawa Tengah",5415,"Kab. Klaten",5420,Prambanan
+46,"Jawa Tengah",5415,"Kab. Klaten",5421,Polanharjo
+46,"Jawa Tengah",5415,"Kab. Klaten",5422,Pedan
+46,"Jawa Tengah",5415,"Kab. Klaten",5423,Ngawen
+46,"Jawa Tengah",5415,"Kab. Klaten",5424,Manisrenggo
+46,"Jawa Tengah",5415,"Kab. Klaten",5425,"Klaten Utara"
+46,"Jawa Tengah",5415,"Kab. Klaten",5426,"Klaten Tengah"
+46,"Jawa Tengah",5415,"Kab. Klaten",5427,"Klaten Selatan"
+46,"Jawa Tengah",5415,"Kab. Klaten",5428,Kemalang
+46,"Jawa Tengah",5415,"Kab. Klaten",5429,Kebonarum
+46,"Jawa Tengah",5415,"Kab. Klaten",5430,Karangnongko
+46,"Jawa Tengah",5415,"Kab. Klaten",5431,Karangdowo
+46,"Jawa Tengah",5415,"Kab. Klaten",5432,Karanganom
+46,"Jawa Tengah",5415,"Kab. Klaten",5433,Kalikotes
+46,"Jawa Tengah",5415,"Kab. Klaten",5434,Juwiring
+46,"Jawa Tengah",5415,"Kab. Klaten",5435,Jogonalan
+46,"Jawa Tengah",5415,"Kab. Klaten",5436,Jatinom
+46,"Jawa Tengah",5415,"Kab. Klaten",5437,Gantiwarno
+46,"Jawa Tengah",5415,"Kab. Klaten",5438,Delanggu
+46,"Jawa Tengah",5415,"Kab. Klaten",5439,Ceper
+46,"Jawa Tengah",5415,"Kab. Klaten",5440,Cawas
+46,"Jawa Tengah",5415,"Kab. Klaten",5441,Bayat
+46,"Jawa Tengah",5415,"Kab. Klaten",17496,Klaten
+19,"Di Yogyakarta",6672,"Kab. Kulon Progo",6673,Wates
+19,"Di Yogyakarta",6672,"Kab. Kulon Progo",6674,Temon
+19,"Di Yogyakarta",6672,"Kab. Kulon Progo",6675,Sentolo
+19,"Di Yogyakarta",6672,"Kab. Kulon Progo",6676,Samigaluh
+19,"Di Yogyakarta",6672,"Kab. Kulon Progo",6677,Pengasih
+19,"Di Yogyakarta",6672,"Kab. Kulon Progo",6678,Panjatan
+19,"Di Yogyakarta",6672,"Kab. Kulon Progo",6679,Nanggulan
+19,"Di Yogyakarta",6672,"Kab. Kulon Progo",6680,Lendah
+19,"Di Yogyakarta",6672,"Kab. Kulon Progo",6681,Kokap
+19,"Di Yogyakarta",6672,"Kab. Kulon Progo",6682,Kalibawang
+19,"Di Yogyakarta",6672,"Kab. Kulon Progo",6683,Girimulyo
+19,"Di Yogyakarta",6672,"Kab. Kulon Progo",6684,Galur
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4544,Wonoayu
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4545,Waru
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4546,Tulangan
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4547,Tarik
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4548,Tanggulangin
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4549,Taman
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4550,Sukodono
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4551,Sidoarjo
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4552,Sedati
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4553,Prambon
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4554,Porong
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4555,Krian
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4556,Krembung
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4557,Jabon
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4558,Gedangan
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4559,Candi
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4560,Buduran
+23,"Jawa Timur",4543,"Kab. Sidoarjo",4561,Balongbendo
+19,"Di Yogyakarta",6654,"Kab. Sleman",6655,Turi
+19,"Di Yogyakarta",6654,"Kab. Sleman",6656,Tempel
+19,"Di Yogyakarta",6654,"Kab. Sleman",6657,Sleman
+19,"Di Yogyakarta",6654,"Kab. Sleman",6658,Seyegan
+19,"Di Yogyakarta",6654,"Kab. Sleman",6659,Prambanan
+19,"Di Yogyakarta",6654,"Kab. Sleman",6660,Pakem
+19,"Di Yogyakarta",6654,"Kab. Sleman",6661,Ngemplak
+19,"Di Yogyakarta",6654,"Kab. Sleman",6662,Ngaglik
+19,"Di Yogyakarta",6654,"Kab. Sleman",6663,Moyudan
+19,"Di Yogyakarta",6654,"Kab. Sleman",6664,Mlati
+19,"Di Yogyakarta",6654,"Kab. Sleman",6665,Minggir
+19,"Di Yogyakarta",6654,"Kab. Sleman",6666,Kalasan
+19,"Di Yogyakarta",6654,"Kab. Sleman",6667,Godean
+19,"Di Yogyakarta",6654,"Kab. Sleman",6668,Gamping
+19,"Di Yogyakarta",6654,"Kab. Sleman",6669,Depok
+19,"Di Yogyakarta",6654,"Kab. Sleman",6670,Cangkringan
+19,"Di Yogyakarta",6654,"Kab. Sleman",6671,Berbah
+46,"Jawa Tengah",5234,"Kab. Sragen",5235,Tanon
+46,"Jawa Tengah",5234,"Kab. Sragen",5236,Tangen
+46,"Jawa Tengah",5234,"Kab. Sragen",5237,Sumberlawang
+46,"Jawa Tengah",5234,"Kab. Sragen",5238,Sukodono
+46,"Jawa Tengah",5234,"Kab. Sragen",5239,Sragen
+46,"Jawa Tengah",5234,"Kab. Sragen",5240,Sidoharjo
+46,"Jawa Tengah",5234,"Kab. Sragen",5241,"Sambung Macan"
+46,"Jawa Tengah",5234,"Kab. Sragen",5242,Sambirejo
+46,"Jawa Tengah",5234,"Kab. Sragen",5243,Plupuh
+46,"Jawa Tengah",5234,"Kab. Sragen",5244,Ngrampal
+46,"Jawa Tengah",5234,"Kab. Sragen",5245,Mondokan
+46,"Jawa Tengah",5234,"Kab. Sragen",5246,Miri
+46,"Jawa Tengah",5234,"Kab. Sragen",5247,Masaran
+46,"Jawa Tengah",5234,"Kab. Sragen",5248,Kedawung
+46,"Jawa Tengah",5234,"Kab. Sragen",5249,Karangmalang
+46,"Jawa Tengah",5234,"Kab. Sragen",5250,Kalijambe
+46,"Jawa Tengah",5234,"Kab. Sragen",5251,Jenar
+46,"Jawa Tengah",5234,"Kab. Sragen",5252,Gondang
+46,"Jawa Tengah",5234,"Kab. Sragen",5253,Gesi
+46,"Jawa Tengah",5234,"Kab. Sragen",5254,Gemolong
+46,"Jawa Tengah",5221,"Kab. Sukoharjo",5222,Weru
+46,"Jawa Tengah",5221,"Kab. Sukoharjo",5223,Tawangsari
+46,"Jawa Tengah",5221,"Kab. Sukoharjo",5224,Sukoharjo
+46,"Jawa Tengah",5221,"Kab. Sukoharjo",5225,Polokarto
+46,"Jawa Tengah",5221,"Kab. Sukoharjo",5226,Nguter
+46,"Jawa Tengah",5221,"Kab. Sukoharjo",5227,Mojolaban
+46,"Jawa Tengah",5221,"Kab. Sukoharjo",5228,Kartasura
+46,"Jawa Tengah",5221,"Kab. Sukoharjo",5229,Grogol
+46,"Jawa Tengah",5221,"Kab. Sukoharjo",5230,Gatak
+46,"Jawa Tengah",5221,"Kab. Sukoharjo",5231,Bulu
+46,"Jawa Tengah",5221,"Kab. Sukoharjo",5232,Bendosari
+46,"Jawa Tengah",5221,"Kab. Sukoharjo",5233,Baki
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5156,Wuryantoro
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5157,Wonogiri
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5158,Tirtomoyo
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5159,Slogohimo
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5160,Sidoharjo
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5161,Selogiri
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5162,Purwantoro
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5163,Puhpelem
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5164,Pracimantoro
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5165,Paranggupito
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5166,Nguntoronadi
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5167,Ngadirojo
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5168,Manyaran
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5169,Kismantoro
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5170,Karangtengah
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5171,Jatisrono
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5172,Jatiroto
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5173,Jatipurno
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5174,Giriwoyo
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5175,Giritontro
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5176,Girimarto
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5177,Eromoko
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5178,Bulukerto
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5179,Batuwarno
+46,"Jawa Tengah",5155,"Kab. Wonogiri",5180,Baturetno
+24,"Kalimantan Timur",3950,"Kota Balikpapan",3951,"Balikpapan Utara"
+24,"Kalimantan Timur",3950,"Kota Balikpapan",3952,"Balikpapan Timur"
+24,"Kalimantan Timur",3950,"Kota Balikpapan",3953,"Balikpapan Tengah"
+24,"Kalimantan Timur",3950,"Kota Balikpapan",3954,"Balikpapan Selatan"
+24,"Kalimantan Timur",3950,"Kota Balikpapan",3955,"Balikpapan Barat"
+24,"Kalimantan Timur",3950,"Kota Balikpapan",17259,Balikpapan
+18,Lampung,3729,"Kota Bandar Lampung",3730,"Telukbetung Utara"
+18,Lampung,3729,"Kota Bandar Lampung",3731,"Telukbetung Selatan"
+18,Lampung,3729,"Kota Bandar Lampung",3732,"Telukbetung Barat"
+18,Lampung,3729,"Kota Bandar Lampung",3733,"Tanjung Senang"
+18,Lampung,3729,"Kota Bandar Lampung",3734,"Tanjung Karang Timur"
+18,Lampung,3729,"Kota Bandar Lampung",3735,"Tanjung Karang Pusat"
+18,Lampung,3729,"Kota Bandar Lampung",3736,"Tanjung Karang Barat"
+18,Lampung,3729,"Kota Bandar Lampung",3737,Sukarame
+18,Lampung,3729,"Kota Bandar Lampung",3738,Sukabumi
+18,Lampung,3729,"Kota Bandar Lampung",3739,Rajabasa
+18,Lampung,3729,"Kota Bandar Lampung",3740,Panjang
+18,Lampung,3729,"Kota Bandar Lampung",3741,Kemiling
+18,Lampung,3729,"Kota Bandar Lampung",3742,Kedaton
+18,Lampung,3729,"Kota Bandar Lampung",17211,"Bandar Lampung"
+35,"Jawa Barat",6363,"Kota Bandung",6364,"Ujung Berung"
+35,"Jawa Barat",6363,"Kota Bandung",6365,"Sumur Bandung"
+35,"Jawa Barat",6363,"Kota Bandung",6366,Sukasari
+35,"Jawa Barat",6363,"Kota Bandung",6367,Sukajadi
+35,"Jawa Barat",6363,"Kota Bandung",6368,Regol
+35,"Jawa Barat",6363,"Kota Bandung",6369,Rancasari
+35,"Jawa Barat",6363,"Kota Bandung",6370,Panyileukan
+35,"Jawa Barat",6363,"Kota Bandung",6371,Mandalajati
+35,"Jawa Barat",6363,"Kota Bandung",6372,Lengkong
+35,"Jawa Barat",6363,"Kota Bandung",6373,Kiaracondong
+35,"Jawa Barat",6363,"Kota Bandung",6374,Gedebage
+35,"Jawa Barat",6363,"Kota Bandung",6375,Coblong
+35,"Jawa Barat",6363,"Kota Bandung",6376,Cinambo
+35,"Jawa Barat",6363,"Kota Bandung",6377,Cidadap
+35,"Jawa Barat",6363,"Kota Bandung",6378,Cicendo
+35,"Jawa Barat",6363,"Kota Bandung",6379,Cibiru
+35,"Jawa Barat",6363,"Kota Bandung",6380,"Cibeunying Kidul"
+35,"Jawa Barat",6363,"Kota Bandung",6381,"Cibeunying Kaler"
+35,"Jawa Barat",6363,"Kota Bandung",6382,"Buahbatu (Margacinta)"
+35,"Jawa Barat",6363,"Kota Bandung",6383,"Bojongloa Kidul"
+35,"Jawa Barat",6363,"Kota Bandung",6384,"Bojongloa Kaler"
+35,"Jawa Barat",6363,"Kota Bandung",6385,Batununggal
+35,"Jawa Barat",6363,"Kota Bandung",6386,"Bandung Wetan"
+35,"Jawa Barat",6363,"Kota Bandung",6387,"Bandung Kulon"
+35,"Jawa Barat",6363,"Kota Bandung",6388,"Bandung Kidul"
+35,"Jawa Barat",6363,"Kota Bandung",6389,"Babakan Ciparay"
+35,"Jawa Barat",6363,"Kota Bandung",6390,"Astana Anyar"
+35,"Jawa Barat",6363,"Kota Bandung",6391,Arcamanik
+35,"Jawa Barat",6363,"Kota Bandung",6392,"Antapani (Cicadas)"
+35,"Jawa Barat",6363,"Kota Bandung",6393,Andir
+35,"Jawa Barat",6363,"Kota Bandung",17391,"Bandung Kota Bandung"
+35,"Jawa Barat",6345,"Kota Bekasi",6346,Rawalumbu
+35,"Jawa Barat",6345,"Kota Bekasi",6347,"Pondok Melati"
+35,"Jawa Barat",6345,"Kota Bekasi",6348,"Pondok Gede"
+35,"Jawa Barat",6345,"Kota Bekasi",6349,"Mustika Jaya"
+35,"Jawa Barat",6345,"Kota Bekasi",6350,"Medan Satria"
+35,"Jawa Barat",6345,"Kota Bekasi",6351,Jatiasih
+35,"Jawa Barat",6345,"Kota Bekasi",6352,"Jati Sampurna"
+35,"Jawa Barat",6345,"Kota Bekasi",6353,"Bekasi Utara"
+35,"Jawa Barat",6345,"Kota Bekasi",6354,"Bekasi Timur"
+35,"Jawa Barat",6345,"Kota Bekasi",6355,"Bekasi Selatan"
+35,"Jawa Barat",6345,"Kota Bekasi",6356,"Bekasi Barat"
+35,"Jawa Barat",6345,"Kota Bekasi",6357,"Bantar Gebang"
+35,"Jawa Barat",6345,"Kota Bekasi",17390,Bekasi
+35,"Jawa Barat",6338,"Kota Bogor",6339,"Tanah Sereal"
+35,"Jawa Barat",6338,"Kota Bogor",6340,"Bogor Utara - Kota"
+35,"Jawa Barat",6338,"Kota Bogor",6341,"Bogor Timur - Kota"
+35,"Jawa Barat",6338,"Kota Bogor",6342,"Bogor Tengah - Kota"
+35,"Jawa Barat",6338,"Kota Bogor",6343,"Bogor Selatan - Kota"
+35,"Jawa Barat",6338,"Kota Bogor",6344,"Bogor Barat - Kota"
+35,"Jawa Barat",6338,"Kota Bogor",17389,Bogor
+35,"Jawa Barat",6334,"Kota Cimahi",6335,"Cimahi Utara"
+35,"Jawa Barat",6334,"Kota Cimahi",6336,"Cimahi Tengah"
+35,"Jawa Barat",6334,"Kota Cimahi",6337,"Cimahi Selatan"
+35,"Jawa Barat",6334,"Kota Cimahi",17388,"Cimahi Kota Cimahi"
+29,Bali,7126,"Kota Denpasar",7127,"Denpasar Utara"
+29,Bali,7126,"Kota Denpasar",7128,"Denpasar Timur"
+29,Bali,7126,"Kota Denpasar",7129,"Denpasar Selatan"
+29,Bali,7126,"Kota Denpasar",7130,"Denpasar Barat"
+35,"Jawa Barat",6321,"Kota Depok",6322,Sukmajaya
+35,"Jawa Barat",6321,"Kota Depok",6323,Sawangan
+35,"Jawa Barat",6321,"Kota Depok",6324,"Pancoran Mas"
+35,"Jawa Barat",6321,"Kota Depok",6325,Limo
+35,"Jawa Barat",6321,"Kota Depok",6326,Cimanggis
+35,"Jawa Barat",6321,"Kota Depok",6327,Beji
+35,"Jawa Barat",6321,"Kota Depok",17384,Cibubur
+35,"Jawa Barat",6321,"Kota Depok",17385,"Depok Kota Depok"
+22,"DKI Jakarta",6645,"Kota Jakarta Barat",6646,Tambora
+22,"DKI Jakarta",6645,"Kota Jakarta Barat",6647,"Taman Sari"
+22,"DKI Jakarta",6645,"Kota Jakarta Barat",6648,Palmerah
+22,"DKI Jakarta",6645,"Kota Jakarta Barat",6649,Kembangan
+22,"DKI Jakarta",6645,"Kota Jakarta Barat",6650,"Kebon Jeruk"
+22,"DKI Jakarta",6645,"Kota Jakarta Barat",6651,Kalideres
+22,"DKI Jakarta",6645,"Kota Jakarta Barat",6652,"Grogol Petamburan"
+22,"DKI Jakarta",6645,"Kota Jakarta Barat",6653,Cengkareng
+22,"DKI Jakarta",6636,"Kota Jakarta Pusat",6637,"Tanah Abang"
+22,"DKI Jakarta",6636,"Kota Jakarta Pusat",6638,Senen
+22,"DKI Jakarta",6636,"Kota Jakarta Pusat",6639,"Sawah Besar"
+22,"DKI Jakarta",6636,"Kota Jakarta Pusat",6640,Menteng
+22,"DKI Jakarta",6636,"Kota Jakarta Pusat",6641,Kemayoran
+22,"DKI Jakarta",6636,"Kota Jakarta Pusat",6642,"Johar Baru"
+22,"DKI Jakarta",6636,"Kota Jakarta Pusat",6643,Gambir
+22,"DKI Jakarta",6636,"Kota Jakarta Pusat",6644,"Cempaka Putih"
+22,"DKI Jakarta",6625,"Kota Jakarta Selatan",6626,Tebet
+22,"DKI Jakarta",6625,"Kota Jakarta Selatan",6627,"Setia Budi"
+22,"DKI Jakarta",6625,"Kota Jakarta Selatan",6628,Pesanggrahan
+22,"DKI Jakarta",6625,"Kota Jakarta Selatan",6629,"Pasar Minggu"
+22,"DKI Jakarta",6625,"Kota Jakarta Selatan",6630,Pancoran
+22,"DKI Jakarta",6625,"Kota Jakarta Selatan",6631,"Mampang Prapatan"
+22,"DKI Jakarta",6625,"Kota Jakarta Selatan",6632,"Kebayoran Lama"
+22,"DKI Jakarta",6625,"Kota Jakarta Selatan",6633,"Kebayoran Baru"
+22,"DKI Jakarta",6625,"Kota Jakarta Selatan",6634,Jagakarsa
+22,"DKI Jakarta",6625,"Kota Jakarta Selatan",6635,Cilandak
+22,"DKI Jakarta",6614,"Kota Jakarta Timur",6615,"Pulo Gadung"
+22,"DKI Jakarta",6614,"Kota Jakarta Timur",6616,"Pasar Rebo"
+22,"DKI Jakarta",6614,"Kota Jakarta Timur",6617,Matraman
+22,"DKI Jakarta",6614,"Kota Jakarta Timur",6618,Makasar
+22,"DKI Jakarta",6614,"Kota Jakarta Timur",6619,"Kramat Jati"
+22,"DKI Jakarta",6614,"Kota Jakarta Timur",6620,Jatinegara
+22,"DKI Jakarta",6614,"Kota Jakarta Timur",6621,"Duren Sawit"
+22,"DKI Jakarta",6614,"Kota Jakarta Timur",6622,Ciracas
+22,"DKI Jakarta",6614,"Kota Jakarta Timur",6623,Cipayung
+22,"DKI Jakarta",6614,"Kota Jakarta Timur",6624,Cakung
+22,"DKI Jakarta",6607,"Kota Jakarta Utara",6608,"Tanjung Priok"
+22,"DKI Jakarta",6607,"Kota Jakarta Utara",6609,Penjaringan
+22,"DKI Jakarta",6607,"Kota Jakarta Utara",6610,Pademangan
+22,"DKI Jakarta",6607,"Kota Jakarta Utara",6611,Koja
+22,"DKI Jakarta",6607,"Kota Jakarta Utara",6612,"Kelapa Gading"
+22,"DKI Jakarta",6607,"Kota Jakarta Utara",6613,Cilincing
+45,"Sulawesi Selatan",1831,"Kota Makassar",1832,Wajo
+45,"Sulawesi Selatan",1831,"Kota Makassar",1833,"Ujung Tanah"
+45,"Sulawesi Selatan",1831,"Kota Makassar",1834,"Ujung Pandang"
+45,"Sulawesi Selatan",1831,"Kota Makassar",1835,Tamalate
+45,"Sulawesi Selatan",1831,"Kota Makassar",1836,Tamalanrea
+45,"Sulawesi Selatan",1831,"Kota Makassar",1837,Tallo
+45,"Sulawesi Selatan",1831,"Kota Makassar",1838,Rappocini
+45,"Sulawesi Selatan",1831,"Kota Makassar",1839,Panakkukang
+45,"Sulawesi Selatan",1831,"Kota Makassar",1840,Mariso
+45,"Sulawesi Selatan",1831,"Kota Makassar",1841,Manggala
+45,"Sulawesi Selatan",1831,"Kota Makassar",1842,Mamajang
+45,"Sulawesi Selatan",1831,"Kota Makassar",1843,Makassar
+45,"Sulawesi Selatan",1831,"Kota Makassar",1844,Bontoala
+45,"Sulawesi Selatan",1831,"Kota Makassar",1845,"Biring Kanaya"
+23,"Jawa Timur",5117,"Kota Malang",5118,Sukun
+23,"Jawa Timur",5117,"Kota Malang",5119,Lowokwaru
+23,"Jawa Timur",5117,"Kota Malang",5120,Klojen
+23,"Jawa Timur",5117,"Kota Malang",5121,Kedungkandang
+23,"Jawa Timur",5117,"Kota Malang",5122,Blimbing
+23,"Jawa Timur",5117,"Kota Malang",17248,Malang
+39,"Sumatera Utara",544,"Kota Medan",545,"Medan Tuntungan"
+39,"Sumatera Utara",544,"Kota Medan",546,"Medan Timur"
+39,"Sumatera Utara",544,"Kota Medan",547,"Medan Tembung"
+39,"Sumatera Utara",544,"Kota Medan",548,"Medan Sunggal"
+39,"Sumatera Utara",544,"Kota Medan",549,"Medan Selayang"
+39,"Sumatera Utara",544,"Kota Medan",550,"Medan Polonia"
+39,"Sumatera Utara",544,"Kota Medan",551,"Medan Petisah"
+39,"Sumatera Utara",544,"Kota Medan",552,"Medan Perjuangan"
+39,"Sumatera Utara",544,"Kota Medan",553,"Medan Marelan"
+39,"Sumatera Utara",544,"Kota Medan",554,"Medan Maimun"
+39,"Sumatera Utara",544,"Kota Medan",555,"Medan Labuhan"
+39,"Sumatera Utara",544,"Kota Medan",556,"Medan Kota"
+39,"Sumatera Utara",544,"Kota Medan",557,"Medan Johor"
+39,"Sumatera Utara",544,"Kota Medan",558,"Medan Helvetia"
+39,"Sumatera Utara",544,"Kota Medan",559,"Medan Denai"
+39,"Sumatera Utara",544,"Kota Medan",560,"Medan Deli"
+39,"Sumatera Utara",544,"Kota Medan",561,"Medan Belawan Kota"
+39,"Sumatera Utara",544,"Kota Medan",562,"Medan Baru"
+39,"Sumatera Utara",544,"Kota Medan",563,"Medan Barat"
+39,"Sumatera Utara",544,"Kota Medan",564,"Medan Area"
+39,"Sumatera Utara",544,"Kota Medan",565,"Medan Amplas"
+39,"Sumatera Utara",544,"Kota Medan",17443,Medan
+31,"Sumatera Barat",970,"Kota Padang",971,Pauh
+31,"Sumatera Barat",970,"Kota Padang",972,"Padang Utara"
+31,"Sumatera Barat",970,"Kota Padang",973,"Padang Timur"
+31,"Sumatera Barat",970,"Kota Padang",974,"Padang Selatan"
+31,"Sumatera Barat",970,"Kota Padang",975,"Padang Barat"
+31,"Sumatera Barat",970,"Kota Padang",976,Nanggalo
+31,"Sumatera Barat",970,"Kota Padang",977,"Lubuk Kilangan"
+31,"Sumatera Barat",970,"Kota Padang",978,"Lubuk Begalung"
+31,"Sumatera Barat",970,"Kota Padang",979,Kuranji
+31,"Sumatera Barat",970,"Kota Padang",980,"Koto Tangah"
+31,"Sumatera Barat",970,"Kota Padang",981,"Bungus Teluk Kabung"
+31,"Sumatera Barat",970,"Kota Padang",17347,"Padang Kota Padang"
+6752,"Kab. Rejang Lebong",6759,"Kota Padang",10454,39183
+34,"Sumatera Selatan",774,"Kota Palembang",775,Sukarami
+34,"Sumatera Selatan",774,"Kota Palembang",776,"Sematang Borang"
+34,"Sumatera Selatan",774,"Kota Palembang",777,"Seberang Ulu Ii"
+34,"Sumatera Selatan",774,"Kota Palembang",778,"Seberang Ulu I"
+34,"Sumatera Selatan",774,"Kota Palembang",779,Sako
+34,"Sumatera Selatan",774,"Kota Palembang",780,Plaju
+34,"Sumatera Selatan",774,"Kota Palembang",781,Kertapati
+34,"Sumatera Selatan",774,"Kota Palembang",782,Kemuning
+34,"Sumatera Selatan",774,"Kota Palembang",783,Kalidoni
+34,"Sumatera Selatan",774,"Kota Palembang",784,"Ilir Timur Ii"
+34,"Sumatera Selatan",774,"Kota Palembang",785,"Ilir Timur I"
+34,"Sumatera Selatan",774,"Kota Palembang",786,"Ilir Barat Ii"
+34,"Sumatera Selatan",774,"Kota Palembang",787,"Ilir Barat I"
+34,"Sumatera Selatan",774,"Kota Palembang",788,Gandus
+34,"Sumatera Selatan",774,"Kota Palembang",789,"Bukit Kecil"
+34,"Sumatera Selatan",774,"Kota Palembang",790,"Alang-Alang Lebar"
+34,"Sumatera Selatan",774,"Kota Palembang",17370,Palembang
+21,Riau,2060,"Kota Pekanbaru",2061,"Tenayan Raya"
+21,Riau,2060,"Kota Pekanbaru",2062,Tampan
+21,Riau,2060,"Kota Pekanbaru",2063,Sukajadi
+21,Riau,2060,"Kota Pekanbaru",2064,Senapelan
+21,Riau,2060,"Kota Pekanbaru",2065,Sail
+21,Riau,2060,"Kota Pekanbaru",2066,"Rumbai Pesisir"
+21,Riau,2060,"Kota Pekanbaru",2067,Rumbai
+21,Riau,2060,"Kota Pekanbaru",2068,"Pekanbaru Kota"
+21,Riau,2060,"Kota Pekanbaru",2069,"Payung Sekaki"
+21,Riau,2060,"Kota Pekanbaru",2070,"Marpoyan Damai"
+21,Riau,2060,"Kota Pekanbaru",2071,"Lima Puluh"
+21,Riau,2060,"Kota Pekanbaru",2072,"Bukit Raya"
+21,Riau,2060,"Kota Pekanbaru",17229,"Payung Kota Pekanbaru"
+46,"Jawa Tengah",5716,"Kota Semarang",5717,Tugu
+46,"Jawa Tengah",5716,"Kota Semarang",5718,Tembalang
+46,"Jawa Tengah",5716,"Kota Semarang",5719,"Semarang Utara"
+46,"Jawa Tengah",5716,"Kota Semarang",5720,"Semarang Timur"
+46,"Jawa Tengah",5716,"Kota Semarang",5721,"Semarang Tengah"
+46,"Jawa Tengah",5716,"Kota Semarang",5722,"Semarang Selatan"
+46,"Jawa Tengah",5716,"Kota Semarang",5723,"Semarang Barat"
+46,"Jawa Tengah",5716,"Kota Semarang",5724,Pedurungan
+46,"Jawa Tengah",5716,"Kota Semarang",5725,Ngaliyan
+46,"Jawa Tengah",5716,"Kota Semarang",5726,Mijen
+46,"Jawa Tengah",5716,"Kota Semarang",5727,Gunungpati
+46,"Jawa Tengah",5716,"Kota Semarang",5728,Genuk
+46,"Jawa Tengah",5716,"Kota Semarang",5729,Gayamsari
+46,"Jawa Tengah",5716,"Kota Semarang",5730,"Gajah Mungkur"
+46,"Jawa Tengah",5716,"Kota Semarang",5731,Candisari
+46,"Jawa Tengah",5716,"Kota Semarang",5732,Banyumanik
+46,"Jawa Tengah",5716,"Kota Semarang",17506,Semarang
+23,"Jawa Timur",5074,"Kota Surabaya",5075,Wonokromo
+23,"Jawa Timur",5074,"Kota Surabaya",5076,Wonocolo
+23,"Jawa Timur",5074,"Kota Surabaya",5077,Wiyung
+23,"Jawa Timur",5074,"Kota Surabaya",5078,"Tenggilis Mejoyo"
+23,"Jawa Timur",5074,"Kota Surabaya",5079,Tegalsari
+23,"Jawa Timur",5074,"Kota Surabaya",5080,Tandes
+23,"Jawa Timur",5074,"Kota Surabaya",5081,Tambaksari
+23,"Jawa Timur",5074,"Kota Surabaya",5082,Sukomanunggal
+23,"Jawa Timur",5074,"Kota Surabaya",5083,Sukolilo
+23,"Jawa Timur",5074,"Kota Surabaya",5084,Simokerto
+23,"Jawa Timur",5074,"Kota Surabaya",5085,Semampir
+23,"Jawa Timur",5074,"Kota Surabaya",5086,Sawahan
+23,"Jawa Timur",5074,"Kota Surabaya",5087,Sambikerep
+23,"Jawa Timur",5074,"Kota Surabaya",5088,Rungkut
+23,"Jawa Timur",5074,"Kota Surabaya",5089,Pakal
+23,"Jawa Timur",5074,"Kota Surabaya",5090,"Pabean Cantikan"
+23,"Jawa Timur",5074,"Kota Surabaya",5091,Mulyorejo
+23,"Jawa Timur",5074,"Kota Surabaya",5092,"Lakar Santri"
+23,"Jawa Timur",5074,"Kota Surabaya",5093,Krembangan
+23,"Jawa Timur",5074,"Kota Surabaya",5094,Kenjeran
+23,"Jawa Timur",5074,"Kota Surabaya",5095,Karangpilang
+23,"Jawa Timur",5074,"Kota Surabaya",5096,Jambangan
+23,"Jawa Timur",5074,"Kota Surabaya",5097,Gununganyar
+23,"Jawa Timur",5074,"Kota Surabaya",5098,Gubeng
+23,"Jawa Timur",5074,"Kota Surabaya",5099,Genteng
+23,"Jawa Timur",5074,"Kota Surabaya",5100,Gayungan
+23,"Jawa Timur",5074,"Kota Surabaya",5101,"Dukuh Pakis"
+23,"Jawa Timur",5074,"Kota Surabaya",5102,Bulak
+23,"Jawa Timur",5074,"Kota Surabaya",5103,Bubutan
+23,"Jawa Timur",5074,"Kota Surabaya",5104,Benowo
+23,"Jawa Timur",5074,"Kota Surabaya",5105,Asemrowo
+46,"Jawa Tengah",5710,"Kota Surakarta (Solo)",5711,Serengan
+46,"Jawa Tengah",5710,"Kota Surakarta (Solo)",5712,"Pasar Kliwon"
+46,"Jawa Tengah",5710,"Kota Surakarta (Solo)",5713,Laweyan
+46,"Jawa Tengah",5710,"Kota Surakarta (Solo)",5714,Jebres
+46,"Jawa Tengah",5710,"Kota Surakarta (Solo)",5715,Banjarsari
+46,"Jawa Tengah",5710,"Kota Surakarta (Solo)",17505,Solo
+36,Banten,6988,"Kota Tangerang",6989,Tangerang
+36,Banten,6988,"Kota Tangerang",6990,"Pinang (Penang)"
+36,Banten,6988,"Kota Tangerang",6991,Periuk
+36,Banten,6988,"Kota Tangerang",6992,Neglasari
+36,Banten,6988,"Kota Tangerang",6993,Larangan
+36,Banten,6988,"Kota Tangerang",6994,Karawaci
+36,Banten,6988,"Kota Tangerang",6995,"Karang Tengah"
+36,Banten,6988,"Kota Tangerang",6996,Jatiuwung
+36,Banten,6988,"Kota Tangerang",6997,Cipondoh
+36,Banten,6988,"Kota Tangerang",6998,Ciledug
+36,Banten,6988,"Kota Tangerang",6999,Cibodas
+36,Banten,6988,"Kota Tangerang",7000,Benda
+36,Banten,6988,"Kota Tangerang",7001,Batuceper
+36,Banten,6988,"Kota Tangerang",17393,"Karangtengah Kota Tangerang"
+36,Banten,6980,"Kota Tangerang Selatan",6981,Setu
+36,Banten,6980,"Kota Tangerang Selatan",6982,"Serpong Utara"
+36,Banten,6980,"Kota Tangerang Selatan",6983,Serpong
+36,Banten,6980,"Kota Tangerang Selatan",6984,"Pondok Aren"
+36,Banten,6980,"Kota Tangerang Selatan",6985,Pamulang
+36,Banten,6980,"Kota Tangerang Selatan",6986,"Ciputat Timur"
+36,Banten,6980,"Kota Tangerang Selatan",6987,Ciputat
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6723,Wirobrajan
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6724,Umbulharjo
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6725,Tegalrejo
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6726,Pakualaman
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6727,Ngampilan
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6728,Mergangsan
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6729,Mantrijeron
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6730,Kraton
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6731,Kotagede
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6732,Jetis
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6733,Gondomanan
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6734,Gondokusuman
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6735,"Gedong Tengen"
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",6736,Danurejan
+19,"Di Yogyakarta",6722,"Kota Yogyakarta",17212,Yogyakarta

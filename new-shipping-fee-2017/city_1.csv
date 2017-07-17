@@ -1,0 +1,32 @@
+id_region,region,id_city,city,id_district,district
+45,"Sulawesi Selatan",1655,"Kab. Maros",1656,Turikale
+45,"Sulawesi Selatan",1728,"Kab. Gowa",1729,Tompobulu
+18,Lampung,3687,"Kab. Lampung Selatan",3688,"Way Sulan"
+24,"Kalimantan Timur",3939,"Kota Samarinda",3940,"Sungai Kunjang"
+23,"Jawa Timur",4717,"Kab. Mojokerto",4718,Trowulan
+23,"Jawa Timur",4904,"Kab. Jember",4905,Wuluhan
+23,"Jawa Timur",5106,"Kota Probolinggo",5107,Wonoasih
+23,"Jawa Timur",5110,"Kota Pasuruan",5111,Purworejo
+23,"Jawa Timur",5114,"Kota Mojokerto",5115,"Prajurit Kulon"
+23,"Jawa Timur",5123,"Kota Madiun",5124,Taman
+23,"Jawa Timur",5127,"Kota Kediri",5128,Pesantren
+46,"Jawa Tengah",5361,"Kab. Pati",5362,Winong
+46,"Jawa Tengah",5656,"Kab. Banyumas",5657,Wangon
+35,"Jawa Barat",5747,"Kab. Tasikmalaya",5748,Taraju
+35,"Jawa Barat",5814,"Kab. Sukabumi",5815,"Warung Kiara"
+35,"Jawa Barat",5971,"Kab. Karawang",5972,Tirtamulya
+35,"Jawa Barat",6002,"Kab. Indramayu",6003,Widasari
+35,"Jawa Barat",6077,"Kab. Cirebon",6078,Weru
+35,"Jawa Barat",6302,"Kota Tasikmalaya",6303,Tawang
+35,"Jawa Barat",6313,"Kota Sukabumi",6314,Warudoyong
+35,"Jawa Barat",6328,"Kota Cirebon",6329,Pekalipan
+22,"DKI Jakarta",6604,"Kab. Kepulauan Seribu",6605,"Kepulauan Seribu Utara"
+19,"Di Yogyakarta",6685,"Kab. Gunung Kidul",6686,Wonosari
+36,Banten,6856,"Kab. Tangerang",6857,Tigaraksa
+36,Banten,6886,"Kab. Serang",6887,"Waringin Kurung"
+36,Banten,6915,"Kab. Pandeglang",6916,Sumur
+36,Banten,6951,"Kab. Lebak",6952,Warunggunung
+36,Banten,7002,"Kota Serang",7003,Walantaka
+36,Banten,7009,"Kota Cilegon",7010,Purwakarta
+32,"Bangka Belitung",7059,"Kota Pangkal Pinang",7060,"Taman Sari"
+29,Bali,7096,"Kab. Gianyar",7097,Ubud
