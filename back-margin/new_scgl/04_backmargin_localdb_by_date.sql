@@ -16,27 +16,22 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-06-01';
-SET @extractend = '2017-06-02';-- This MUST be D + 1
+SET @extractstart = '2017-07-01';
+SET @extractend = '2017-07-17';-- This MUST be D + 1
 
 SELECT 
-    order_nr,
-    bob_id_sales_order_item,
-    ae.sku,
-    unit_price,
-    paid_price,
-    order_date,
     bob_id_supplier,
     short_code,
     seller_name,
     tax_class,
-    order_date 'period',
-    order_nr 'count_so',
-    bob_id_sales_order_item 'count_soi',
-    unit_price 'temp_unit_price',
-    paid_price 'temp_paid_price',
+    ae.sku,
+    DATE(order_date) 'period',
+    COUNT(DISTINCT order_nr) 'count_so',
+    COUNT(bob_id_sales_order_item) 'count_soi',
+    SUM(unit_price) 'temp_unit_price',
+    SUM(paid_price) 'temp_paid_price',
     wp.periode_order_date 'periode_wp',
-    wp.backmargin_per_item 'backmargin'
+    SUM(wp.backmargin_per_item) 'backmargin'
 FROM
     scgl.anondb_extract ae
         LEFT JOIN
@@ -46,3 +41,4 @@ WHERE
     ae.order_date >= @extractstart
         AND ae.order_date < @extractend
         AND wp.backmargin_per_item IS NOT NULL
+GROUP BY bob_id_supplier , short_code , seller_name , tax_class , ae.sku , DATE(order_date) , wp.periode_order_date
