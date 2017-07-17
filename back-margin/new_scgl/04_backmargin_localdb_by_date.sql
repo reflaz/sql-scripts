@@ -25,6 +25,7 @@ SELECT
     seller_name,
     tax_class,
     ae.sku,
+    ct.level1,
     DATE(order_date) 'period',
     COUNT(DISTINCT order_nr) 'count_so',
     COUNT(bob_id_sales_order_item) 'count_soi',
@@ -37,8 +38,10 @@ FROM
         LEFT JOIN
     scgl.wp_backmargin wp ON ae.sku = wp.sku
         AND DATE(ae.order_date) = wp.periode_order_date
+        LEFT JOIN
+    scgl.category_tree ct ON ae.primary_category = ct.lookup_cat_id
 WHERE
     ae.order_date >= @extractstart
         AND ae.order_date < @extractend
         AND wp.backmargin_per_item IS NOT NULL
-GROUP BY bob_id_supplier , short_code , seller_name , tax_class , ae.sku , DATE(order_date) , wp.periode_order_date
+GROUP BY bob_id_supplier , short_code , seller_name , tax_class , ae.sku , DATE(order_date) , wp.periode_order_date , ct.level1
