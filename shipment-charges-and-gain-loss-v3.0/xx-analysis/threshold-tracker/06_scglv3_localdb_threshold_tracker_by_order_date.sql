@@ -39,7 +39,7 @@ FROM
     (SELECT 
         ac.*,
             CASE
-                WHEN chargeable_weight_3pl / qty > 400 THEN 0
+                WHEN chargeable_weight_3pl_ps / qty_ps > 400 THEN 0
                 WHEN shipping_amount + shipping_surcharge > 40000000 THEN 0
                 ELSE 1
             END 'pass',

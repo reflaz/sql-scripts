@@ -22,7 +22,7 @@ SELECT
     period,
     SUM(unit_price) 'unit_price',
     COUNT(DISTINCT order_nr) 'count_so',
-    SUM(qty) 'qty',
+    COUNT(bob_id_sales_order_item) 'qty',
     SUM(nmv) 'nmv',
     SUM(shipping_amount + shipping_surcharge + total_shipment_fee_mp_seller_item + total_delivery_cost_item) 'shipping_subsidy'
 FROM
@@ -30,7 +30,7 @@ FROM
         zm.id_city,
             zm.city,
             ac.order_nr,
-            ac.qty,
+            ac.bob_id_sales_order_item,
             ac.unit_price,
             IFNULL(ac.paid_price / 1.1, 0) + IFNULL(ac.shipping_surcharge / 1.1, 0) + IFNULL(ac.shipping_amount / 1.1, 0) + IF(ac.coupon_type <> 'coupon', IFNULL(ac.coupon_money_value / 1.1, 0), 0) 'nmv',
             ac.shipping_amount / IF(is_marketplace = 0, 1.1, 1) 'shipping_amount',
@@ -39,7 +39,7 @@ FROM
             ac.total_delivery_cost_item,
             DATE_FORMAT(ac.order_date, '%Y-%m-01') 'period',
             CASE
-                WHEN chargeable_weight_3pl / qty > 400 THEN 0
+                WHEN chargeable_weight_3pl_ps / qty_ps > 400 THEN 0
                 WHEN shipping_amount + shipping_surcharge > 40000000 THEN 0
                 ELSE 1
             END 'pass'

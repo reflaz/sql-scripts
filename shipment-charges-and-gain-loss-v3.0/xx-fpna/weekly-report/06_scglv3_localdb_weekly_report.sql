@@ -559,10 +559,10 @@ FROM
             @allowance_bad_goods_rate * SUM(IFNULL(retail_cogs, 0)) 'allowance_bad_goods',
             SUM(IFNULL(commission, 0)) 'commission',
             SUM(IFNULL(payment_fee, 0)) 'payment_fee',
-            SUM(IFNULL(order_flat, 0) + IFNULL(mdr, 0) + IFNULL(ipp, 0)) 'payment_cost',
+            SUM(IFNULL(order_flat_item, 0) + IFNULL(mdr_item, 0) + IFNULL(ipp_item, 0)) 'payment_cost',
             CASE
                 WHEN bu = 'CB' THEN @cb_delivery_cost * COUNT(bob_id_sales_order_item)
-                WHEN bu = 'MA' THEN SUM(IFNULL(shipment_cost_item, 0) + IFNULL(shipment_cost_discount_item, 0) + IFNULL(shipment_cost_vat_item, 0) + IFNULL(insurance_3pl_item, 0) + IFNULL(insurance_vat_3pl_item, 0))
+                WHEN bu = 'MA' THEN SUM(IFNULL(delivery_cost_item, 0) + IFNULL(delivery_cost_discount_item, 0) + IFNULL(delivery_cost_vat_item, 0) + IFNULL(insurance_3pl_item, 0) + IFNULL(insurance_vat_3pl_item, 0))
                 ELSE SUM(IFNULL(total_delivery_cost_item, 0))
             END 'delivery_cost',
             CASE
@@ -571,12 +571,12 @@ FROM
                 WHEN bu = 'Retail' THEN @delivery_cost_per_item_retail * COUNT(bob_id_sales_order_item)
                 ELSE SUM(IFNULL(total_delivery_cost_item, 0))
             END 'delivery_cost_invoice',
-            SUM(IFNULL(shipment_cost_item, 0) + IFNULL(shipment_cost_discount_item, 0) + IFNULL(shipment_cost_vat_item, 0)) 'shipment_cost',
+            SUM(IFNULL(delivery_cost_item, 0) + IFNULL(delivery_cost_discount_item, 0) + IFNULL(delivery_cost_vat_item, 0)) 'shipment_cost',
             CASE
                 WHEN failed_flag <> 1 THEN 0
                 WHEN bu = 'MA' THEN @failed_delivery_cost_per_item_ma * COUNT(bob_id_sales_order_item)
                 WHEN bu = 'Retail' THEN @failed_delivery_cost_per_item_retail * COUNT(bob_id_sales_order_item)
-                ELSE SUM(IFNULL(shipment_cost_item, 0) + IFNULL(shipment_cost_discount_item, 0) + IFNULL(shipment_cost_vat_item, 0))
+                ELSE SUM(IFNULL(delivery_cost_item, 0) + IFNULL(delivery_cost_discount_item, 0) + IFNULL(delivery_cost_vat_item, 0))
             END 'shipment_cost_invoice',
             CASE
                 WHEN bu = 'CB' THEN @return_cost_per_item_cb * COUNT(bob_id_sales_order_item)
@@ -610,7 +610,7 @@ FROM
             ct.level3,
             ct.level4,
             CASE
-                WHEN chargeable_weight_3pl / qty > 400 THEN 0
+                WHEN chargeable_weight_3pl_ps / qty_ps > 400 THEN 0
                 WHEN (shipping_amount + shipping_surcharge) > 40000000 THEN 0
                 ELSE 1
             END 'pass',

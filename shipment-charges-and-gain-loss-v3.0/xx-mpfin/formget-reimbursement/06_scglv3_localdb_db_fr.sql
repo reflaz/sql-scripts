@@ -34,22 +34,22 @@ FROM
             IFNULL(MIN(ac.last_shipment_provider), '') 'Shipment Provider',
             IFNULL(ac.city, '') 'Destination',
             IFNULL(ac.count_soi, '') 'Qty',
-            IFNULL(ac.chargeable_weight_seller, '') 'System Weight',
+            IFNULL(ac.chargeable_weight_seller_ps, '') 'System Weight',
             IFNULL(ac.shipping_amount_temp, '') 'Shipping Amount',
             IFNULL(ac.shipping_surcharge_temp, '') 'Shipping Surcharge',
             IFNULL(ac.total_shipment_fee_mp_seller, 0) 'Seller Shipping Fee',
             IFNULL(ac.weekly_reimbursement, 0) 'Weekly Reimbursement',
-            (IFNULL(inv.weight, 0) - IFNULL(ac.chargeable_weight_seller, 0)) 'Weight Difference',
+            (IFNULL(inv.weight, 0) - IFNULL(ac.chargeable_weight_seller_ps, 0)) 'Weight Difference',
             IFNULL(inv.delivery_charge, 0) - IFNULL(ac.total_shipment_fee_mp_seller, 0) - IFNULL(ac.shipping_amount_temp, 0) - IFNULL(ac.shipping_surcharge_temp, 0) - IFNULL(ac.weekly_reimbursement, 0) 'Amount to be Paid',
             CASE
                 WHEN (ac.count_soi > 1) THEN 'Qty > 1'
-                WHEN (IFNULL(inv.weight, 0) > IFNULL(ac.chargeable_weight_seller, 0)) THEN 'Formget Weight > SC Weight'
-                WHEN (IFNULL(inv.weight, 0) < IFNULL(ac.chargeable_weight_seller, 0)) THEN 'Formget Weight < SC Weight'
-                WHEN (IFNULL(inv.weight, 0) = IFNULL(ac.chargeable_weight_seller, 0)) THEN 'Formget Weight = SC Weight'
+                WHEN (IFNULL(inv.weight, 0) > IFNULL(ac.chargeable_weight_seller_ps, 0)) THEN 'Formget Weight > SC Weight'
+                WHEN (IFNULL(inv.weight, 0) < IFNULL(ac.chargeable_weight_seller_ps, 0)) THEN 'Formget Weight < SC Weight'
+                WHEN (IFNULL(inv.weight, 0) = IFNULL(ac.chargeable_weight_seller_ps, 0)) THEN 'Formget Weight = SC Weight'
             END 'Weight Remarks',
             CASE
                 WHEN COUNT(tracking_number) > 1 THEN 'Multiple AWB per Order'
-                WHEN (IFNULL(inv.weight, 0) <> IFNULL(ac.chargeable_weight_seller, 0)) THEN 'Different Weight'
+                WHEN (IFNULL(inv.weight, 0) <> IFNULL(ac.chargeable_weight_seller_ps, 0)) THEN 'Different Weight'
                 WHEN (IFNULL(inv.delivery_charge, 0) - IFNULL(ac.total_shipment_fee_mp_seller, 0) - IFNULL(ac.shipping_amount_temp, 0) - IFNULL(ac.shipping_surcharge_temp, 0) - IFNULL(ac.weekly_reimbursement, 0) = 0) THEN 'Reimbursed to Seller'
                 WHEN (IFNULL(inv.delivery_charge, 0) - IFNULL(ac.total_shipment_fee_mp_seller, 0) - IFNULL(ac.shipping_amount_temp, 0) - IFNULL(ac.shipping_surcharge_temp, 0) - IFNULL(ac.weekly_reimbursement, 0) <> 0) THEN 'Different Rate'
                 ELSE ''

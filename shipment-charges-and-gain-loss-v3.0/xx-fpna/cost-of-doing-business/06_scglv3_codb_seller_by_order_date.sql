@@ -67,7 +67,7 @@ FROM
             'Shipping Fee subsidies - MA NULL',
             'Shipping Fee subsidies - DB - NULL',
             SUM(CASE
-                WHEN shipment_scheme LIKE '%CROSS BORDER%' THEN @cbrate * qty
+                WHEN shipment_scheme LIKE '%CROSS BORDER%' THEN @cbrate
                 ELSE IFNULL(shipping_amount_temp, 0) + IFNULL(shipping_surcharge_temp, 0) + IFNULL(total_shipment_fee_mp_seller_item, 0) - IFNULL(total_failed_delivery_cost_item, 0)
             END) 'Shipping Fee subsidies',
             SUM(IF(coupon_type = 'coupon', coupon_money_value, 0)) 'Voucher amount (paid by Lazada) (IDR)',
@@ -85,14 +85,14 @@ FROM
                 END)
             END) / 1.1 'Payment Charges (before tax)',
             SUM(IFNULL(ac.marketplace_commission_fee / 1.1, 0)) 'Commission (before tax)',
-            SUM(IFNULL(ac.order_flat, 0) + IFNULL(ac.mdr, 0) + IFNULL(ac.ipp, 0)) 'Payment costs',
+            SUM(IFNULL(ac.order_flat_item, 0) + IFNULL(ac.mdr_item, 0) + IFNULL(ac.ipp_item, 0)) 'Payment costs',
             'Warehouse costs (in case of FBL) - NULL',
             'CS costs (allocated at seller level) - NULL',
             'PC1 (IDR) - NULL',
             'PC1 (%) - NULL',
             'PC2 (IDR) - NULL',
             'PC2 (%) - NULL',
-            SUM(IFNULL(chargeable_weight_3pl, 0)) / COUNT(bob_id_sales_order_item) 'Average Weight'
+            SUM(IFNULL(weight_3pl_item, 0)) / COUNT(bob_id_sales_order_item) 'Average Weight'
     FROM
         (SELECT 
         ac.*,
@@ -103,7 +103,7 @@ FROM
                 ELSE IFNULL(gc.general_commission, rc.general_commission) * unit_price / - 100
             END 'commission_waiver',
             CASE
-                WHEN ac.chargeable_weight_3pl / ac.qty > 400 THEN 0
+                WHEN ac.chargeable_weight_3pl_ps / ac.qty_ps > 400 THEN 0
                 WHEN ac.shipping_amount + ac.shipping_surcharge > 40000000 THEN 0
                 ELSE 1
             END 'pass'
