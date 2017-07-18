@@ -1,14 +1,13 @@
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-06-01';
-SET @extractend = '2017-07-01';-- This MUST be D + 1
+SET @extractstart = '2017-07-01';
+SET @extractend = '2017-07-20';-- This MUST be D + 1
 
 SELECT 
     city_temp 'city',
     zone_type,
     threshold_kg,
     threshold_order,
-    pass,
     CASE
         WHEN
             threshold_order LIKE '%>=%'
@@ -48,7 +47,6 @@ FROM
             order_nr,
             id_package_dispatching,
             origins_temp 'origin',
-            pass,
             order_value,
             unit_price,
             paid_price,
@@ -58,31 +56,9 @@ FROM
             nmv,
             total_shipment_fee_mp_seller,
             total_delivery_cost,
-            simple_length,
-            simple_width,
-            simple_height,
-            simple_weight,
-            config_length,
-            config_width,
-            config_height,
-            config_weight,
             value_threshold,
             weight_break 'rounding',
-            GREATEST(IFNULL(CASE
-                WHEN
-                    simple_weight > 0
-                        OR (simple_length * simple_width * simple_height) > 0
-                THEN
-                    simple_weight
-                ELSE config_weight
-            END, 0), IFNULL(CASE
-                WHEN
-                    simple_weight > 0
-                        OR (simple_length * simple_width * simple_height) > 0
-                THEN
-                    (simple_length * simple_width * simple_height) / 6000
-                ELSE config_length * config_width * config_height / 6000
-            END, 0)) 'formula_weight'
+            formula_weight
     FROM
         (SELECT 
         item.city 'city_temp',
@@ -92,23 +68,15 @@ FROM
             item.id_package_dispatching,
             item.origin 'origins_temp',
             item.order_value,
-            item.pass,
             SUM(item.unit_price) 'unit_price',
             SUM(item.paid_price) 'paid_price',
-            count(item.bob_id_sales_order_item) 'qty',
+            COUNT(item.bob_id_sales_order_item) 'qty',
             SUM(shipping_surcharge_temp) 'shipping_surcharge',
             SUM(shipping_amount_temp) 'shipping_amount',
             SUM(nmv) 'nmv',
             SUM(item.total_shipment_fee_mp_seller_item) 'total_shipment_fee_mp_seller',
             SUM(item.total_delivery_cost_item) 'total_delivery_cost',
-            SUM(item.simple_length) 'simple_length',
-            SUM(item.simple_width) 'simple_width',
-            SUM(item.simple_height) 'simple_height',
-            SUM(item.simple_weight) 'simple_weight',
-            SUM(item.config_length) 'config_length',
-            SUM(item.config_width) 'config_width',
-            SUM(item.config_height) 'config_height',
-            SUM(item.config_weight) 'config_weight'
+            SUM(item.formula_weight) 'formula_weight'
     FROM
         (SELECT 
         zm.city,
@@ -124,14 +92,21 @@ FROM
             ac.qty,
             ac.total_shipment_fee_mp_seller_item,
             ac.total_delivery_cost_item,
-            ac.simple_length,
-            ac.simple_width,
-            ac.simple_height,
-            ac.simple_weight,
-            ac.config_length,
-            ac.config_width,
-            ac.config_height,
-            ac.config_weight,
+            GREATEST(IFNULL(CASE
+                WHEN
+                    ac.simple_weight > 0
+                        OR (ac.simple_length * ac.simple_width * ac.simple_height) > 0
+                THEN
+                    ac.simple_weight
+                ELSE ac.config_weight
+            END, 0), IFNULL(CASE
+                WHEN
+                    ac.simple_weight > 0
+                        OR (ac.simple_length * ac.simple_width * ac.simple_height) > 0
+                THEN
+                    (ac.simple_length * ac.simple_width * ac.simple_height) / 6000
+                ELSE ac.config_length * ac.config_width * ac.config_height / 6000
+            END, 0)) 'formula_weight',
             CASE
                 WHEN chargeable_weight_3pl / qty > 400 THEN 0
                 WHEN shipping_amount + shipping_surcharge > 40000000 THEN 0
@@ -154,25 +129,23 @@ FROM
     WHERE
         ac.order_date >= @extractstart
             AND ac.order_date < @extractend
-            AND ac.shipment_scheme in ('RETAIL','FBL','DIRECT BILLING','MASTER ACCOUNT')) item
+            AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
+    HAVING pass = 1) item
     GROUP BY item.order_nr , item.id_package_dispatching) package_lv
     LEFT JOIN scglv3.shipping_fee_rate_card sfrc ON package_lv.id_district = sfrc.destination_zone
         AND sfrc.origin = package_lv.origins_temp
-        and sfrc.charging_level = 'Source'
-        and sfrc.threshold_level = 'Source'
-        and sfrc.leadtime = 'Standard'
-        and sfrc.fee_type = 'FIX'
+        AND sfrc.charging_level = 'Source'
+        AND sfrc.threshold_level = 'Source'
+        AND sfrc.leadtime = 'Standard'
+        AND sfrc.fee_type = 'FIX'
     LEFT JOIN scglv3.shipping_fee_rate_card_kg sfrck ON package_lv.id_district = sfrck.destination_zone
         AND sfrck.origin = package_lv.origins_temp
-        and sfrck.leadtime = 'Standard'
+        AND sfrck.leadtime = 'Standard'
         AND sfrck.id_shipping_fee_rate_card_kg = (SELECT 
             MIN(sfrc_kg.id_shipping_fee_rate_card_kg)
         FROM
             scglv3.shipping_fee_rate_card_kg sfrc_kg
         WHERE
             sfrc_kg.destination_zone = package_lv.id_district
-                AND sfrc_kg.origin = package_lv.origins_temp)) calc
-    WHERE
-        (formula_weight / qty) <= 400) city_lv
+                AND sfrc_kg.origin = package_lv.origins_temp)) calc) city_lv
 GROUP BY city_temp , zone_type , threshold_kg , threshold_order
-HAVING pass = 1
