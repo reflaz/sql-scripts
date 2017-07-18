@@ -8,7 +8,6 @@ SELECT
     zone_type,
     threshold_kg,
     threshold_order,
-    pass,
     SUM(unit_price) 'total_unit_price',
     SUM(paid_price) 'total_paid_price',
     SUM(nmv) 'nmv',
@@ -45,7 +44,6 @@ FROM
             order_nr,
             id_package_dispatching,
             origins_temp 'origin',
-            pass,
             order_value,
             unit_price,
             paid_price,
@@ -88,7 +86,6 @@ FROM
             item.id_package_dispatching,
             item.origin 'origins_temp',
             item.order_value,
-            item.pass,
             SUM(item.unit_price) 'unit_price',
             SUM(item.paid_price) 'paid_price',
             COUNT(item.bob_id_sales_order_item) 'qty',
@@ -150,7 +147,8 @@ FROM
     WHERE
         ac.order_date >= @extractstart
             AND ac.order_date < @extractend
-            AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')) item
+            AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
+    HAVING pass = 1) item
     GROUP BY item.order_nr , item.id_package_dispatching) package_lv
     LEFT JOIN scglv3.shipping_fee_rate_card sfrc ON package_lv.id_district = sfrc.destination_zone
         AND sfrc.origin = package_lv.origins_temp
@@ -159,4 +157,3 @@ FROM
         AND sfrc.leadtime = 'Standard'
         AND sfrc.fee_type = 'FIX') calc) city_lv
 GROUP BY city_temp , zone_type , threshold_kg , threshold_order
-HAVING pass = 1

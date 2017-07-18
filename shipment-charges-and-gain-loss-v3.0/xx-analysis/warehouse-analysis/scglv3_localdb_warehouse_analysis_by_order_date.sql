@@ -37,7 +37,12 @@ FROM
             ac.shipping_surcharge / IF(is_marketplace = 0, 1.1, 1) 'shipping_surcharge',
             ac.total_shipment_fee_mp_seller_item,
             ac.total_delivery_cost_item,
-            DATE_FORMAT(ac.order_date, '%Y-%m-01') 'period'
+            DATE_FORMAT(ac.order_date, '%Y-%m-01') 'period',
+            CASE
+                WHEN chargeable_weight_3pl / qty > 400 THEN 0
+                WHEN shipping_amount + shipping_surcharge > 40000000 THEN 0
+                ELSE 1
+            END 'pass'
     FROM
         scglv3.anondb_calculate ac
     LEFT JOIN scglv3.zone_mapping zm ON ac.id_district = zm.id_district
@@ -47,5 +52,5 @@ FROM
         order_date >= @extractstart
             AND order_date < @extractend
             AND shipment_scheme IN ('DIRECT BILLING' , 'FBL', 'MASTER ACCOUNT', 'RETAIL')
-            AND formula_weight / qty < 400) ac
+    HAVING pass = 1) ac
 GROUP BY id_city , period

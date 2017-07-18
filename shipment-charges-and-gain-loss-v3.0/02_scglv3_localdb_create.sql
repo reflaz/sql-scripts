@@ -370,23 +370,38 @@ CREATE TABLE `campaign_tracker` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Campaign tracker';
 
+CREATE TABLE `category_general_commission` (
+    `tax_class` VARCHAR(50) NOT NULL,
+    `level0` VARCHAR(50) DEFAULT NULL,
+    `level1` VARCHAR(255) DEFAULT NULL,
+    `level2` VARCHAR(255) DEFAULT NULL,
+    `level3` VARCHAR(255) DEFAULT NULL,
+    `level4` VARCHAR(255) DEFAULT NULL,
+    `level5` VARCHAR(255) DEFAULT NULL,
+    `level6` VARCHAR(255) DEFAULT NULL,
+    `general_commission` DECIMAL(6 , 2 ),
+    `id_primary_category` INT NOT NULL,
+    `category_name` VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY `pk_general_commission` (`tax_class` , `id_primary_category`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='General Commission';
+
 CREATE TABLE `category_tree` (
     `level0_id` INT(11) DEFAULT NULL,
-    `level0` VARCHAR(50) DEFAULT NULL,
+    `level0` VARCHAR(255) DEFAULT NULL,
     `level1_id` INT(11) DEFAULT NULL,
-    `level1` VARCHAR(50) DEFAULT NULL,
+    `level1` VARCHAR(255) DEFAULT NULL,
     `level2_id` INT(11) DEFAULT NULL,
-    `level2` VARCHAR(50) DEFAULT NULL,
+    `level2` VARCHAR(255) DEFAULT NULL,
     `level3_id` INT(11) DEFAULT NULL,
-    `level3` VARCHAR(50) DEFAULT NULL,
+    `level3` VARCHAR(255) DEFAULT NULL,
     `level4_id` INT(11) DEFAULT NULL,
-    `level4` VARCHAR(50) DEFAULT NULL,
+    `level4` VARCHAR(255) DEFAULT NULL,
     `level5_id` INT(11) DEFAULT NULL,
-    `level5` VARCHAR(50) DEFAULT NULL,
+    `level5` VARCHAR(255) DEFAULT NULL,
     `level6_id` INT(11) DEFAULT NULL,
-    `level6` VARCHAR(50) DEFAULT NULL,
+    `level6` VARCHAR(255) DEFAULT NULL,
     `id_primary_category` INT(11) DEFAULT NULL,
-    `category_name` VARCHAR(50) DEFAULT NULL,
+    `category_name` VARCHAR(255) DEFAULT NULL,
     `active` TINYINT DEFAULT 1,
     KEY `level0_id` (`level0_id`),
     KEY `level1_id` (`level1_id`),

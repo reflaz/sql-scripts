@@ -39,6 +39,11 @@ FROM
     (SELECT 
         ac.*,
             CASE
+                WHEN chargeable_weight_3pl / qty > 400 THEN 0
+                WHEN shipping_amount + shipping_surcharge > 40000000 THEN 0
+                ELSE 1
+            END 'pass',
+            CASE
                 WHEN ac.tax_class = 'international' THEN 'CB'
                 ELSE sfrc.value_threshold
             END 'threshold_order',
@@ -66,6 +71,6 @@ FROM
     WHERE
         ac.order_date >= @extractstart
             AND ac.order_date < @extractend
-            AND ac.chargeable_weight_3pl / qty <= 400
-            AND ac.shipment_scheme IN ('CROSS BORDER' , 'RETAIL', 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')) ac
+            AND ac.shipment_scheme IN ('CROSS BORDER' , 'RETAIL', 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
+    HAVING pass = 1) ac
 GROUP BY threshold_order
