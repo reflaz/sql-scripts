@@ -457,6 +457,26 @@ CREATE TABLE `insurance_scheme` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Insurance Scheme';
 
+CREATE TABLE `invoice` (
+    `tracking_number` VARCHAR(45) NOT NULL,
+    `order_nr` VARCHAR(45) DEFAULT NULL,
+    `short_code` VARCHAR(7) DEFAULT NULL,
+    `seller_name` VARCHAR(255) DEFAULT '',
+    `origin` VARCHAR(255) DEFAULT NULL,
+    `destination` VARCHAR(255) DEFAULT NULL,
+    `qty` VARCHAR(255) DEFAULT NULL,
+    `weight` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `unit_price` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `insurance` DECIMAL(17 , 4 ) DEFAULT NULL,
+    `pickup_cost` DECIMAL(17 , 4 ) DEFAULT NULL,
+    `delivery_charge` DECIMAL(17 , 4 ) DEFAULT NULL,
+    `shipment_provider_name` VARCHAR(64) DEFAULT NULL,
+    `free_text` VARCHAR(255) DEFAULT NULL,
+    KEY (`tracking_number`),
+    KEY (`order_nr`),
+    KEY (`short_code`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Invoice Data';
+
 CREATE TABLE `payment_cost_mapping` (
     `id_payment_cost_mapping` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `payment_method` VARCHAR(100) DEFAULT NULL,

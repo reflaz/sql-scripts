@@ -100,19 +100,15 @@ FROM
         (SELECT 
         ac.*,
             (SELECT 
-                    SUM(CASE
-                            WHEN ae.tax_class = 'international' THEN 0
-                            WHEN ae.marketplace_commission_fee > 0 THEN 0
-                            WHEN gc.general_commission IS NOT NULL THEN gc.general_commission / 100 * ae.unit_price * - 1.1
-                            WHEN rc.general_commission IS NOT NULL THEN rc.general_commission / 100 * ae.unit_price * - 1.1
-                            ELSE 0
-                        END)
+                    CASE
+                            WHEN IFNULL(ae.marketplace_commission_fee, 0) = 0 THEN 0
+                            ELSE IFNULL(gc.general_commission, rc.general_commission) * unit_price / - 100
+                        END
                 FROM
                     scgl.anondb_extract ae
                 LEFT JOIN zpcr.commission_tree_mapping gc ON ae.primary_category = gc.lookup_cat_id
                     AND ae.tax_class = gc.tax_class
-                LEFT JOIN zpcr.commission_tree_mapping rc ON ae.primary_category = rc.lookup_cat_id
-                    AND ae.tax_class = rc.tax_class
+                LEFT JOIN zpcr.commission_tree_mapping rc ON ae.tax_class = rc.tax_class
                     AND rc.lookup_cat_id = 1
                 WHERE
                     ae.order_nr = ac.order_nr
