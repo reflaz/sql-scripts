@@ -314,6 +314,14 @@ CREATE TABLE `anondb_extract_temp` (
     KEY (`id_package_dispatching`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='AnonDB temporary calculation data';
 
+CREATE TABLE `backmargin` (
+    `sku` VARCHAR(255) DEFAULT NULL,
+    `backmargin` DECIMAL(20 , 4) DEFAULT NULL,
+    `bm_date` DATE DEFAULT NULL,
+    KEY (`sku`),
+    KEY (`bm_date`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Backmargin';
+
 CREATE TABLE `campaign` (
     `id_campaign` INT(10) UNSIGNED NOT NULL,
     `campaign` VARCHAR(50) DEFAULT NULL,
