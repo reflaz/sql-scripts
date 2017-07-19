@@ -1,5 +1,0 @@
-- Go to import folder C:\ drive
-- Run the import batch script in each folder
-- Remember to only run one script at a time
-- Compare total imported data to total actual data
-- Check if all data imported correctly

@@ -41,6 +41,7 @@ DROP TABLE IF EXISTS `rate_card_scheme`;
 DROP TABLE IF EXISTS `shipment_scheme`;
 DROP TABLE IF EXISTS `shipment_provider`;
 DROP TABLE IF EXISTS `zone_type`;
+DROP TABLE IF EXISTS `wp_backmargin`;
 
 CREATE TABLE `anondb_extract` (
     `bob_id_sales_order_item` INT(10) UNSIGNED NOT NULL,
@@ -512,3 +513,11 @@ CREATE TABLE `zone_type` (
     KEY (`zone_type`),
     KEY (`active`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Zone type';
+
+CREATE TABLE `wp_backmargin` (
+    `sku` VARCHAR(255) DEFAULT NULL,
+    `backmargin_per_item` DECIMAL(20 , 4) DEFAULT NULL,
+    `periode_order_date` DATE DEFAULT NULL,
+    KEY (`sku`),
+    KEY (`periode_order_date`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='WP Backmargin';

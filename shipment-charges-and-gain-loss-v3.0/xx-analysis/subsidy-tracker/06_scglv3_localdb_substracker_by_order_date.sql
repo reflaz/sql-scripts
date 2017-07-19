@@ -8,14 +8,6 @@ SELECT
     fin.zone_type,
     threshold_kg,
     threshold_order,
-    CASE
-        WHEN
-            threshold_order LIKE '%>=%'
-                AND threshold_kg LIKE '%<%'
-        THEN
-            'free'
-        ELSE 'paid'
-    END 'is_free',
     SUM(fin.unit_price) 'total_unit_price',
     SUM(fin.paid_price) 'total_paid_price',
     SUM(fin.nmv) 'nmv',
@@ -32,13 +24,18 @@ FROM
     (SELECT 
         city.*,
             CASE
-                WHEN order_value < value_threshold THEN CONCAT('< ', value_threshold)
-                ELSE CONCAT('>= ', value_threshold)
-            END 'threshold_order',
+                WHEN formula_weight <= 1.3 THEN '0-1 kg'
+                WHEN formula_weight <= 2.3 THEN '1-2 kg'
+                WHEN formula_weight <= 3.3 THEN '2-3 kg'
+                ELSE '>3 kg'
+            END 'threshold_kg',
             CASE
-                WHEN formula_weight <= rounding THEN CONCAT('<= ', rounding)
-                ELSE CONCAT('> ', rounding)
-            END 'threshold_kg'
+                WHEN order_value < 30000 THEN '0-30k'
+                WHEN order_value < 50000 THEN '30k-50k'
+                WHEN order_value < 75000 THEN '50k-75k'
+                WHEN order_value < 100000 THEN '75k-100k'
+                ELSE '>100k'
+            END 'threshold_order'
     FROM
         (SELECT 
         pack.*,
