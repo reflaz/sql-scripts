@@ -13,9 +13,9 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-TRUNCATE scglv3.anondb_calculate;
+TRUNCATE scglv3.anondb_calculate_config;
 
-INSERT INTO scglv3.anondb_calculate 
+INSERT INTO scglv3.anondb_calculate_config 
 SELECT 
     bob_id_sales_order_item,
     sc_sales_order_item,
@@ -62,10 +62,10 @@ SELECT
     config_width,
     config_height,
     config_weight,
-    config_length,
-    config_width,
-    config_height,
-    config_weight,
+    simple_length,
+    simple_width,
+    simple_height,
+    simple_weight,
     shipping_type,
     delivery_type,
     is_marketplace,
@@ -261,8 +261,22 @@ FROM
             aet.total_shipment_fee_mp_seller,
             aet.total_delivery_cost,
             aet.total_failed_delivery_cost,
-            ROUND(IFNULL(config_weight, 0), 4) 'temp_weight_item',
-            ROUND(IFNULL(config_length * config_width * config_height / 6000, 0), 4) 'temp_volumetric_weight_item'
+            ROUND(IFNULL(CASE
+                WHEN
+                    simple_weight > 0
+                        OR (simple_length * simple_width * simple_height) > 0
+                THEN
+                    simple_weight
+                ELSE config_weight
+            END, 0), 4) 'temp_weight_item',
+            ROUND(IFNULL(CASE
+                WHEN
+                    simple_weight > 0
+                        OR (simple_length * simple_width * simple_height) > 0
+                THEN
+                    (simple_length * simple_width * simple_height) / 6000
+                ELSE config_length * config_width * config_height / 6000
+            END, 0), 4) 'temp_volumetric_weight_item'
     FROM
         (SELECT 
         *
