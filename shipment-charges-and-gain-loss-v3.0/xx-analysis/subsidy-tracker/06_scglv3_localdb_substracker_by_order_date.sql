@@ -17,7 +17,7 @@ SELECT
     SUM(fin.unit_price) / COUNT(DISTINCT fin.order_nr) 'aov',
     SUM(fin.shipping_surcharge) 'total_shipping_surcharge',
     SUM(fin.shipping_amount) 'total_shipping_amount',
-	SUM(fin.total_delivery_cost) 'total_delivery_cost',
+    SUM(fin.total_delivery_cost) 'total_delivery_cost',
     SUM(fin.total_shipment_fee_mp_seller) 'total_shipment_fee_mp_seller',
     SUM(fin.shipping_surcharge) + SUM(fin.shipping_amount) + SUM(fin.total_shipment_fee_mp_seller) + SUM(fin.total_delivery_cost) 'net_subsidy'
 FROM
@@ -39,9 +39,8 @@ FROM
     FROM
         (SELECT 
         pack.*,
-            IF(pack.simple_weight > 0 OR pack.vol_sim_weight > 0, 
-				GREATEST(pack.simple_weight, pack.vol_sim_weight), 
-				GREATEST(pack.config_weight, pack.vol_conf_weight)) 'formula_weight'
+            IF(pack.simple_weight > 0
+                OR pack.vol_sim_weight > 0, GREATEST(pack.simple_weight, pack.vol_sim_weight), GREATEST(pack.config_weight, pack.vol_conf_weight)) 'formula_weight'
     FROM
         (SELECT 
         order_nr,
@@ -91,10 +90,10 @@ FROM
                 ELSE IFNULL(shipping_amount, 0)
             END 'shipping_amount_temp',
             IFNULL(paid_price / 1.1, 0) + IFNULL(shipping_surcharge / 1.1, 0) + IFNULL(shipping_amount / 1.1, 0) + IF(coupon_type <> 'coupon', IFNULL(coupon_money_value / 1.1, 0), 0) 'nmv',
-            config_weight,
-            (config_length * config_width * config_height / 6000) 'vol_conf_weight',
-            simple_weight,
-            (simple_length * simple_width * simple_height / 6000) 'vol_sim_weight'
+            IFNULL(config_weight, 0) 'config_weight',
+            IFNULL((config_length * config_width * config_height / 6000), 0) 'vol_conf_weight',
+            IFNULL(simple_weight, 0) 'simple_weight',
+            IFNULL((simple_length * simple_width * simple_height / 6000), 0) 'vol_sim_weight'
     FROM
         scglv3.anondb_calculate ac
     LEFT JOIN scglv3.zone_mapping zm ON ac.id_district = zm.id_district
@@ -104,7 +103,6 @@ FROM
         ac.order_date >= @extractstart
             AND ac.order_date < @extractend
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
-            AND ac.order_nr) item
-    GROUP BY order_nr , id_package_dispatching) pack
-    ) city) fin
+    HAVING pass = 1) item
+    GROUP BY order_nr , id_package_dispatching) pack) city) fin
 GROUP BY fin.city_temp , fin.zone_type , threshold_kg , threshold_order

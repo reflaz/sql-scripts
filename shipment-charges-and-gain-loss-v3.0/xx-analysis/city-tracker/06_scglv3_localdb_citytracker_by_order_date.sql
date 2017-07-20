@@ -32,8 +32,8 @@ FROM
                 ELSE CONCAT('>= ', value_threshold)
             END 'threshold_order',
             CASE
-                WHEN formula_weight <= rounding THEN CONCAT('<= ', rounding)
-                ELSE CONCAT('> ', rounding)
+                WHEN formula_weight <= (rounding+0.3) THEN CONCAT('<= ', (rounding+0.3))
+                ELSE CONCAT('> ', (rounding+0.3))
             END 'threshold_kg'
     FROM
         (SELECT 
@@ -99,10 +99,10 @@ FROM
                 ELSE IFNULL(shipping_amount, 0)
             END 'shipping_amount_temp',
             IFNULL(paid_price / 1.1, 0) + IFNULL(shipping_surcharge / 1.1, 0) + IFNULL(shipping_amount / 1.1, 0) + IF(coupon_type <> 'coupon', IFNULL(coupon_money_value / 1.1, 0), 0) 'nmv',
-            config_weight,
-            (config_length * config_width * config_height / 6000) 'vol_conf_weight',
-            simple_weight,
-            (simple_length * simple_width * simple_height / 6000) 'vol_sim_weight'
+            IFNULL(config_weight, 0) 'config_weight',
+            IFNULL((config_length * config_width * config_height / 6000), 0) 'vol_conf_weight',
+            IFNULL(simple_weight, 0) 'simple_weight',
+            IFNULL((simple_length * simple_width * simple_height / 6000), 0) 'vol_sim_weight'
     FROM
         scglv3.anondb_calculate ac
     LEFT JOIN scglv3.zone_mapping zm ON ac.id_district = zm.id_district
@@ -112,7 +112,7 @@ FROM
         ac.order_date >= @extractstart
             AND ac.order_date < @extractend
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
-            AND ac.order_nr) item
+    HAVING pass = 1) item
     GROUP BY order_nr , id_package_dispatching) pack) package
     LEFT JOIN scglv3.shipping_fee_rate_card sfrc ON package.id_district_temp = sfrc.destination_zone
         AND sfrc.origin = package.origin_temp
