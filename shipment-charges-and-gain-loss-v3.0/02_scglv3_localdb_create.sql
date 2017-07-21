@@ -717,6 +717,7 @@ CREATE TABLE `shipment_scheme` (
     `shipping_type` VARCHAR(100) DEFAULT NULL,
     `exclude_payment_method` VARCHAR(50) DEFAULT NULL,
     `exclude_shipment_provider` VARCHAR(64) DEFAULT NULL,
+    `shipping_fee_credit` TINYINT(4) DEFAULT NULL,
     `start_date` DATETIME DEFAULT NULL,
     `end_date` DATETIME DEFAULT NULL,
     KEY (`id_shipment_scheme`),
@@ -729,6 +730,7 @@ CREATE TABLE `shipment_scheme` (
     KEY (`shipping_type`),
     KEY (`exclude_payment_method`),
     KEY (`exclude_shipment_provider`),
+    KEY (`shipping_fee_credit`),
     KEY (`start_date`),
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Shipment Scheme';

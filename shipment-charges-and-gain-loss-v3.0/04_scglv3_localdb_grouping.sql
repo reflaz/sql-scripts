@@ -312,6 +312,7 @@ FROM
                         AND ae.payment_method <> IFNULL(ss.exclude_payment_method, 0)
                         AND IFNULL(ae.first_shipment_provider, 1) NOT LIKE CONCAT('%', IFNULL(ss.exclude_shipment_provider, 'exclude_shipment_provider'), '%')
                         AND IFNULL(ae.last_shipment_provider, 1) NOT LIKE CONCAT('%', IFNULL(ss.exclude_shipment_provider, 'exclude_shipment_provider'), '%')
+                        AND IFNULL(ae.shipping_fee_credit, 0) > IFNULL(ss.shipping_fee_credit, -9999999999)
                         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= ss.start_date
                         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= ss.end_date) 'fk_shipment_scheme'
     FROM
