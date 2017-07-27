@@ -62,6 +62,7 @@ SELECT
     qty,
     rounding_seller,
     rounding_3pl,
+    shipment_fee_mp_seller_flat_rate,
     shipment_fee_mp_seller_rate,
     pickup_cost_rate,
     pickup_cost_discount_rate,
@@ -94,12 +95,12 @@ SELECT
 FROM
     (SELECT 
         *,
-            shipment_fee_mp_seller_rate * chargeable_weight_seller 'shipment_fee_mp_seller',
+            shipment_fee_mp_seller_flat_rate + (shipment_fee_mp_seller_rate * chargeable_weight_seller) 'shipment_fee_mp_seller',
             unit_price * insurance_rate_sel 'insurance_seller',
             unit_price * insurance_rate_sel * insurance_vat_rate_sel 'insurance_vat_seller',
-            - (flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) 'delivery_cost',
+            -(flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) 'delivery_cost',
             (flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) * delivery_cost_discount_rate 'delivery_cost_discount',
-            - (flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) * (1 - delivery_cost_discount_rate) * delivery_cost_vat_rate 'delivery_cost_vat',
+            -(flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) * (1 - delivery_cost_discount_rate) * delivery_cost_vat_rate 'delivery_cost_vat',
             - pickup_cost_rate * chargeable_weight_3pl 'pickup_cost',
             pickup_cost_rate * chargeable_weight_3pl * pickup_cost_discount_rate 'pickup_cost_discount',
             - pickup_cost_rate * chargeable_weight_3pl * (1 - pickup_cost_discount_rate) * pickup_cost_vat_rate 'pickup_cost_vat',
@@ -194,6 +195,11 @@ FROM
             IFNULL(ae.rounding_3pl, 0) 'rounding_3pl',
             IFNULL(ae.rounding_seller, 0) 'rounding_seller',
             IFNULL(CASE
+                WHEN css.id_campaign_shipment_scheme IS NOT NULL THEN css.shipment_fee_mp_seller_flat_rate
+                WHEN cam.id_campaign IS NOT NULL THEN cam.shipment_fee_mp_seller_flat_rate
+                ELSE ae.shipment_fee_mp_seller_flat_rate
+            END, 0) 'shipment_fee_mp_seller_flat_rate',
+            IFNULL(CASE
                 WHEN css.id_campaign_shipment_scheme IS NOT NULL THEN css.shipment_fee_mp_seller_rate
                 WHEN cam.id_campaign IS NOT NULL THEN cam.shipment_fee_mp_seller_rate
                 ELSE ae.shipment_fee_mp_seller_rate
@@ -209,6 +215,7 @@ FROM
             cs.rounding_3pl,
             cs.rounding_seller,
             cs.rate_card_scheme,
+            cs.shipment_fee_mp_seller_flat_rate,
             cs.shipment_fee_mp_seller_rate,
             cs.pickup_cost_rate,
             cs.pickup_cost_discount_rate,
@@ -312,11 +319,12 @@ FROM
                         AND ae.payment_method <> IFNULL(ss.exclude_payment_method, 0)
                         AND IFNULL(ae.first_shipment_provider, 1) NOT LIKE CONCAT('%', IFNULL(ss.exclude_shipment_provider, 'exclude_shipment_provider'), '%')
                         AND IFNULL(ae.last_shipment_provider, 1) NOT LIKE CONCAT('%', IFNULL(ss.exclude_shipment_provider, 'exclude_shipment_provider'), '%')
-                        AND IFNULL(ae.shipping_fee_credit, 0) > IFNULL(ss.shipping_fee_credit, -9999999999)
+                        AND IFNULL(ae.shipping_fee_credit, 0) > IFNULL(ss.shipping_fee_credit, - 9999999999)
                         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= ss.start_date
                         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= ss.end_date) 'fk_shipment_scheme'
     FROM
-        scglv3.anondb_extract ae) ae
+        scglv3.anondb_extract ae
+    LIMIT 1000) ae
     LEFT JOIN scglv3.shipment_scheme ss ON ae.fk_shipment_scheme = ss.id_shipment_scheme) ae) ae
     LEFT JOIN scglv3.charges_scheme cs ON ae.fk_charges_scheme = cs.id_charges_scheme
     LEFT JOIN scglv3.weight_threshold wt ON GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= wt.start_date

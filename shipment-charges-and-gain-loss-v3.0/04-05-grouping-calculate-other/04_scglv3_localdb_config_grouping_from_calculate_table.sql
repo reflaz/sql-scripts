@@ -65,6 +65,7 @@ SELECT
     qty,
     rounding_seller,
     rounding_3pl,
+    shipment_fee_mp_seller_flat_rate,
     shipment_fee_mp_seller_rate,
     pickup_cost_rate,
     pickup_cost_discount_rate,
@@ -97,7 +98,7 @@ SELECT
 FROM
     (SELECT 
         *,
-            shipment_fee_mp_seller_rate * chargeable_weight_seller 'shipment_fee_mp_seller',
+            shipment_fee_mp_seller_flat_rate + (shipment_fee_mp_seller_rate * chargeable_weight_seller) 'shipment_fee_mp_seller',
             unit_price * insurance_rate_sel 'insurance_seller',
             unit_price * insurance_rate_sel * insurance_vat_rate_sel 'insurance_vat_seller',
             - (flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) 'delivery_cost',
@@ -197,6 +198,11 @@ FROM
             IFNULL(ae.rounding_3pl, 0) 'rounding_3pl',
             IFNULL(ae.rounding_seller, 0) 'rounding_seller',
             IFNULL(CASE
+                WHEN css.id_campaign_shipment_scheme IS NOT NULL THEN css.shipment_fee_mp_seller_flat_rate
+                WHEN cam.id_campaign IS NOT NULL THEN cam.shipment_fee_mp_seller_flat_rate
+                ELSE ae.shipment_fee_mp_seller_flat_rate
+            END, 0) 'shipment_fee_mp_seller_flat_rate',
+            IFNULL(CASE
                 WHEN css.id_campaign_shipment_scheme IS NOT NULL THEN css.shipment_fee_mp_seller_rate
                 WHEN cam.id_campaign IS NOT NULL THEN cam.shipment_fee_mp_seller_rate
                 ELSE ae.shipment_fee_mp_seller_rate
@@ -212,6 +218,7 @@ FROM
             cs.rounding_3pl,
             cs.rounding_seller,
             cs.rate_card_scheme,
+            cs.shipment_fee_mp_seller_flat_rate,
             cs.shipment_fee_mp_seller_rate,
             cs.pickup_cost_rate,
             cs.pickup_cost_discount_rate,

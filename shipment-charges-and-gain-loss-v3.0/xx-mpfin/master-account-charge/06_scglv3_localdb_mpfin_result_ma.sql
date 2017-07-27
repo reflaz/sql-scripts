@@ -85,6 +85,11 @@ SELECT
     campaign,
     CASE
         WHEN
+            shipment_scheme LIKE '%GO-JEK%'
+                OR shipment_scheme LIKE '%EXPRESS%'
+        THEN
+            'EXPRESS'
+        WHEN
             campaign = 'VIP Seller'
         THEN
             CASE
