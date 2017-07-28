@@ -323,8 +323,7 @@ FROM
                         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= ss.start_date
                         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= ss.end_date) 'fk_shipment_scheme'
     FROM
-        scglv3.anondb_extract ae
-    LIMIT 1000) ae
+        scglv3.anondb_extract ae) ae
     LEFT JOIN scglv3.shipment_scheme ss ON ae.fk_shipment_scheme = ss.id_shipment_scheme) ae) ae
     LEFT JOIN scglv3.charges_scheme cs ON ae.fk_charges_scheme = cs.id_charges_scheme
     LEFT JOIN scglv3.weight_threshold wt ON GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= wt.start_date
