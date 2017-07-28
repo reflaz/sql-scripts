@@ -1,0 +1,4 @@
+id_campaign_shipment_scheme,fk_campaign,shipment_scheme,shipment_fee_mp_seller_rate,start_date,end_date
+1,2,GO-JEK FBL,3000,2017-07-01 00:00:00,9999-12-31 23:59:59
+2,2,EXPRESS FBL,3000,2017-07-01 00:00:00,9999-12-31 23:59:59
+3,2,FBL,3000,2017-07-01 00:00:00,9999-12-31 23:59:59

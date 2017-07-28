@@ -1,0 +1,5 @@
+1. Fill in 00_formget_template.xlsx with invoice/formget data, columns marked with red color must be filled, save it in csv format
+2. Run extraction script in anon db with designated parameter (by order number)
+3. Import extracted data and invoice/formget data using batch file in their respective import folders
+4. Run grouping and calculation scripts (04 & 05) in local db
+5. Run 06_scglv3_localdb_db_fr script and save result
