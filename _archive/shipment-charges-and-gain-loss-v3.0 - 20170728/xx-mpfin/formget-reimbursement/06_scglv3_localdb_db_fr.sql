@@ -65,7 +65,7 @@ FROM
             SUM(IFNULL(total_failed_delivery_cost_item, 0)) 'total_shipment_fee_mp_seller',
             SUM(IFNULL(seller_cr_db_item, 0)) 'weekly_reimbursement'
     FROM
-        anondb_calculate
+        scglv3.anondb_calculate
     WHERE
         shipment_scheme LIKE '%DIRECT BILLING%'
     GROUP BY order_nr , bob_id_supplier) ac

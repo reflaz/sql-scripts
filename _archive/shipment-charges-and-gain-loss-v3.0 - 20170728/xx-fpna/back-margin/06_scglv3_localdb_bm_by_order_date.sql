@@ -14,8 +14,6 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv3;
-
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2017-07-01';
@@ -35,12 +33,12 @@ SELECT
     bm.bm_date,
     SUM(bm.backmargin) 'backmargin'
 FROM
-    anondb_calculate ac
+    scglv3.anondb_calculate ac
         JOIN
-    backmargin bm ON ac.sku = bm.sku
+    scglv3.backmargin bm ON ac.sku = bm.sku
         AND DATE(ac.order_date) = bm.bm_date
         LEFT JOIN
-    category_tree ct ON ac.primary_category = ct.id_primary_category
+    scglv3.category_tree ct ON ac.primary_category = ct.id_primary_category
 WHERE
     ac.order_date >= @extractstart
         AND ac.order_date < @extractend

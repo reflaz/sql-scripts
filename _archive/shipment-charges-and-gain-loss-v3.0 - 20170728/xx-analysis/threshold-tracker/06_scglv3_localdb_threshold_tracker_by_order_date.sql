@@ -61,8 +61,8 @@ FROM
                 ELSE 'OTHER'
             END 'bu'
     FROM
-        anondb_calculate ac
-    LEFT JOIN shipping_fee_rate_card sfrc ON ac.id_district = sfrc.destination_zone
+        scglv3.anondb_calculate ac
+    LEFT JOIN scglv3.shipping_fee_rate_card sfrc ON ac.id_district = sfrc.destination_zone
         AND sfrc.leadtime = 'Standard'
         AND ac.origin = sfrc.origin
         AND sfrc.charging_level = 'Source'

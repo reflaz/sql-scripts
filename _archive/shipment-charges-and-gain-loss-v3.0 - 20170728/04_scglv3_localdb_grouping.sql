@@ -13,11 +13,9 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv3;
-
 SET SQL_SAFE_UPDATES = 0;
 
-UPDATE campaign_tracker 
+UPDATE scglv3.campaign_tracker 
 SET 
     end_date = CASE
         WHEN
@@ -30,9 +28,9 @@ SET
 
 SET SQL_SAFE_UPDATES = 1;
 
-TRUNCATE anondb_extract_temp;
+TRUNCATE scglv3.anondb_extract_temp;
 
-INSERT INTO anondb_extract_temp
+INSERT INTO scglv3.anondb_extract_temp
 SELECT 
     bob_id_sales_order_item,
     order_nr,
@@ -100,9 +98,9 @@ FROM
             shipment_fee_mp_seller_flat_rate + (shipment_fee_mp_seller_rate * chargeable_weight_seller) 'shipment_fee_mp_seller',
             unit_price * insurance_rate_sel 'insurance_seller',
             unit_price * insurance_rate_sel * insurance_vat_rate_sel 'insurance_vat_seller',
-            - (flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) 'delivery_cost',
+            -(flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) 'delivery_cost',
             (flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) * delivery_cost_discount_rate 'delivery_cost_discount',
-            - (flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) * (1 - delivery_cost_discount_rate) * delivery_cost_vat_rate 'delivery_cost_vat',
+            -(flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) * (1 - delivery_cost_discount_rate) * delivery_cost_vat_rate 'delivery_cost_vat',
             - pickup_cost_rate * chargeable_weight_3pl 'pickup_cost',
             pickup_cost_rate * chargeable_weight_3pl * pickup_cost_discount_rate 'pickup_cost_discount',
             - pickup_cost_rate * chargeable_weight_3pl * (1 - pickup_cost_discount_rate) * pickup_cost_vat_rate 'pickup_cost_vat',
@@ -258,7 +256,7 @@ FROM
             (SELECT 
                     MIN(cs.id_charges_scheme)
                 FROM
-                    charges_scheme cs
+                    scglv3.charges_scheme cs
                 WHERE
                     ae.shipment_scheme = cs.shipment_scheme
                         AND ae.is_marketplace = IFNULL(cs.is_marketplace, ae.is_marketplace)
@@ -275,8 +273,8 @@ FROM
                 ELSE (SELECT 
                         MIN(ct.fk_campaign)
                     FROM
-                        campaign_tracker ct
-                    LEFT JOIN campaign_mapping cm ON ct.fk_campaign = cm.fk_campaign
+                        scglv3.campaign_tracker ct
+                    LEFT JOIN scglv3.campaign_mapping cm ON ct.fk_campaign = cm.fk_campaign
                     WHERE
                         ae.bob_id_supplier = ct.bob_id_supplier
                             AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= ct.start_date
@@ -291,12 +289,26 @@ FROM
     FROM
         (SELECT 
         ae.*,
-            IFNULL(config_weight, 0) 'weight_3pl',
-            IFNULL(config_length * config_width * config_height / 6000, 0) 'volumetric_weight_3pl',
+            IFNULL(CASE
+                WHEN
+                    simple_weight > 0
+                        OR (simple_length * simple_width * simple_height) > 0
+                THEN
+                    simple_weight
+                ELSE config_weight
+            END, 0) 'weight_3pl',
+            IFNULL(CASE
+                WHEN
+                    simple_weight > 0
+                        OR (simple_length * simple_width * simple_height) > 0
+                THEN
+                    (simple_length * simple_width * simple_height) / 6000
+                ELSE config_length * config_width * config_height / 6000
+            END, 0) 'volumetric_weight_3pl',
             (SELECT 
                     MIN(id_shipment_scheme)
                 FROM
-                    shipment_scheme ss
+                    scglv3.shipment_scheme ss
                 WHERE
                     IFNULL(ae.tax_class, 1) = IFNULL(ss.tax_class, IFNULL(ae.tax_class, 1))
                         AND IFNULL(ae.delivery_type, 1) = IFNULL(ss.delivery_type, IFNULL(ae.delivery_type, 1))
@@ -307,41 +319,41 @@ FROM
                         AND ae.payment_method <> IFNULL(ss.exclude_payment_method, 0)
                         AND IFNULL(ae.first_shipment_provider, 1) NOT LIKE CONCAT('%', IFNULL(ss.exclude_shipment_provider, 'exclude_shipment_provider'), '%')
                         AND IFNULL(ae.last_shipment_provider, 1) NOT LIKE CONCAT('%', IFNULL(ss.exclude_shipment_provider, 'exclude_shipment_provider'), '%')
-                        AND IFNULL(ae.shipping_fee_credit, 0) > IFNULL(ss.shipping_fee_credit, -9999999999)
+                        AND IFNULL(ae.shipping_fee_credit, 0) > IFNULL(ss.shipping_fee_credit, - 9999999999)
                         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= ss.start_date
                         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= ss.end_date) 'fk_shipment_scheme'
     FROM
-        anondb_extract ae) ae
-    LEFT JOIN shipment_scheme ss ON ae.fk_shipment_scheme = ss.id_shipment_scheme) ae) ae
-    LEFT JOIN charges_scheme cs ON ae.fk_charges_scheme = cs.id_charges_scheme
-    LEFT JOIN weight_threshold wt ON GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= wt.start_date
+        scglv3.anondb_extract ae) ae
+    LEFT JOIN scglv3.shipment_scheme ss ON ae.fk_shipment_scheme = ss.id_shipment_scheme) ae) ae
+    LEFT JOIN scglv3.charges_scheme cs ON ae.fk_charges_scheme = cs.id_charges_scheme
+    LEFT JOIN scglv3.weight_threshold wt ON GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= wt.start_date
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= wt.end_date
-    LEFT JOIN zone_mapping zm ON ae.id_district = zm.id_district
+    LEFT JOIN scglv3.zone_mapping zm ON ae.id_district = zm.id_district
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= zm.start_date
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= zm.end_date) ae
-    LEFT JOIN campaign cam ON ae.fk_campaign = cam.id_campaign
+    LEFT JOIN scglv3.campaign cam ON ae.fk_campaign = cam.id_campaign
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= cam.start_date
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= cam.end_date
-    LEFT JOIN campaign_shipment_scheme css ON ae.fk_campaign = css.fk_campaign
+    LEFT JOIN scglv3.campaign_shipment_scheme css ON ae.fk_campaign = css.fk_campaign
         AND ae.shipment_scheme = css.shipment_scheme
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= css.start_date
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= css.end_date
-    LEFT JOIN weight_threshold wt ON GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= wt.start_date
+    LEFT JOIN scglv3.weight_threshold wt ON GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= wt.start_date
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= wt.end_date
     GROUP BY ae.id_package_dispatching , ae.order_nr , ae.bob_id_supplier) ae
-    LEFT JOIN insurance_scheme ins_sel ON ae.shipment_scheme = ins_sel.shipment_scheme
+    LEFT JOIN scglv3.insurance_scheme ins_sel ON ae.shipment_scheme = ins_sel.shipment_scheme
         AND ins_sel.type = 'seller'
         AND ae.unit_price > ins_sel.min_unit_price
         AND ae.unit_price <= IFNULL(ins_sel.max_unit_price, ae.unit_price)
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= ins_sel.start_date
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= ins_sel.end_date
-    LEFT JOIN insurance_scheme ins_3pl ON ae.shipment_scheme = ins_3pl.shipment_scheme
+    LEFT JOIN scglv3.insurance_scheme ins_3pl ON ae.shipment_scheme = ins_3pl.shipment_scheme
         AND ins_3pl.type = '3pl'
         AND ae.unit_price > ins_3pl.min_unit_price
         AND ae.unit_price <= IFNULL(ins_3pl.max_unit_price, ae.unit_price)
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= ins_3pl.start_date
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= ins_3pl.end_date
-    LEFT JOIN shipping_fee_rate_card_3pl scfr3pl ON ae.id_district = scfr3pl.id_district
+    LEFT JOIN scglv3.shipping_fee_rate_card_3pl scfr3pl ON ae.id_district = scfr3pl.id_district
         AND ae.origin = scfr3pl.origin
         AND ae.rate_card_scheme = scfr3pl.rate_card_scheme
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= scfr3pl.start_date

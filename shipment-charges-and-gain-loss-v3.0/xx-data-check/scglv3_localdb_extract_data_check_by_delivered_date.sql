@@ -13,6 +13,8 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
+USE scglv3;
+
 SET @extractstart = '2016-01-01';
 SET @extractend = '2016-07-01';
 
@@ -23,7 +25,7 @@ FROM
         DATE_FORMAT(delivered_date, '%Y-%m-%d') 'delivered_date',
             bob_id_sales_order_item
     FROM
-        scglv3.anondb_extract
+        anondb_extract
     WHERE
         delivered_date >= @extractstart
             AND delivered_date < @extractend) ae

@@ -14,8 +14,6 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv3;
-
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2017-07-01';
@@ -110,10 +108,10 @@ FROM
                 ELSE 1
             END 'pass'
     FROM
-        anondb_calculate ac
-    LEFT JOIN category_general_commission gc ON ac.primary_category = gc.id_primary_category
+        scglv3.anondb_calculate ac
+    LEFT JOIN scglv3.category_general_commission gc ON ac.primary_category = gc.id_primary_category
         AND ac.tax_class = gc.tax_class
-    LEFT JOIN category_general_commission rc ON ac.primary_category = rc.id_primary_category
+    LEFT JOIN scglv3.category_general_commission rc ON ac.primary_category = rc.id_primary_category
         AND ac.tax_class = rc.tax_class
         AND rc.id_primary_category = 1
     WHERE

@@ -13,7 +13,9 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-INSERT INTO scglv3.anondb_calculate_config 
+USE scglv3;
+
+INSERT INTO anondb_calculate_config 
 SELECT 
     *
 FROM
@@ -210,7 +212,7 @@ FROM
             (SELECT 
                     MIN(id_payment_cost_mapping)
                 FROM
-                    scglv3.payment_cost_mapping pcm
+                    payment_cost_mapping pcm
                 WHERE
                     IFNULL(ae.payment_method, 1) = IFNULL(pcm.payment_method, ae.payment_method)
                         AND IFNULL(NULLIF(ae.tenor, ''), 1) = IFNULL(pcm.tenor, 1)
@@ -284,13 +286,13 @@ FROM
         (SELECT 
         *
     FROM
-        scglv3.anondb_extract_temp) aet
-    LEFT JOIN scglv3.anondb_extract ae ON aet.order_nr = ae.order_nr
+        anondb_extract_temp) aet
+    LEFT JOIN anondb_extract ae ON aet.order_nr = ae.order_nr
         AND aet.bob_id_supplier = ae.bob_id_supplier
         AND IFNULL(aet.id_package_dispatching, 1) = IFNULL(ae.id_package_dispatching, 1)) ae
-    LEFT JOIN scglv3.weight_threshold wt ON GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= wt.start_date
+    LEFT JOIN weight_threshold wt ON GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= wt.start_date
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= wt.end_date
-    LEFT JOIN scglv3.payment_cost_mapping pcm ON ae.fk_payment_cost_mapping = pcm.id_payment_cost_mapping) ae) ae) ae) ae
+    LEFT JOIN payment_cost_mapping pcm ON ae.fk_payment_cost_mapping = pcm.id_payment_cost_mapping) ae) ae) ae) ae
 ON DUPLICATE KEY UPDATE
 	-- bob_id_sales_order_item = ae.bob_id_sales_order_item,
 	-- sc_sales_order_item = ae.sc_sales_order_item,

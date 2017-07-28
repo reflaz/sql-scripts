@@ -14,8 +14,6 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv3;
-
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2017-07-01';
@@ -706,8 +704,8 @@ FROM
             END / 1.1 'payment_fee',
             IF(coupon_type = 'coupon', IFNULL(coupon_money_value / 1.1, 0), 0) + cart_rule_discount 'discount'
     FROM
-        anondb_calculate ac
-    LEFT JOIN category_tree ct ON ac.primary_category = ct.id_primary_category
+        scglv3.anondb_calculate ac
+    LEFT JOIN scglv3.category_tree ct ON ac.primary_category = ct.id_primary_category
 	WHERE
 		(delivered_date >= @extractstart AND delivered_date < @extractend)
 			OR (not_delivered_date >= @extractstart AND not_delivered_date < @extractend)

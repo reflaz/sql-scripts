@@ -13,21 +13,18 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv3;
-
 SET @extractstart = '2016-01-01';
 SET @extractend = '2016-07-01';
 
 SELECT 
-    first_shipped_date,
-    COUNT(bob_id_sales_order_item) 'count_soi'
+    order_date, COUNT(bob_id_sales_order_item) 'count_soi'
 FROM
     (SELECT 
-        DATE_FORMAT(first_shipped_date, '%Y-%m-%d') 'first_shipped_date',
+        DATE_FORMAT(order_date, '%Y-%m-%d') 'order_date',
             bob_id_sales_order_item
     FROM
-        anondb_calculate
+        scglv3.anondb_calculate
     WHERE
-        first_shipped_date >= @extractstart
-            AND first_shipped_date < @extractend) ae
-GROUP BY first_shipped_date
+        order_date >= @extractstart
+            AND order_date < @extractend) ae
+GROUP BY order_date

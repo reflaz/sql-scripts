@@ -14,8 +14,6 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv3;
-
 SET @extractstart = '2016-01-01';
 SET @extractend = '2016-07-01';
 
@@ -46,8 +44,8 @@ FROM
                 ELSE 1
             END 'pass'
     FROM
-        anondb_calculate ac
-    LEFT JOIN zone_mapping zm ON ac.id_district = zm.id_district
+        scglv3.anondb_calculate ac
+    LEFT JOIN scglv3.zone_mapping zm ON ac.id_district = zm.id_district
         AND GREATEST(ac.order_date, IFNULL(ac.first_shipped_date, 1)) >= zm.start_date
         AND GREATEST(ac.order_date, IFNULL(ac.first_shipped_date, 1)) <= zm.end_date
     WHERE

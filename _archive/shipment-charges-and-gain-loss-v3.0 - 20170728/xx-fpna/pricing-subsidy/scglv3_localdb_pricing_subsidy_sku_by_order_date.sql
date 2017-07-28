@@ -14,8 +14,6 @@ Instructions	: - Change @extractstart and @extractstart for a specific weekly/mo
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv3;
-
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2016-10-21';
@@ -63,7 +61,7 @@ FROM
                 WHEN order_date >= '2016-10-21' and order_date < '2016-12-01' and sku = 'AC016ELAA57M8DANID-10481220' THEN paid_price
             END AS temp_paid_price
     FROM
-		anondb_calculate
+		scglv3.anondb_calculate
     WHERE
 		order_date >= @extractstart
             AND order_date < @extractend

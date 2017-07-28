@@ -136,7 +136,7 @@ SELECT
     SUM(total_delivery_cost_item) 'total_delivery_cost',
     SUM(total_failed_delivery_cost_item) 'total_failed_delivery_cost'
 FROM
-    anondb_calculate ac
+    scglv3.anondb_calculate ac
 WHERE
     shipment_scheme IN ('GO-JEK' , 'GO-JEK FBL',
         'EXPRESS',

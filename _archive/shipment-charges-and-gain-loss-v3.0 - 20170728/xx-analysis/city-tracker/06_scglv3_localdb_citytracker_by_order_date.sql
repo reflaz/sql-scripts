@@ -1,21 +1,3 @@
-/*-----------------------------------------------------------------------------------------------------------------------------------
--------------------------------------------------------------------------------------------------------------------------------------
-City Tracker
- 
-Prepared by		: Ryan Disastra
-Modified by		: 
-Version			: 1.0
-Changes made	: 
-
-Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
-                  - Run the query by pressing the execute button
-                  - Wait until the query finished, then export the result
-                  - Close the query WITHOUT SAVING ANY CHANGES
--------------------------------------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------------------*/
-
-USE scglv3;
-
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2017-06-26';
@@ -122,8 +104,8 @@ FROM
             IFNULL(simple_weight, 0) 'simple_weight',
             IFNULL((simple_length * simple_width * simple_height / 6000), 0) 'vol_sim_weight'
     FROM
-        anondb_calculate ac
-    LEFT JOIN zone_mapping zm ON ac.id_district = zm.id_district
+        scglv3.anondb_calculate ac
+    LEFT JOIN scglv3.zone_mapping zm ON ac.id_district = zm.id_district
         AND GREATEST(ac.order_date, IFNULL(ac.first_shipped_date, 1)) >= zm.start_date
         AND GREATEST(ac.order_date, IFNULL(ac.first_shipped_date, 1)) <= zm.end_date
     WHERE
@@ -132,19 +114,19 @@ FROM
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
     HAVING pass = 1) item
     GROUP BY order_nr , id_package_dispatching) pack) package
-    LEFT JOIN shipping_fee_rate_card sfrc ON package.id_district_temp = sfrc.destination_zone
+    LEFT JOIN scglv3.shipping_fee_rate_card sfrc ON package.id_district_temp = sfrc.destination_zone
         AND sfrc.origin = package.origin_temp
         AND sfrc.charging_level = 'Source'
         AND sfrc.threshold_level = 'Source'
         AND sfrc.leadtime = 'Standard'
         AND sfrc.fee_type = 'FIX'
-    LEFT JOIN shipping_fee_rate_card_kg sfrck ON package.id_district_temp = sfrck.destination_zone
+    LEFT JOIN scglv3.shipping_fee_rate_card_kg sfrck ON package.id_district_temp = sfrck.destination_zone
         AND sfrck.origin = package.origin_temp
         AND sfrck.leadtime = 'Standard'
         AND sfrck.id_shipping_fee_rate_card_kg = (SELECT 
             MIN(sfrc_kg.id_shipping_fee_rate_card_kg)
         FROM
-            shipping_fee_rate_card_kg sfrc_kg
+            scglv3.shipping_fee_rate_card_kg sfrc_kg
         WHERE
             sfrc_kg.destination_zone = package.id_district_temp
                 AND sfrc_kg.origin = package.origin_temp
@@ -155,12 +137,12 @@ FROM
             origin,
             weight_break 'max_weight_break'
     FROM
-        shipping_fee_rate_card_kg sfrck
+        scglv3.shipping_fee_rate_card_kg sfrck
     WHERE
         sfrck.id_shipping_fee_rate_card_kg = (SELECT 
                 MAX(sfrck_max.id_shipping_fee_rate_card_kg)
             FROM
-                shipping_fee_rate_card_kg sfrck_max
+                scglv3.shipping_fee_rate_card_kg sfrck_max
             WHERE
                 sfrck_max.weight_break NOT LIKE '%999999%'
                     AND sfrck_max.destination_zone = sfrck.destination_zone

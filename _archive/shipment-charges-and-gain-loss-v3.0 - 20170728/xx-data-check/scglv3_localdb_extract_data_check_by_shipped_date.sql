@@ -13,8 +13,6 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv3;
-
 SET @extractstart = '2016-01-01';
 SET @extractend = '2016-07-01';
 
@@ -26,7 +24,7 @@ FROM
         DATE_FORMAT(first_shipped_date, '%Y-%m-%d') 'first_shipped_date',
             bob_id_sales_order_item
     FROM
-        anondb_calculate
+        scglv3.anondb_extract
     WHERE
         first_shipped_date >= @extractstart
             AND first_shipped_date < @extractend) ae

@@ -1,3 +1,21 @@
+/*-----------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------
+Subsidy Tracker
+ 
+Prepared by		: Ryan Disastra
+Modified by		: 
+Version			: 1.0
+Changes made	: 
+
+Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
+                  - Run the query by pressing the execute button
+                  - Wait until the query finished, then export the result
+                  - Close the query WITHOUT SAVING ANY CHANGES
+-------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+USE scglv3;
+
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2017-06-26';
@@ -95,8 +113,8 @@ FROM
             IFNULL(simple_weight, 0) 'simple_weight',
             IFNULL((simple_length * simple_width * simple_height / 6000), 0) 'vol_sim_weight'
     FROM
-        scglv3.anondb_calculate ac
-    LEFT JOIN scglv3.zone_mapping zm ON ac.id_district = zm.id_district
+        anondb_calculate ac
+    LEFT JOIN zone_mapping zm ON ac.id_district = zm.id_district
         AND GREATEST(ac.order_date, IFNULL(ac.first_shipped_date, 1)) >= zm.start_date
         AND GREATEST(ac.order_date, IFNULL(ac.first_shipped_date, 1)) <= zm.end_date
     WHERE
