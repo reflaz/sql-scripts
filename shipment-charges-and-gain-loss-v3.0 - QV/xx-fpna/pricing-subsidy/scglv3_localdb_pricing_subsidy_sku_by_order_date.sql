@@ -14,7 +14,7 @@ Instructions	: - Change @extractstart and @extractstart for a specific weekly/mo
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv3_qv;
+USE scglv3;
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'

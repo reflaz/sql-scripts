@@ -14,7 +14,7 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv3_qv;
+USE scglv3;
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
