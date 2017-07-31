@@ -43,6 +43,8 @@ FROM
             asc_soi.sc_payment_fee,
             asc_soi.sc_shipping_fee,
             asc_soi.sc_commission_fee,
+            asc_soi.sc_seller_credit_item,
+            asc_soi.sc_seller_debit_item,
             soi.coupon_money_value,
             soi.cart_rule_discount,
             so.coupon_code,
@@ -53,6 +55,7 @@ FROM
             so.created_at 'order_date',
             MIN(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'first_shipped_date',
             MAX(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'last_shipped_date',
+            MIN(IF(soish.fk_sales_order_item_status = 27, soish.real_action_date, NULL)) 'real_delivered_date',
             MIN(IF(soish.fk_sales_order_item_status = 27, soish.created_at, NULL)) 'delivered_date',
             MIN(IF(soish.fk_sales_order_item_status = 27, user.username, NULL)) 'delivery_updater',
             pck.package_number,
@@ -62,9 +65,9 @@ FROM
             pd.tracking_number 'last_tracking_number',
             sp2.shipment_provider_name 'last_shipment_provider',
             CASE
+                WHEN asc_sel.tax_class = 1 THEN 'Cross Border'
                 WHEN
                     sup.type = 'supplier'
-                        OR asc_sel.tax_class = 1
                         OR st.name = 'warehouse'
                         OR soi.fk_mwh_warehouse <> 1
                         OR sfom.origin IS NULL
@@ -85,12 +88,15 @@ FROM
             asc_soi.id_sales_order_item 'sc_sales_order_item',
             SUM(IF(asc_tr.fk_transaction_type = 3, asc_tr.value, 0)) 'sc_payment_fee',
             SUM(IF(asc_tr.fk_transaction_type = 7, asc_tr.value, 0)) 'sc_shipping_fee',
-            SUM(IF(asc_tr.fk_transaction_type = 16, asc_tr.value, 0)) 'sc_commission_fee'
+            SUM(IF(asc_tr.fk_transaction_type = 16, asc_tr.value, 0)) 'sc_commission_fee',
+            SUM(IF(asc_tr.fk_transaction_type = 36, asc_tr.value, 0)) 'sc_seller_credit_item',
+            SUM(IF(asc_tr.fk_transaction_type = 37, asc_tr.value, 0)) 'sc_seller_debit_item'
     FROM
         asc_live.sales_order_item asc_soi
     LEFT JOIN asc_live.transaction asc_tr ON asc_soi.id_sales_order_item = asc_tr.ref
     WHERE
         asc_soi.id_sales_order_item IN ()
+            AND asc_tr.fk_transaction_type IN (3 , 7, 16, 36, 37)
     GROUP BY asc_soi.id_sales_order_item) asc_soi
     LEFT JOIN oms_live.ims_sales_order_item soi ON asc_soi.src_id = soi.id_sales_order_item
     LEFT JOIN oms_live.oms_shipping_type st ON soi.fk_shipping_type = st.id_shipping_type

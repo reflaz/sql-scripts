@@ -1,9 +1,9 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-SOI Details by Package Number
+Package Details by Package Number
  
 Prepared by		: Michael Julius
-Modified by		: RM
+Modified by		: 
 Version			: 1.0
 Changes made	: 
 
@@ -33,13 +33,15 @@ FROM
             seller_name,
             seller_type,
             tax_class,
-            unit_price,
-            paid_price,
-            shipping_amount,
-            shipping_surcharge,
-            sc_payment_fee,
-            sc_shipping_fee,
-            sc_commission_fee,
+            SUM(unit_price) AS total_unit_price,
+            SUM(paid_price) AS total_paid_price,
+            SUM(shipping_amount) AS total_shipping_amount,
+            SUM(shipping_surcharge) AS total_shipping_surcharge,
+            SUM(sc_payment_fee) AS sc_payment_fee,
+            SUM(sc_shipping_fee) AS sc_shipping_fee,
+            SUM(sc_commission_fee) AS sc_commission_fee,
+            SUM(sc_seller_credit_item) AS sc_seller_credit_item,
+            SUM(sc_seller_debit_item) AS sc_seller_debit_item,
             coupon_money_value,
             cart_rule_discount,
             coupon_code,
@@ -50,8 +52,8 @@ FROM
             order_date,
             first_shipped_date,
             last_shipped_date,
+            real_delivered_date,
             delivered_date,
-            not_delivered_date,
             delivery_updater,
             package_number,
             invoice_number,
@@ -61,11 +63,7 @@ FROM
             last_shipment_provider,
             origin,
             destination_city,
-            id_district,
-            uid,
-            inventory_status,
-            ro_number,
-            ro_status
+            id_district
     FROM
         (SELECT 
         soi.bob_id_sales_order_item,
@@ -90,6 +88,8 @@ FROM
             IF(asc_tr.fk_transaction_type = 3, asc_tr.value, 0) 'sc_payment_fee',
             IF(asc_tr.fk_transaction_type = 7, asc_tr.value, 0) 'sc_shipping_fee',
             IF(asc_tr.fk_transaction_type = 16, asc_tr.value, 0) 'sc_commission_fee',
+            IF(asc_tr.fk_transaction_type = 36, asc_tr.value, 0) 'sc_seller_credit_item',
+            IF(asc_tr.fk_transaction_type = 37, asc_tr.value, 0) 'sc_seller_debit_item',
             soi.coupon_money_value,
             soi.cart_rule_discount,
             so.coupon_code,
@@ -100,9 +100,9 @@ FROM
             so.created_at 'order_date',
             MIN(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'first_shipped_date',
             MAX(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'last_shipped_date',
+            MIN(IF(soish.fk_sales_order_item_status = 27, soish.real_action_date, NULL)) 'real_delivered_date',
             MIN(IF(soish.fk_sales_order_item_status = 27, soish.created_at, NULL)) 'delivered_date',
-            MIN(IF(soish.fk_sales_order_item_status = 44, soish.created_at, NULL)) 'not_delivered_date',
-            MIN(IF(soish.fk_sales_order_item_status IN (27 , 44), user.username, NULL)) 'delivery_updater',
+            MIN(IF(soish.fk_sales_order_item_status = 27, user.username, NULL)) 'delivery_updater',
             package_number,
             pck.invoice_number,
             first_tracking_number,
@@ -110,9 +110,9 @@ FROM
             last_tracking_number,
             last_shipment_provider,
             CASE
+                WHEN asc_sel.tax_class = 1 THEN 'Cross Border'
                 WHEN
                     sup.type = 'supplier'
-                        OR asc_sel.tax_class = 1
                         OR st.name = 'warehouse'
                         OR soi.fk_mwh_warehouse <> 1
                         OR sfom.origin IS NULL
@@ -126,11 +126,7 @@ FROM
                 ELSE sfom.origin
             END 'origin',
             soa.city 'destination_city',
-            dst.id_customer_address_region 'id_district',
-            inv.uid,
-            wis.name 'inventory_status',
-            sr.return_number 'ro_number',
-            srs.name 'ro_status'
+            dst.id_customer_address_region 'id_district'
     FROM
         (SELECT 
         pck.id_package,
@@ -162,22 +158,16 @@ FROM
     LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
     LEFT JOIN asc_live.sales_order_item asc_soi ON soi.id_sales_order_item = asc_soi.src_id
     LEFT JOIN asc_live.transaction asc_tr ON asc_soi.id_sales_order_item = asc_tr.ref
-        AND asc_tr.fk_transaction_type IN (3 , 7, 16)
+        AND asc_tr.fk_transaction_type IN (3 , 7, 16, 36, 37)
     LEFT JOIN bob_live.supplier sup ON soi.bob_id_supplier = sup.id_supplier
     LEFT JOIN asc_live.seller asc_sel ON sup.id_supplier = asc_sel.src_id
     LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON so.fk_voucher_type = sovt.id_sales_order_voucher_type
     LEFT JOIN oms_live.ims_sales_order_item_status sois ON soi.fk_sales_order_item_status = sois.id_sales_order_item_status
     LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
-        AND soish.fk_sales_order_item_status IN (5 , 27, 44)
+        AND soish.fk_sales_order_item_status IN (5 , 27)
     LEFT JOIN oms_live.ims_user user ON soish.fk_user = user.id_user
     LEFT JOIN oms_live.ims_sales_order_address soa ON so.fk_sales_order_address_shipping = soa.id_sales_order_address
     LEFT JOIN oms_live.ims_customer_address_region dst ON soa.fk_customer_address_region = dst.id_customer_address_region
-    LEFT JOIN oms_live.ims_purchase_order_item poi ON soi.id_sales_order_item = poi.fk_sales_order_item
-    LEFT JOIN oms_live.oms_supplier_return_item sri ON poi.fk_purchase_order = sri.fk_purchase_order
-    LEFT JOIN oms_live.oms_supplier_return sr ON sri.fk_supplier_return = sr.id_supplier_return
-    LEFT JOIN oms_live.oms_supplier_return_status srs ON sr.fk_supplier_return_status = srs.id_supplier_return_status
-    LEFT JOIN oms_live.wms_inventory inv ON poi.id_purchase_order_item = inv.fk_purchase_order_item
-    LEFT JOIN oms_live.wms_inventory_status wis ON inv.fk_inventory_status = wis.id_inventory_status
     LEFT JOIN bob_live.supplier_address sa ON sup.id_supplier = sa.fk_supplier
         AND sa.id_supplier_address = (SELECT 
             MAX(id_supplier_address)
@@ -198,4 +188,4 @@ FROM
                 AND is_live = 1)
     LEFT JOIN oms_live.oms_flag flag ON so.fk_flag = flag.id_flag
     GROUP BY id_sales_order_item) result
-    GROUP BY id_sales_order_item) fin
+    GROUP BY bob_id_sales_order_item) fin

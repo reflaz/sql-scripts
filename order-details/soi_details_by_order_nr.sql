@@ -37,6 +37,8 @@ SELECT
     result.sc_payment_fee,
     result.sc_shipping_fee,
     result.sc_commission_fee,
+    result.sc_seller_credit_item,
+    result.sc_seller_debit_item,
     result.coupon_money_value,
     result.cart_rule_discount,
     result.coupon_code,
@@ -65,7 +67,9 @@ FROM
             asc_soi.id_sales_order_item 'sc_sales_order_item',
             SUM(IF(asc_tr.fk_transaction_type = 3, asc_tr.value, 0)) 'sc_payment_fee',
             SUM(IF(asc_tr.fk_transaction_type = 7, asc_tr.value, 0)) 'sc_shipping_fee',
-            SUM(IF(asc_tr.fk_transaction_type = 16, asc_tr.value, 0)) 'sc_commission_fee'
+            SUM(IF(asc_tr.fk_transaction_type = 16, asc_tr.value, 0)) 'sc_commission_fee',
+            SUM(IF(asc_tr.fk_transaction_type = 36, asc_tr.value, 0)) 'sc_seller_credit_item',
+            SUM(IF(asc_tr.fk_transaction_type = 37, asc_tr.value, 0)) 'sc_seller_debit_item'
     FROM
         (SELECT 
         soi.bob_id_sales_order_item,
@@ -106,9 +110,9 @@ FROM
             pd.tracking_number 'last_tracking_number',
             sp2.shipment_provider_name 'last_shipment_provider',
             CASE
+                WHEN ascsel.tax_class = 1 THEN 'Cross Border'
                 WHEN
                     sup.type = 'supplier'
-                        OR ascsel.tax_class = 1
                         OR st.name = 'warehouse'
                         OR soi.fk_mwh_warehouse <> 1
                         OR sfom.origin IS NULL
@@ -175,5 +179,5 @@ FROM
     GROUP BY soi.id_sales_order_item) result
     LEFT JOIN asc_live.sales_order_item asc_soi ON result.sap_item_id = asc_soi.src_id
     LEFT JOIN asc_live.transaction asc_tr ON asc_soi.id_sales_order_item = asc_tr.ref
-        AND asc_tr.fk_transaction_type IN (3 , 7, 16)
+        AND asc_tr.fk_transaction_type IN (3 , 7, 16, 36, 37)
     GROUP BY result.bob_id_sales_order_item) result
