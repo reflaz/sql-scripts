@@ -1,13 +1,15 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Shipping Charges and Gain/Loss Grouping
+Shipping Charges and Gain/Loss Grouping Using Simple and Config Weight
+Source from calculated data
 
 Prepared by		: R Maliangkay
 Modified by		: RM
 Version			: 1.0
 Changes made	: 
 
-Instructions	: - Run the query by pressing the execute button
+Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
+				  - Run the query by pressing the execute button
                   - Wait until the query finished
                   - Close the query WITHOUT SAVING ANY CHANGES
 -------------------------------------------------------------------------------------------------------------------------------------

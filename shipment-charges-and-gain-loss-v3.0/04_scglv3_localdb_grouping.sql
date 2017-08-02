@@ -1,6 +1,7 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Shipping Charges and Gain/Loss Grouping
+Shipping Charges and Gain/Loss Grouping Using Simple and Config Weight
+Source from imported data
 
 Prepared by		: R Maliangkay
 Modified by		: RM

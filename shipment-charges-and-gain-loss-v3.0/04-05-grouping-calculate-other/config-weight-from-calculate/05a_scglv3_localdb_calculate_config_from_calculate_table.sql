@@ -1,6 +1,8 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Shipping Charges and Gain/Loss Grouping
+Shipping Charges and Gain/Loss Calculate Using Config Weight
+Source from calculated data
+Destination table truncated
 
 Prepared by		: R Maliangkay
 Modified by		: RM
