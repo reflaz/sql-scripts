@@ -189,10 +189,9 @@ FROM
                         WHEN MOD(GREATEST(IFNULL(ae.temp_weight_item, 0), IFNULL(ae.temp_volumetric_weight_item, 0)), 1) <= IFNULL(ae.rounding_seller, 0) THEN FLOOR(GREATEST(IFNULL(ae.temp_weight_item, 0), IFNULL(ae.temp_volumetric_weight_item, 0)))
                         ELSE CEIL(GREATEST(IFNULL(ae.temp_weight_item, 0), IFNULL(ae.temp_volumetric_weight_item, 0)))
                     END) <= IFNULL(wt.item_threshold, 0)
-                        AND ae.zone_type LIKE '%free%'
                 THEN
-                    0
-                ELSE temp_weight_item
+                    temp_weight_item
+                ELSE 0
             END 'weight_item',
             CASE
                 WHEN GREATEST(temp_weight_item, temp_volumetric_weight_item) = 0 THEN 0
@@ -203,10 +202,9 @@ FROM
                         WHEN MOD(GREATEST(IFNULL(ae.temp_weight_item, 0), IFNULL(ae.temp_volumetric_weight_item, 0)), 1) <= IFNULL(ae.rounding_seller, 0) THEN FLOOR(GREATEST(IFNULL(ae.temp_weight_item, 0), IFNULL(ae.temp_volumetric_weight_item, 0)))
                         ELSE CEIL(GREATEST(IFNULL(ae.temp_weight_item, 0), IFNULL(ae.temp_volumetric_weight_item, 0)))
                     END) <= IFNULL(wt.item_threshold, 0)
-                        AND ae.zone_type LIKE '%free%'
                 THEN
-                    0
-                ELSE temp_volumetric_weight_item
+                    temp_volumetric_weight_item
+                ELSE 0
             END 'volumetric_weight_item'
     FROM
         (SELECT 
