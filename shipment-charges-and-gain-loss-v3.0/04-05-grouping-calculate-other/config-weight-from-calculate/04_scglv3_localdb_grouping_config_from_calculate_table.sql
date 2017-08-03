@@ -105,9 +105,9 @@ FROM
             shipment_fee_mp_seller_flat_rate + (shipment_fee_mp_seller_rate * chargeable_weight_seller) 'shipment_fee_mp_seller',
             unit_price * insurance_rate_sel 'insurance_seller',
             unit_price * insurance_rate_sel * insurance_vat_rate_sel 'insurance_vat_seller',
-            - (flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) 'delivery_cost',
+            -(flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) 'delivery_cost',
             (flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) * delivery_cost_discount_rate 'delivery_cost_discount',
-            - (flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) * (1 - delivery_cost_discount_rate) * delivery_cost_vat_rate 'delivery_cost_vat',
+            -(flat_rate + (delivery_cost_rate * chargeable_weight_3pl)) * (1 - delivery_cost_discount_rate) * delivery_cost_vat_rate 'delivery_cost_vat',
             - pickup_cost_rate * chargeable_weight_3pl 'pickup_cost',
             pickup_cost_rate * chargeable_weight_3pl * pickup_cost_discount_rate 'pickup_cost_discount',
             - pickup_cost_rate * chargeable_weight_3pl * (1 - pickup_cost_discount_rate) * pickup_cost_vat_rate 'pickup_cost_vat',
@@ -237,10 +237,9 @@ FROM
                         WHEN MOD(GREATEST(IFNULL(ae.weight_3pl, 0), IFNULL(ae.volumetric_weight_3pl, 0)), 1) <= IFNULL(cs.rounding_seller, 0) THEN FLOOR(GREATEST(IFNULL(ae.weight_3pl, 0), IFNULL(ae.volumetric_weight_3pl, 0)))
                         ELSE CEIL(GREATEST(IFNULL(ae.weight_3pl, 0), IFNULL(ae.volumetric_weight_3pl, 0)))
                     END) <= IFNULL(wt.item_threshold, 0)
-                        AND zm.zone_type LIKE '%free%'
                 THEN
-                    0
-                ELSE weight_3pl
+                    weight_3pl
+                ELSE 0
             END 'weight',
             CASE
                 WHEN GREATEST(weight_3pl, volumetric_weight_3pl) = 0 THEN 0
@@ -251,10 +250,9 @@ FROM
                         WHEN MOD(GREATEST(IFNULL(ae.weight_3pl, 0), IFNULL(ae.volumetric_weight_3pl, 0)), 1) <= IFNULL(cs.rounding_seller, 0) THEN FLOOR(GREATEST(IFNULL(ae.weight_3pl, 0), IFNULL(ae.volumetric_weight_3pl, 0)))
                         ELSE CEIL(GREATEST(IFNULL(ae.weight_3pl, 0), IFNULL(ae.volumetric_weight_3pl, 0)))
                     END) <= IFNULL(wt.item_threshold, 0)
-                        AND zm.zone_type LIKE '%free%'
                 THEN
-                    0
-                ELSE volumetric_weight_3pl
+                    volumetric_weight_3pl
+                ELSE 0
             END 'volumetric_weight',
             zm.zone_type
     FROM
@@ -295,65 +293,65 @@ FROM
         ae.*, ss.shipment_scheme
     FROM
         (SELECT 
-			ae.bob_id_sales_order_item,
-			ae.sc_sales_order_item,
-			ae.order_nr,
-			ae.payment_method,
-			ae.sku,
-			ae.primary_category,
-			ae.bob_id_supplier,
-			ae.short_code,
-			ae.seller_name,
-			ae.seller_type,
-			ae.tax_class,
-			ae.unit_price,
-			ae.paid_price,
-			ae.shipping_amount,
-			ae.shipping_surcharge,
-			ae.marketplace_commission_fee,
-			ae.coupon_money_value,
-			ae.cart_rule_discount,
-			ae.coupon_code,
-			ae.coupon_type,
-			ae.cart_rule_display_names,
-			ae.last_status,
-			ae.order_date,
-			ae.first_shipped_date,
-			ae.last_shipped_date,
-			ae.delivered_date,
-			ae.not_delivered_date,
-			ae.closed_date,
-			ae.refund_completed_date,
-			ae.pickup_provider_type,
-			ae.package_number,
-			ae.id_package_dispatching,
-			ae.tenor,
-			ae.bank,
-			ae.first_tracking_number,
-			ae.first_shipment_provider,
-			ae.last_tracking_number,
-			ae.last_shipment_provider,
-			ae.origin,
-			ae.city,
-			ae.id_district,
-			ae.config_length,
-			ae.config_width,
-			ae.config_height,
-			ae.config_weight,
-			ae.simple_length,
-			ae.simple_width,
-			ae.simple_height,
-			ae.simple_weight,
-			ae.shipping_type,
-			ae.delivery_type,
-			ae.is_marketplace,
-			ae.bob_id_customer,
-			ae.fast_delivery,
-			ae.retail_cogs,
-			ae.order_value,
-			ae.shipping_fee,
-			ae.shipping_fee_credit,
-			ae.seller_cr_db_item,
+        ae.bob_id_sales_order_item,
+            ae.sc_sales_order_item,
+            ae.order_nr,
+            ae.payment_method,
+            ae.sku,
+            ae.primary_category,
+            ae.bob_id_supplier,
+            ae.short_code,
+            ae.seller_name,
+            ae.seller_type,
+            ae.tax_class,
+            ae.unit_price,
+            ae.paid_price,
+            ae.shipping_amount,
+            ae.shipping_surcharge,
+            ae.marketplace_commission_fee,
+            ae.coupon_money_value,
+            ae.cart_rule_discount,
+            ae.coupon_code,
+            ae.coupon_type,
+            ae.cart_rule_display_names,
+            ae.last_status,
+            ae.order_date,
+            ae.first_shipped_date,
+            ae.last_shipped_date,
+            ae.delivered_date,
+            ae.not_delivered_date,
+            ae.closed_date,
+            ae.refund_completed_date,
+            ae.pickup_provider_type,
+            ae.package_number,
+            ae.id_package_dispatching,
+            ae.tenor,
+            ae.bank,
+            ae.first_tracking_number,
+            ae.first_shipment_provider,
+            ae.last_tracking_number,
+            ae.last_shipment_provider,
+            ae.origin,
+            ae.city,
+            ae.id_district,
+            ae.config_length,
+            ae.config_width,
+            ae.config_height,
+            ae.config_weight,
+            ae.simple_length,
+            ae.simple_width,
+            ae.simple_height,
+            ae.simple_weight,
+            ae.shipping_type,
+            ae.delivery_type,
+            ae.is_marketplace,
+            ae.bob_id_customer,
+            ae.fast_delivery,
+            ae.retail_cogs,
+            ae.order_value,
+            ae.shipping_fee,
+            ae.shipping_fee_credit,
+            ae.seller_cr_db_item,
             IFNULL(config_weight, 0) 'weight_3pl',
             IFNULL(config_length * config_width * config_height / 6000, 0) 'volumetric_weight_3pl',
             (SELECT 
@@ -370,18 +368,18 @@ FROM
                         AND ae.payment_method <> IFNULL(ss.exclude_payment_method, 0)
                         AND IFNULL(ae.first_shipment_provider, 1) NOT LIKE CONCAT('%', IFNULL(ss.exclude_shipment_provider, 'exclude_shipment_provider'), '%')
                         AND IFNULL(ae.last_shipment_provider, 1) NOT LIKE CONCAT('%', IFNULL(ss.exclude_shipment_provider, 'exclude_shipment_provider'), '%')
-                        AND IFNULL(ae.shipping_fee_credit, 0) > IFNULL(ss.shipping_fee_credit, -9999999999)
+                        AND IFNULL(ae.shipping_fee_credit, 0) > IFNULL(ss.shipping_fee_credit, - 9999999999)
                         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= ss.start_date
                         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= ss.end_date) 'fk_shipment_scheme'
     FROM
         anondb_calculate ae
-	WHERE
-		(ae.order_date >= @extractstart AND ae.order_date < @extractend)
-			OR
+    WHERE
+        (ae.order_date >= @extractstart AND ae.order_date < @extractend)
+            OR
 		(ae.first_shipped_date >= @extractstart AND ae.first_shipped_date < @extractend)
-			OR 
+            OR
 		(ae.delivered_date >= @extractstart AND ae.delivered_date < @extractend)
-			OR 
+            OR
 		(ae.not_delivered_date >= @extractstart AND ae.not_delivered_date < @extractend)) ae
     LEFT JOIN shipment_scheme ss ON ae.fk_shipment_scheme = ss.id_shipment_scheme) ae) ae
     LEFT JOIN charges_scheme cs ON ae.fk_charges_scheme = cs.id_charges_scheme

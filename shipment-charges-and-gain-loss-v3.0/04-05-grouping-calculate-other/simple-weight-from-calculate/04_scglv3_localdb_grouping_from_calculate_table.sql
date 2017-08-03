@@ -237,10 +237,9 @@ FROM
                         WHEN MOD(GREATEST(IFNULL(ae.weight_3pl, 0), IFNULL(ae.volumetric_weight_3pl, 0)), 1) <= IFNULL(cs.rounding_seller, 0) THEN FLOOR(GREATEST(IFNULL(ae.weight_3pl, 0), IFNULL(ae.volumetric_weight_3pl, 0)))
                         ELSE CEIL(GREATEST(IFNULL(ae.weight_3pl, 0), IFNULL(ae.volumetric_weight_3pl, 0)))
                     END) <= IFNULL(wt.item_threshold, 0)
-                        AND zm.zone_type LIKE '%free%'
                 THEN
-                    0
-                ELSE weight_3pl
+                    weight_3pl
+                ELSE 0
             END 'weight',
             CASE
                 WHEN GREATEST(weight_3pl, volumetric_weight_3pl) = 0 THEN 0
@@ -251,10 +250,9 @@ FROM
                         WHEN MOD(GREATEST(IFNULL(ae.weight_3pl, 0), IFNULL(ae.volumetric_weight_3pl, 0)), 1) <= IFNULL(cs.rounding_seller, 0) THEN FLOOR(GREATEST(IFNULL(ae.weight_3pl, 0), IFNULL(ae.volumetric_weight_3pl, 0)))
                         ELSE CEIL(GREATEST(IFNULL(ae.weight_3pl, 0), IFNULL(ae.volumetric_weight_3pl, 0)))
                     END) <= IFNULL(wt.item_threshold, 0)
-                        AND zm.zone_type LIKE '%free%'
                 THEN
-                    0
-                ELSE volumetric_weight_3pl
+                    volumetric_weight_3pl
+                ELSE 0
             END 'volumetric_weight',
             zm.zone_type
     FROM

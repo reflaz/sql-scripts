@@ -94,8 +94,8 @@ SELECT
     rounding_seller,
     rounding_3pl,
     order_flat_rate,
-	mdr_rate,
-	ipp_rate,
+    mdr_rate,
+    ipp_rate,
     shipment_fee_mp_seller_flat_rate,
     shipment_fee_mp_seller_rate,
     pickup_cost_rate,
@@ -133,9 +133,9 @@ SELECT
 FROM
     (SELECT 
         *,
-			cust_charge_pct * order_flat_rate 'order_flat_item',
-            (paid_price + shipping_amount + shipping_surcharge) * mdr_rate 'mdr_item',
-            (paid_price + shipping_amount + shipping_surcharge) * ipp_rate 'ipp_item',
+            IFNULL(cust_charge_pct, 0) * IFNULL(order_flat_rate, 0) 'order_flat_item',
+            (IFNULL(paid_price, 0) + IFNULL(shipping_amount, 0) + IFNULL(shipping_surcharge, 0)) * IFNULL(mdr_rate, 0) 'mdr_item',
+            (IFNULL(paid_price, 0) + IFNULL(shipping_amount, 0) + IFNULL(shipping_surcharge, 0)) * IFNULL(ipp_rate, 0) 'ipp_item',
             weight_seller_pct * shipment_fee_mp_seller 'shipment_fee_mp_seller_item',
             unit_price_pct * insurance_seller 'insurance_seller_item',
             unit_price_pct * insurance_vat_seller 'insurance_vat_seller_item',
@@ -153,8 +153,8 @@ FROM
     FROM
         (SELECT 
         *,
-            unit_price / unit_price_pck 'unit_price_pct',
-            (paid_price + shipping_amount + shipping_surcharge) / order_value 'cust_charge_pct',
+            IFNULL(IFNULL(unit_price, 0) / IFNULL(unit_price_pck, 0), 0) 'unit_price_pct',
+            IFNULL((IFNULL(paid_price, 0) + IFNULL(shipping_amount, 0) + IFNULL(shipping_surcharge, 0)) / IFNULL(order_value, 0), 0) 'cust_charge_pct',
             IFNULL(CASE
                 WHEN is_package_weight_seller = 1 THEN weight_item
                 ELSE volumetric_weight_item
