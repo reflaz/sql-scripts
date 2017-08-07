@@ -1293,7 +1293,7 @@ FROM
             failed_at,
             SUM(nmv) 'nmv',
             SUM(unit_price) 'unit_price',
-            SUM(bob_id_sales_order_item) 'item',
+            COUNT(bob_id_sales_order_item) 'item',
             COUNT(DISTINCT order_nr) 'orders',
             COUNT(DISTINCT package_number) 'parcels',
             SUM(weight_3pl_item) 'weight',
