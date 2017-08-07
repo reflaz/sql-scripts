@@ -66,4 +66,4 @@ FROM
     commission_tree_mapping rc ON oms.tax_class = rc.tax_class
         AND rc.lookup_cat_id = 1
 WHERE
-    oms.delivered_date >= @extractstart
+    oms.delivered_date_input >= @extractstart

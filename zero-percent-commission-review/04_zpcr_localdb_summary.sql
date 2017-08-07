@@ -70,5 +70,5 @@ FROM
         AND rc.lookup_cat_id = 1
     WHERE
         oms.commission IS NULL
-            AND oms.delivered_date >= @extractstart) oms
+            AND oms.delivered_date_input >= @extractstart) oms
 GROUP BY seller_id
