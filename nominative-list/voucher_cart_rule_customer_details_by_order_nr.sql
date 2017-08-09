@@ -20,16 +20,14 @@ Instructions	: - Go to your excel file
 SELECT 
     so.order_nr,
     soi.bob_id_sales_order_item 'sales_order_item',
-    so.created_at 'order_date',
     is_marketplace,
+    SUM(IFNULL(soi.coupon_money_value, 0)) 'coupon_money_value',
+    SUM(IFNULL(soi.cart_rule_discount, 0)) 'cart_rule_discount',
+    so.created_at 'order_date',
     MIN(soish.created_at) 'delivered_date',
     soa.first_name,
     soa.address1,
-    soa.city,
-    so.coupon_code,
-    socr.cart_rule_name,
-    SUM(IFNULL(soi.coupon_money_value, 0)) 'coupon_money_value',
-    SUM(IFNULL(soi.cart_rule_discount, 0)) 'cart_rule_discount'
+    soa.city
 FROM
     oms_live.ims_sales_order so
         LEFT JOIN

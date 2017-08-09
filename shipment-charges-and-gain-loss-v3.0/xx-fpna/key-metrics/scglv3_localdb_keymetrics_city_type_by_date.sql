@@ -334,13 +334,13 @@ FROM
                         ELSE 'MA'
                     END
             END 'bu',
-            (SELECT 
+            IFNULL((SELECT 
                     zone_type
                 FROM
                     zone_mapping
                 WHERE
                     id_district = ac.id_district
-                        AND end_date >= NOW()) 'zone_type_temp',
+                        AND end_date >= NOW()), 'Old Paid District') 'zone_type_temp',
             CASE
                 WHEN
                     delivered_date >= @extractstart
