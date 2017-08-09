@@ -400,12 +400,14 @@ FROM
     GROUP BY ae.id_package_dispatching , ae.order_nr , ae.bob_id_supplier) ae
     LEFT JOIN insurance_scheme ins_sel ON ae.shipment_scheme = ins_sel.shipment_scheme
         AND ins_sel.type = 'seller'
+        AND IFNULL(ae.is_marketplace, 99) = IFNULL(ins_sel.is_marketplace, IFNULL(ae.is_marketplace, 99))
         AND ae.unit_price > ins_sel.min_unit_price
         AND ae.unit_price <= IFNULL(ins_sel.max_unit_price, ae.unit_price)
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= ins_sel.start_date
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= ins_sel.end_date
     LEFT JOIN insurance_scheme ins_3pl ON ae.shipment_scheme = ins_3pl.shipment_scheme
         AND ins_3pl.type = '3pl'
+        AND IFNULL(ae.is_marketplace, 99) = IFNULL(ins_3pl.is_marketplace, IFNULL(ae.is_marketplace, 99))
         AND ae.unit_price > ins_3pl.min_unit_price
         AND ae.unit_price <= IFNULL(ins_3pl.max_unit_price, ae.unit_price)
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= ins_3pl.start_date
