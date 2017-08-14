@@ -13,6 +13,11 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
+-- Change this before running the script
+-- The format must be in 'YYYY-MM-DD'
+SET @extractstart = DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL 1 DAY);
+SET @extractend = DATE_FORMAT(NOW(), '%Y-%m-%d'); -- This MUST be D + 1
+
 SELECT 
     *,
     IFNULL(CASE
@@ -180,8 +185,8 @@ FROM
     FROM
         oms_live.ims_sales_order_item_status_history
     WHERE
-        updated_at >= DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL 1 DAY)
-            AND updated_at < DATE_FORMAT(NOW(), '%Y-%m-%d')
+        updated_at >= @extractstart
+            AND updated_at < @extractend
     HAVING fk_sales_order_item_status IN (5 , 67, 27, 44)) stchange
     LEFT JOIN oms_live.ims_sales_order_item soi ON stchange.fk_sales_order_item = soi.id_sales_order_item
     LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order

@@ -147,6 +147,8 @@ FROM
             END 'retail_cogs',
             CASE
                 WHEN is_marketplace = 0 THEN 'RETAIL'
+                WHEN delivery_type = 'digital' THEN 'DIGITAL'
+                WHEN sp.shipment_provider_name = 'Digital Delivery' THEN 'DIGITAL'
                 WHEN asc_sel.tax_class = 1 THEN 'CB'
                 WHEN sp.shipment_provider_name = 'Acommerce' THEN 'DB'
                 WHEN
