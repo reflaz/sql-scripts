@@ -67,8 +67,7 @@ FROM
             SUM(IF(delivered_flag = 1, orders, 0)) 'Total Order (Delivered)',
             SUM(IF(delivered_flag = 1 AND bu = 'MA', orders, 0)) 'Order MA',
             SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 1, orders, 0)) 'Order MA VIP',
-            SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 2, orders, 0)) 'Order MA Prioritas',
-            SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 0, orders, 0)) 'Order MA Non Campaign',
+            SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 0, orders, 0)) 'Order MA Non VIP',
             SUM(IF(delivered_flag = 1 AND bu = 'DB', orders, 0)) 'Order DB',
             SUM(IF(delivered_flag = 1 AND bu = 'CB', orders, 0)) 'Order CB',
             SUM(IF(delivered_flag = 1 AND bu = 'Retail', orders, 0)) 'Order Retail',
@@ -79,8 +78,7 @@ FROM
             SUM(IF(delivered_flag = 1, item, 0)) 'Total Item',
             SUM(IF(delivered_flag = 1 AND bu = 'MA', item, 0)) 'Item MA',
             SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 1, item, 0)) 'Item MA VIP',
-            SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 2, item, 0)) 'Item MA Prioritas',
-            SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 0, item, 0)) 'Item MA Non Campaign',
+            SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 0, item, 0)) 'Item MA Non VIP',
             SUM(IF(delivered_flag = 1 AND bu = 'DB', item, 0)) 'Item DB',
             SUM(IF(delivered_flag = 1 AND bu = 'CB', item, 0)) 'Item CB',
             SUM(IF(delivered_flag = 1 AND bu = 'Retail', item, 0)) 'Item Retail',
@@ -89,8 +87,7 @@ FROM
             
             
             SUM(IF(failed_flag = 1 AND bu = 'MA' AND vip_flag = 1, item, 0)) 'Failed Item MA VIP',
-            SUM(IF(failed_flag = 1 AND bu = 'MA' AND vip_flag = 2, item, 0)) 'Failed Item MA Prioritas',
-            SUM(IF(failed_flag = 1 AND bu = 'MA' AND vip_flag = 0, item, 0)) 'Failed Item MA Non Campaign',
+            SUM(IF(failed_flag = 1 AND bu = 'MA' AND vip_flag = 0, item, 0)) 'Failed Item MA Non VIP',
             SUM(IF(failed_flag = 1 AND bu = 'Retail', item, 0)) 'Failed Item Retail',
             
             
@@ -106,8 +103,7 @@ FROM
             
             SUM(IF(shipped_flag = 1, nmv, 0)) 'Total GMV (Shipment Date)',
             SUM(IF(shipped_flag = 1 AND bu = 'MA' AND vip_flag = 1, nmv, 0)) 'GMV MA VIP',
-            SUM(IF(shipped_flag = 1 AND bu = 'MA' AND vip_flag = 2, nmv, 0)) 'GMV MA Prioritas',
-            SUM(IF(shipped_flag = 1 AND bu = 'MA' AND vip_flag = 0, nmv, 0)) 'GMV MA Non Campaign',
+            SUM(IF(shipped_flag = 1 AND bu = 'MA' AND vip_flag = 0, nmv, 0)) 'GMV MA Non VIP',
             SUM(IF(shipped_flag = 1 AND bu = 'DB', nmv, 0)) 'GMV DB',
             SUM(IF(shipped_flag = 1 AND bu = 'CB', nmv, 0)) 'GMV CB',
             SUM(IF(shipped_flag = 1 AND bu = 'Retail', nmv, 0)) 'GMV Retail',
@@ -117,8 +113,7 @@ FROM
             
             SUM(IF(ordered_flag = 1, nmv, 0)) 'Total NMV (Creation Date)',
             SUM(IF(ordered_flag = 1 AND bu = 'MA' AND vip_flag = 1, nmv, 0)) 'NMV MA VIP Created',
-            SUM(IF(ordered_flag = 1 AND bu = 'MA' AND vip_flag = 2, nmv, 0)) 'NMV MA Prioritas Created',
-            SUM(IF(ordered_flag = 1 AND bu = 'MA' AND vip_flag = 0, nmv, 0)) 'NMV MA Non Campaign Created',
+            SUM(IF(ordered_flag = 1 AND bu = 'MA' AND vip_flag = 0, nmv, 0)) 'NMV MA Non VIP Created',
             SUM(IF(ordered_flag = 1 AND bu = 'DB', nmv, 0)) 'NMV DB Created',
             SUM(IF(ordered_flag = 1 AND bu = 'CB', nmv, 0)) 'NMV CB Created',
             SUM(IF(ordered_flag = 1 AND bu = 'Retail', nmv, 0)) 'NMV Retail Created',
@@ -128,8 +123,7 @@ FROM
             
             SUM(IF(delivered_flag = 1, nmv, 0)) 'Total NMV (Delivered Date)',
             SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 1, nmv, 0)) 'NMV MA VIP Delivered',
-            SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 2, nmv, 0)) 'NMV MA Prioritas Delivered',
-            SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 0, nmv, 0)) 'NMV MA Non Campaign Delivered',
+            SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 0, nmv, 0)) 'NMV MA Non VIP Delivered',
             SUM(IF(delivered_flag = 1 AND bu = 'DB', nmv, 0)) 'NMV DB Delivered',
             SUM(IF(delivered_flag = 1 AND bu = 'CB', nmv, 0)) 'NMV CB Delivered',
             SUM(IF(delivered_flag = 1 AND bu = 'Retail', nmv, 0)) 'NMV Retail Delivered',
@@ -263,8 +257,7 @@ FROM
                 
                 
             SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 1, commission, 0)) 'MA VIP Commission',
-            SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 2, commission, 0)) 'MA Prioritas Commission',
-            SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 0, commission, 0)) 'MA Non Campaign Commission',
+            SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 0, commission, 0)) 'MA Non VIP Commission',
             SUM(IF(delivered_flag = 1 AND bu = 'DB', commission, 0)) 'DB Commission',
             SUM(IF(delivered_flag = 1 AND bu = 'Digital', commission, 0)) 'Digital Commission',
             SUM(IF(delivered_flag = 1 AND bu = 'CB', commission, 0)) 'CB Commission',
@@ -277,38 +270,29 @@ FROM
             
             
             SUM(IF(bu = 'MA' AND vip_flag = 1 AND (delivered_flag = 1 OR failed_flag = 1), seller_charges, 0)) 'Seller Charges MA VIP',
-            SUM(IF(bu = 'MA' AND vip_flag = 2 AND (delivered_flag = 1 OR failed_flag = 1), seller_charges, 0)) 'Seller Charges MA Prioritas',
-            SUM(IF(bu = 'MA' AND vip_flag = 0 AND (delivered_flag = 1 OR failed_flag = 1), seller_charges, 0)) 'Seller Charges MA Non Campaign',
+            SUM(IF(bu = 'MA' AND vip_flag = 0 AND (delivered_flag = 1 OR failed_flag = 1), seller_charges, 0)) 'Seller Charges MA Non VIP',
             SUM(IF(bu = 'MA' AND vip_flag = 1 AND delivered_flag = 1, customer_charges, 0)) 'Customer Charges MA VIP',
-            SUM(IF(bu = 'MA' AND vip_flag = 2 AND delivered_flag = 1, customer_charges, 0)) 'Customer Charges MA Prioritas',
-            SUM(IF(bu = 'MA' AND vip_flag = 0 AND delivered_flag = 1, customer_charges, 0)) 'Customer Charges MA Non Campaign',
+            SUM(IF(bu = 'MA' AND vip_flag = 0 AND delivered_flag = 1, customer_charges, 0)) 'Customer Charges MA Non VIP',
                 
                 
                 
             - GREATEST(SUM(IF(bu = 'MA' AND vip_flag = 1 AND (delivered_flag = 1 OR failed_flag = 1), delivery_cost_invoice, 0)), 
 				SUM(IF(bu = 'MA' AND vip_flag = 1 AND (delivered_flag = 1 OR failed_flag = 1), delivery_cost, 0))) 'Delivery Cost MA VIP',
-			- GREATEST(SUM(IF(bu = 'MA' AND vip_flag = 2 AND (delivered_flag = 1 OR failed_flag = 1), delivery_cost_invoice, 0)), 
-				SUM(IF(bu = 'MA' AND vip_flag = 2 AND (delivered_flag = 1 OR failed_flag = 1), delivery_cost, 0))) 'Delivery Cost MA Prioritas',
             - GREATEST(SUM(IF(bu = 'MA' AND vip_flag = 0 AND (delivered_flag = 1 OR failed_flag = 1), delivery_cost_invoice, 0)), 
-				SUM(IF(bu = 'MA' AND vip_flag = 0 AND (delivered_flag = 1 OR failed_flag = 1), delivery_cost, 0))) 'Delivery Cost MA Non Campaign',
+				SUM(IF(bu = 'MA' AND vip_flag = 0 AND (delivered_flag = 1 OR failed_flag = 1), delivery_cost, 0))) 'Delivery Cost MA NON VIP',
             - GREATEST(SUM(IF(bu = 'MA' AND vip_flag = 1 AND (delivered_flag = 1 OR failed_flag = 1), pickup_cost_invoice, 0)), 
 				SUM(IF(bu = 'MA' AND vip_flag = 1 AND (delivered_flag = 1 OR failed_flag = 1), pickup_cost_temp, 0))) 'Pickup Cost MA VIP',
-			- GREATEST(SUM(IF(bu = 'MA' AND vip_flag = 2 AND (delivered_flag = 1 OR failed_flag = 1), pickup_cost_invoice, 0)), 
-				SUM(IF(bu = 'MA' AND vip_flag = 2 AND (delivered_flag = 1 OR failed_flag = 1), pickup_cost_temp, 0))) 'Pickup Cost MA Prioritas',
             - GREATEST(SUM(IF(bu = 'MA' AND vip_flag = 0 AND (delivered_flag = 1 OR failed_flag = 1), pickup_cost_invoice, 0)), 
-				SUM(IF(bu = 'MA' AND vip_flag = 0 AND (delivered_flag = 1 OR failed_flag = 1), pickup_cost_temp, 0))) 'Pickup Cost MA Non Campaign',
+				SUM(IF(bu = 'MA' AND vip_flag = 0 AND (delivered_flag = 1 OR failed_flag = 1), pickup_cost_temp, 0))) 'Pickup Cost MA Non VIP',
             - GREATEST(SUM(IF(bu = 'MA' AND vip_flag = 1 AND failed_flag = 1, shipment_cost_invoice, 0)), 
 				SUM(IF(bu = 'MA' AND vip_flag = 1 AND failed_flag = 1, shipment_cost, 0))) 'FD Cost MA VIP',
-			- GREATEST(SUM(IF(bu = 'MA' AND vip_flag = 2 AND failed_flag = 1, shipment_cost_invoice, 0)), 
-				SUM(IF(bu = 'MA' AND vip_flag = 2 AND failed_flag = 1, shipment_cost, 0))) 'FD Cost MA Prioritas',
             - GREATEST(SUM(IF(bu = 'MA' AND vip_flag = 0 AND failed_flag = 1, shipment_cost_invoice, 0)), 
-				SUM(IF(bu = 'MA' AND vip_flag = 0 AND failed_flag = 1, shipment_cost, 0))) 'FD Cost MA Non Campaign',
+				SUM(IF(bu = 'MA' AND vip_flag = 0 AND failed_flag = 1, shipment_cost, 0))) 'FD Cost MA Non VIP',
                 
                 
                 
             - SUM(IF(bu = 'MA' AND vip_flag = 1 AND delivered_flag = 1, return_cost, 0)) 'Return Cost MA VIP',
-            - SUM(IF(bu = 'MA' AND vip_flag = 2 AND delivered_flag = 1, return_cost, 0)) 'Return Cost MA Prioritas',
-            - SUM(IF(bu = 'MA' AND vip_flag = 0 AND delivered_flag = 1, return_cost, 0)) 'Return Cost MA Non Campaign',
+            - SUM(IF(bu = 'MA' AND vip_flag = 0 AND delivered_flag = 1, return_cost, 0)) 'Return Cost MA Non VIP',
                 
                 
                 
@@ -320,8 +304,7 @@ FROM
             
             
             SUM(IF(bu = 'MA' AND vip_flag = 1 AND delivered_flag = 1, payment_fee, 0)) 'Payment Charges MA VIP',
-            SUM(IF(bu = 'MA' AND vip_flag = 2 AND delivered_flag = 1, payment_fee, 0)) 'Payment Charges MA Prioritas',
-            SUM(IF(bu = 'MA' AND vip_flag = 0 AND delivered_flag = 1, payment_fee, 0)) 'Payment Charges MA Non Campaign',
+            SUM(IF(bu = 'MA' AND vip_flag = 0 AND delivered_flag = 1, payment_fee, 0)) 'Payment Charges MA Non VIP',
             SUM(IF(bu = 'DB' AND delivered_flag = 1, payment_fee, 0)) 'Payment Charges DB',
             SUM(IF(bu = 'Digital' AND delivered_flag = 1, payment_fee, 0)) 'Payment Charges Digital',
             0 'Payment Charges Retail',
@@ -331,8 +314,7 @@ FROM
                 
                 
             SUM(IF(bu = 'MA' AND vip_flag = 1 AND delivered_flag = 1, other_charges, 0)) 'Other Charges MA VIP',
-            SUM(IF(bu = 'MA' AND vip_flag = 2 AND delivered_flag = 1, other_charges, 0)) 'Other Charges MA Prioritas',
-            SUM(IF(bu = 'MA' AND vip_flag = 0 AND delivered_flag = 1, other_charges, 0)) 'Other Charges MA Non Campaign',
+            SUM(IF(bu = 'MA' AND vip_flag = 0 AND delivered_flag = 1, other_charges, 0)) 'Other Charges MA Non VIP',
             SUM(IF(bu = 'DB' AND delivered_flag = 1, other_charges, 0)) 'Other Charges DB',
             SUM(IF(bu = 'Digital' AND delivered_flag = 1, other_charges, 0)) 'Other Charges Digital',
             SUM(IF(bu = 'CB' AND delivered_flag = 1, other_charges, 0)) 'Other Charges CB',
@@ -355,10 +337,7 @@ FROM
             
             
             - @wh_handling_retail * SUM(IF(bu = 'Retail' AND shipped_flag = 1, item, 0)) 'WH Handling - Retail',
-            -- - @wh_handling_fbl * SUM(IF((bu = 'MA' OR bu = 'DB') AND shipped_flag = 1 AND fbl_flag = 1, item, 0)) 'WH Handling - FBL',
-            - @wh_handling_fbl * SUM(IF(bu = 'MA' AND shipped_flag = 1 AND fbl_flag = 1 AND vip_flag = 1, item, 0)) 'WH Handling - MA VIP FBL',
-            - @wh_handling_fbl * SUM(IF(bu = 'MA' AND shipped_flag = 1 AND fbl_flag = 1 AND vip_flag = 2, item, 0)) 'WH Handling - MA Prioritas FBL',
-            - @wh_handling_fbl * SUM(IF(bu = 'MA' AND shipped_flag = 1 AND fbl_flag = 1 AND vip_flag = 0, item, 0)) 'WH Handling - MA Non Campaign FBL',
+            - @wh_handling_fbl * SUM(IF((bu = 'MA' OR bu = 'DB') AND shipped_flag = 1 AND fbl_flag = 1, item, 0)) 'WH Handling - FBL',
                 
                 
                 
@@ -372,31 +351,28 @@ FROM
             - SUM(IF(bu = 'Retail' AND delivered_flag = 1, return_cost, 0)) 'Retail Return Cost',
             
             
-            SUM(IFNULL(payment_cost, 0)) 'Total Payment Cost',
+            SUM(''),
             
-            SUM(IF(BU = 'MA' AND payment_method = 'cod' AND vip_flag = 1, IFNULL(payment_cost, 0), 0)) 'Payment Cost COD - MA VIP',
-            SUM(IF(BU = 'MA' AND payment_method = 'cod' AND vip_flag = 2, IFNULL(payment_cost, 0), 0)) 'Payment Cost COD - MA Prioritas',
-            SUM(IF(BU = 'MA' AND payment_method = 'cod' AND vip_flag = 0, IFNULL(payment_cost, 0), 0)) 'Payment Cost COD - MA Non Campaign',
-            SUM(IF(BU = 'DB' AND payment_method = 'cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost COD - DB',
-            SUM(IF(BU = 'CB' AND payment_method = 'cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost COD - CB',
-            SUM(IF(BU = 'Digital' AND payment_method = 'cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost COD - Digital',
-            SUM(IF(BU = 'Retail' AND payment_method = 'cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost COD - Retail',
-            
+            0 'Payment Cost COD - MA VIP',
+            0 'Payment Cost COD - MA Non VIP',
+            0 'Payment Cost COD - DB',
+            0 'Payment Cost COD - CB',
+            0 'Payment Cost COD - Digital',
+            0 'Payment Cost COD - Retail',
             
             
-            SUM(IF(BU = 'MA' AND payment_method = 'non_cod' AND vip_flag = 1, IFNULL(payment_cost, 0), 0)) 'Payment Cost Non COD - MA VIP',
-            SUM(IF(BU = 'MA' AND payment_method = 'non_cod' AND vip_flag = 2, IFNULL(payment_cost, 0), 0)) 'Payment Cost Non COD - MA Prioritas',
-            SUM(IF(BU = 'MA' AND payment_method = 'non_cod' AND vip_flag = 0, IFNULL(payment_cost, 0), 0)) 'Payment Cost Non COD - MA Non Campaign',
-            SUM(IF(BU = 'DB' AND payment_method = 'non_cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost Non COD - DB',
-            SUM(IF(BU = 'CB' AND payment_method = 'non_cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost Non COD - CB',
-            SUM(IF(BU = 'Digital' AND payment_method = 'non_cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost Non COD - Digital',
-            SUM(IF(BU = 'Retail' AND payment_method = 'non_cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost Non COD - Retail',
+            
+            0 'Payment Cost Non COD - MA VIP',
+            0 'Payment Cost Non COD - MA Non VIP',
+            0 'Payment Cost Non COD - DB',
+            0 'Payment Cost Non COD - CB',
+            0 'Payment Cost Non COD - Digital',
+            0 'Payment Cost Non COD - Retail',
             
             
             
             - SUM(IF(bu = 'MA' AND vip_flag = 1 AND delivered_flag = 1, bad_debt, 0)) 'Bad Debt MA VIP',
-            - SUM(IF(bu = 'MA' AND vip_flag = 2 AND delivered_flag = 1, bad_debt, 0)) 'Bad Debt MA Prioritas',
-            - SUM(IF(bu = 'MA' AND vip_flag = 0 AND delivered_flag = 1, bad_debt, 0)) 'Bad Debt MA Non Campaign',
+            - SUM(IF(bu = 'MA' AND vip_flag = 0 AND delivered_flag = 1, bad_debt, 0)) 'Bad Debt MA Non VIP',
             - SUM(IF(bu = 'DB' AND delivered_flag = 1, bad_debt, 0)) 'Bad Debt DB',
             - SUM(IF(bu = 'Digital' AND delivered_flag = 1, bad_debt, 0)) 'Bad Debt Digital',
             - SUM(IF(bu = 'CB' AND delivered_flag = 1, bad_debt, 0)) 'Bad Debt CB',
@@ -406,8 +382,7 @@ FROM
             0 'CS Cost',
             - SUM(IF(bu = 'Retail' AND delivered_flag = 1, discount, 0)) 'Retail Voucher & Cart Rule',
             - SUM(IF(bu = 'MA' AND vip_flag = 1 AND delivered_flag = 1, discount, 0)) 'Voucher & Cart Rule MA VIP',
-            - SUM(IF(bu = 'MA' AND vip_flag = 2 AND delivered_flag = 1, discount, 0)) 'Voucher & Cart Rule MA Prioritas',
-            - SUM(IF(bu = 'MA' AND vip_flag = 0 AND delivered_flag = 1, discount, 0)) 'Voucher & Cart Rule MA Non Campaign',
+            - SUM(IF(bu = 'MA' AND vip_flag = 0 AND delivered_flag = 1, discount, 0)) 'Voucher & Cart Rule MA Non VIP',
             - SUM(IF(bu = 'DB' AND delivered_flag = 1, discount, 0)) 'Voucher & Cart Rule DB',
             - SUM(IF(bu = 'Digital' AND delivered_flag = 1, discount, 0)) 'Voucher & Cart Rule Digital',
             - SUM(IF(bu = 'CB' AND delivered_flag = 1, discount, 0)) 'Voucher & Cart Rule CB',
@@ -664,12 +639,11 @@ FROM
                     END
             END 'bu',
             CASE
-				WHEN campaign LIKE '%Prioritas%' THEN 2
                 WHEN campaign LIKE '%VIP%' THEN 1
                 ELSE 0
             END 'vip_flag',
             CASE
-                WHEN shipment_scheme LIKE ('%FBL%') THEN 1
+                WHEN shipping_type = 'warehouse' THEN 1
                 ELSE 0
             END 'fbl_flag',
             CASE
