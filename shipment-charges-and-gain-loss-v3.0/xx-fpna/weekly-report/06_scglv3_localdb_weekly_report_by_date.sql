@@ -623,7 +623,8 @@ FROM
                 WHEN shipment_scheme LIKE ('%RETAIL%') THEN 'Retail'
                 WHEN shipment_scheme LIKE ('%CROSS BORDER%') THEN 'CB'
                 WHEN
-                    shipment_scheme LIKE ('%EXPRESS%')
+					shipment_scheme LIKE ('%GO-JEK%')
+						OR shipment_scheme LIKE ('%EXPRESS%')
                         OR shipment_scheme LIKE ('%FBL%')
                 THEN
                     CASE
