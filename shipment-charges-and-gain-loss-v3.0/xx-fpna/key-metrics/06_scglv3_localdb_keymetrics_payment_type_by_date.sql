@@ -18,8 +18,8 @@ USE scglv3;
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-07-01';
-SET @extractend = '2017-07-28';-- This MUST be D + 1
+SET @extractstart = '2017-08-01';
+SET @extractend = '2017-08-15';-- This MUST be D + 1
 
 CREATE TEMPORARY TABLE period_bu (
    `period` DATETIME NOT NULL,
