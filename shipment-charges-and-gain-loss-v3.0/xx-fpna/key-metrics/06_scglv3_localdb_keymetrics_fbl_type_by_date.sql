@@ -198,7 +198,7 @@ FROM
                 ELSE 1
             END 'pass',
             CASE
-                WHEN shipping_type = 'warehouse' THEN 'FBL'
+                WHEN shipment_scheme LIKE '%FBL%' THEN 'FBL'
                 ELSE 'NON FBL'
             END 'temp_shipment',
             CASE
