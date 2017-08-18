@@ -38,6 +38,13 @@ FROM
             tenor,
             mdr_rate,
             ipp_rate,
+            COUNT(IF(seller_type = 'DIGITAL', bob_id_sales_order_item, NULL)) 'total_qty_digital',
+            COUNT(DISTINCT IF(seller_type = 'DIGITAL', id_sales_order, NULL)) 'total_so_digital',
+            SUM(IF(seller_type = 'DIGITAL', from_customer, 0)) 'from_customer_digital',
+            SUM(IF(seller_type = 'DIGITAL', nmv, 0)) 'nmv_digital',
+            SUM(IF(seller_type = 'DIGITAL', mdr, 0)) 'mdr_digital',
+            SUM(IF(seller_type = 'DIGITAL', ipp, 0)) 'ipp_digital',
+            SUM(IF(seller_type = 'DIGITAL', mdr + ipp, 0)) 'total_payment_cost_digital',
             COUNT(IF(seller_type = 'RETAIL', bob_id_sales_order_item, NULL)) 'total_qty_retail',
             COUNT(DISTINCT IF(seller_type = 'RETAIL', id_sales_order, NULL)) 'total_so_retail',
             SUM(IF(seller_type = 'RETAIL', from_customer, 0)) 'from_customer_retail',
@@ -106,8 +113,9 @@ FROM
                 ELSE IFNULL(IFNULL(poi.cost, soi.cost), 0)
             END 'retail_cogs',
             CASE
-                WHEN delivery_type = 'digital' THEN 'DIGITAL'
-                WHEN sp.shipment_provider_name = 'Digital Delivery' THEN 'DIGITAL'
+                WHEN soi.delivery_type = 'digital' THEN 'DIGITAL'
+                WHEN sp1.shipment_provider_name = 'Digital Delivery' THEN 'DIGITAL'
+                WHEN sp2.shipment_provider_name = 'Digital Delivery' THEN 'DIGITAL'
                 WHEN is_marketplace = 0 THEN 'RETAIL'
                 WHEN asc_sel.tax_class = 1 THEN 'CB'
                 WHEN

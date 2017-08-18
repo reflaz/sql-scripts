@@ -643,6 +643,7 @@ FROM
             ct.level4,
             CASE
                 WHEN chargeable_weight_3pl_ps / qty_ps > 400 THEN 0
+                WHEN ABS(total_delivery_cost_item / unit_price) > 5 THEN 0
                 WHEN (shipping_amount + shipping_surcharge) > 40000000 THEN 0
                 ELSE 1
             END 'pass',

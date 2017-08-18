@@ -1315,6 +1315,7 @@ FROM
             END 'shipping_amount_temp',
             CASE
                 WHEN ac.chargeable_weight_3pl_ps / ac.qty_ps > 400 THEN 0
+                WHEN ABS(total_delivery_cost_item / unit_price) > 5 THEN 0
                 WHEN ac.shipping_amount + ac.shipping_surcharge > 40000000 THEN 0
                 ELSE 1
             END 'pass',
