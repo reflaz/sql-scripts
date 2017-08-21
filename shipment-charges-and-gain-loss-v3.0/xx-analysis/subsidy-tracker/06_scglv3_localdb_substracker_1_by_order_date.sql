@@ -19,7 +19,7 @@ USE scglv3;
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2017-08-14';
-SET @extractend = '2017-08-16';-- Thianondb_calculates MUST be D + 1
+SET @extractend = '2017-08-16';-- This MUST be D + 1
 
 SELECT 
     fin.city_temp 'city',
