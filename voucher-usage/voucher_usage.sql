@@ -15,4 +15,4 @@ FROM
         LEFT JOIN
     oms_live.ims_sales_order_cart_rule socr ON so.id_sales_order = socr.fk_sales_order
 WHERE
-    so.coupon_code = 'KBOXING10';
+    so.coupon_code IN ('KBOXING10');
