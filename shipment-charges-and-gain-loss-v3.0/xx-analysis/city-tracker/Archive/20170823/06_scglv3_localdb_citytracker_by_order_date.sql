@@ -18,8 +18,8 @@ USE scglv3;
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-07-01';
-SET @extractend = '2017-08-01';-- This MUST be D + 1
+SET @extractstart = '2017-06-26';
+SET @extractend = '2017-06-27';-- Thianondb_calculates MUST be D + 1
 
 SELECT 
     fin.city_temp 'city',
@@ -50,8 +50,8 @@ FROM
                 ELSE CONCAT('>= ', value_threshold)
             END 'threshold_order',
             CASE
-                WHEN formula_weight <= (rounding + 0.3) THEN CONCAT('<= ', (rounding + 0.3))
-                ELSE CONCAT('> ', (rounding + 0.3))
+                WHEN formula_weight <= (rounding+0.3) THEN CONCAT('<= ', (rounding+0.3))
+                ELSE CONCAT('> ', (rounding+0.3))
             END 'threshold_kg'
     FROM
         (SELECT 
@@ -65,7 +65,9 @@ FROM
             IF(weight_break = 999999, maks.max_weight_break, weight_break) 'rounding'
     FROM
         (SELECT 
-        pack.*, GREATEST(weight, volumetric_weight) 'formula_weight'
+        pack.*,
+            IF(pack.simple_weight > 0
+                OR pack.vol_sim_weight > 0, GREATEST(pack.simple_weight, pack.vol_sim_weight), GREATEST(pack.config_weight, pack.vol_conf_weight)) 'formula_weight'
     FROM
         (SELECT 
         order_nr,
@@ -83,8 +85,10 @@ FROM
             SUM(shipping_surcharge_temp) 'shipping_surcharge',
             SUM(shipping_amount_temp) 'shipping_amount',
             SUM(nmv) 'nmv',
-            SUM(weight) 'weight',
-            SUM(volumetric_weight) 'volumetric_weight'
+            SUM(config_weight) 'config_weight',
+            SUM(vol_conf_weight) 'vol_conf_weight',
+            SUM(simple_weight) 'simple_weight',
+            SUM(vol_sim_weight) 'vol_sim_weight'
     FROM
         (SELECT 
         ac.order_nr,
@@ -114,22 +118,10 @@ FROM
                 ELSE IFNULL(shipping_amount, 0)
             END 'shipping_amount_temp',
             IFNULL(paid_price / 1.1, 0) + IFNULL(shipping_surcharge / 1.1, 0) + IFNULL(shipping_amount / 1.1, 0) + IF(coupon_type <> 'coupon', IFNULL(coupon_money_value / 1.1, 0), 0) 'nmv',
-            IFNULL(CASE
-                WHEN
-                    simple_weight > 0
-                        OR (simple_length * simple_width * simple_height) > 0
-                THEN
-                    simple_weight
-                ELSE config_weight
-            END, 0) 'weight',
-            IFNULL(CASE
-                WHEN
-                    simple_weight > 0
-                        OR (simple_length * simple_width * simple_height) > 0
-                THEN
-                    (simple_length * simple_width * simple_height) / 6000
-                ELSE config_length * config_width * config_height / 6000
-            END, 0) 'volumetric_weight'
+            IFNULL(config_weight, 0) 'config_weight',
+            IFNULL((config_length * config_width * config_height / 6000), 0) 'vol_conf_weight',
+            IFNULL(simple_weight, 0) 'simple_weight',
+            IFNULL((simple_length * simple_width * simple_height / 6000), 0) 'vol_sim_weight'
     FROM
         anondb_calculate ac
     LEFT JOIN zone_mapping zm ON ac.id_district = zm.id_district
