@@ -56,9 +56,7 @@ FROM
             END 'threshold_order'
     FROM
         (SELECT 
-        pack.*,
-            IF(pack.simple_weight > 0
-                OR pack.vol_sim_weight > 0, GREATEST(pack.simple_weight, pack.vol_sim_weight), GREATEST(pack.config_weight, pack.vol_conf_weight)) 'formula_weight'
+        pack.*, GREATEST(weight, volumetric_weight) 'formula_weight'
     FROM
         (SELECT 
         order_nr,
@@ -76,10 +74,8 @@ FROM
             SUM(shipping_surcharge_temp) 'shipping_surcharge',
             SUM(shipping_amount_temp) 'shipping_amount',
             SUM(nmv) 'nmv',
-            SUM(config_weight) 'config_weight',
-            SUM(vol_conf_weight) 'vol_conf_weight',
-            SUM(simple_weight) 'simple_weight',
-            SUM(vol_sim_weight) 'vol_sim_weight'
+            SUM(weight) 'weight',
+            SUM(volumetric_weight) 'volumetric_weight'
     FROM
         (SELECT 
         ac.order_nr,
@@ -109,10 +105,22 @@ FROM
                 ELSE IFNULL(shipping_amount, 0)
             END 'shipping_amount_temp',
             IFNULL(paid_price / 1.1, 0) + IFNULL(shipping_surcharge / 1.1, 0) + IFNULL(shipping_amount / 1.1, 0) + IF(coupon_type <> 'coupon', IFNULL(coupon_money_value / 1.1, 0), 0) 'nmv',
-            IFNULL(config_weight, 0) 'config_weight',
-            IFNULL((config_length * config_width * config_height / 6000), 0) 'vol_conf_weight',
-            IFNULL(simple_weight, 0) 'simple_weight',
-            IFNULL((simple_length * simple_width * simple_height / 6000), 0) 'vol_sim_weight'
+            IFNULL(CASE
+                WHEN
+                    simple_weight > 0
+                        OR (simple_length * simple_width * simple_height) > 0
+                THEN
+                    simple_weight
+                ELSE config_weight
+            END, 0) 'weight',
+            IFNULL(CASE
+                WHEN
+                    simple_weight > 0
+                        OR (simple_length * simple_width * simple_height) > 0
+                THEN
+                    (simple_length * simple_width * simple_height) / 6000
+                ELSE config_length * config_width * config_height / 6000
+            END, 0) 'volumetric_weight'
     FROM
         anondb_calculate ac
     LEFT JOIN zone_mapping zm ON ac.id_district = zm.id_district
