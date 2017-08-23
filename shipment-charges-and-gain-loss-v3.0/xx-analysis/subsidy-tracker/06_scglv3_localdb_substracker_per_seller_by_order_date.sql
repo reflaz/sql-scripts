@@ -105,7 +105,7 @@ FROM
     FROM
         (SELECT 
         order_nr,
-            id_package_dispatching,
+            IFNULL(id_package_dispatching, 1) 'id_package_dispatching',
             IFNULL(CASE
                 WHEN
                     simple_weight > 0
