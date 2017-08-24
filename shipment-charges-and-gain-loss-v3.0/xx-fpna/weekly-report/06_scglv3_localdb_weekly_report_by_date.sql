@@ -670,7 +670,7 @@ FROM
                 ELSE 0
             END 'vip_flag',
             CASE
-                WHEN shipment_scheme LIKE ('%FBL%') THEN 1
+                WHEN shipping_type = 'warehouse' THEN 1
                 ELSE 0
             END 'fbl_flag',
             CASE
