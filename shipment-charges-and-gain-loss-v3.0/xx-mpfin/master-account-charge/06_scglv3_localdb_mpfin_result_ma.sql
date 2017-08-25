@@ -88,7 +88,15 @@ SELECT
             shipment_scheme LIKE '%GO-JEK%'
                 OR shipment_scheme LIKE '%EXPRESS%'
         THEN
-            'EXPRESS'
+            CASE
+                WHEN
+                    campaign = 'VIP Seller'
+                        AND shipment_scheme LIKE '%FBL%'
+                THEN
+                    'EXPRESS VIP FBL'
+                WHEN shipment_scheme LIKE '%FBL%' THEN 'VIP FBL'
+                ELSE 'EXPRESS'
+            END
         WHEN
             campaign = 'VIP Seller'
         THEN
@@ -109,6 +117,7 @@ SELECT
     qty_ps 'qty',
     rounding_seller,
     rounding_3pl,
+    shipment_fee_mp_seller_flat_rate,
     shipment_fee_mp_seller_rate,
     pickup_cost_rate,
     pickup_cost_discount_rate,
