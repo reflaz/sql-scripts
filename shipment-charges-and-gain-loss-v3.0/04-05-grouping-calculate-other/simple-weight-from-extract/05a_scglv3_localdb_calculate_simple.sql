@@ -17,6 +17,8 @@ Instructions	: - Run the query by pressing the execute button
 
 USE scglv3;
 
+SET @runtime_date = NOW();
+
 TRUNCATE anondb_calculate;
 
 INSERT INTO anondb_calculate 
@@ -129,7 +131,9 @@ SELECT
     insurance_vat_3pl_item,
     total_shipment_fee_mp_seller_item,
     total_delivery_cost_item,
-    total_failed_delivery_cost_item
+    total_failed_delivery_cost_item,
+	@runtime_date,
+	@runtime_date
 FROM
     (SELECT 
         *,
