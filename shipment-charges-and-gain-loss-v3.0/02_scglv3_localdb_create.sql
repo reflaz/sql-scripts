@@ -140,6 +140,8 @@ CREATE TABLE `anondb_calculate` (
     `total_shipment_fee_mp_seller_item` DECIMAL(20 , 4 ) DEFAULT NULL,
     `total_delivery_cost_item` DECIMAL(20 , 4 ) DEFAULT NULL,
     `total_failed_delivery_cost_item` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `created_at` DATETIME DEFAULT NULL,
+    `updated_at` DATETIME DEFAULT NULL,
     PRIMARY KEY (`bob_id_sales_order_item`),
     KEY (`order_nr`),
     KEY (`payment_method`),
@@ -165,7 +167,9 @@ CREATE TABLE `anondb_calculate` (
     KEY (`zone_type`),
     KEY (`shipment_scheme`),
     KEY (`rate_card_scheme`),
-    KEY (`campaign`)
+    KEY (`campaign`),
+    KEY (`created_at`),
+    KEY (`updated_at`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='AnonDB Calculated data';
 
 CREATE TABLE `anondb_calculate_config` (
@@ -280,6 +284,8 @@ CREATE TABLE `anondb_calculate_config` (
     `total_shipment_fee_mp_seller_item` DECIMAL(20 , 4 ) DEFAULT NULL,
     `total_delivery_cost_item` DECIMAL(20 , 4 ) DEFAULT NULL,
     `total_failed_delivery_cost_item` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `created_at` DATETIME DEFAULT NULL,
+    `updated_at` DATETIME DEFAULT NULL,
     PRIMARY KEY (`bob_id_sales_order_item`),
     KEY (`order_nr`),
     KEY (`payment_method`),
@@ -305,7 +311,9 @@ CREATE TABLE `anondb_calculate_config` (
     KEY (`zone_type`),
     KEY (`shipment_scheme`),
     KEY (`rate_card_scheme`),
-    KEY (`campaign`)
+    KEY (`campaign`),
+    KEY (`created_at`),
+    KEY (`updated_at`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='AnonDB Calculated Config data';
 
 CREATE TABLE `anondb_extract` (
