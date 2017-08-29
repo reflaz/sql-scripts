@@ -27,11 +27,11 @@ FROM
             IFNULL(inv.weight, '') 'Weight',
             IFNULL(inv.delivery_charge, '') 'Formget Delivery Charge',
             IFNULL(ac.order_date, '') 'System Created Date',
-            IFNULL(MIN(ac.delivered_date), '') 'Delivered Date',
-            IFNULL(MIN(ac.sc_sales_order_item), '') 'SC Sales Order Item',
+            IFNULL(ac.delivered_date, '') 'Delivered Date',
+            IFNULL(ac.sc_sales_order_item, '') 'SC Sales Order Item',
             IFNULL(ac.sku, '') 'SKU',
-            IFNULL(MIN(ac.last_tracking_number), '') 'Tracking Number',
-            IFNULL(MIN(ac.last_shipment_provider), '') 'Shipment Provider',
+            IFNULL(ac.last_tracking_number, '') 'Tracking Number',
+            IFNULL(ac.last_shipment_provider, '') 'Shipment Provider',
             IFNULL(ac.city, '') 'Destination',
             IFNULL(ac.count_soi, '') 'Qty',
             IFNULL(ac.chargeable_weight_seller_ps, '') 'System Weight',
@@ -62,12 +62,12 @@ FROM
             SUM(IFNULL(shipping_amount, 0)) 'shipping_amount_temp',
             SUM(IFNULL(shipping_surcharge, 0)) 'shipping_surcharge_temp',
             COUNT(bob_id_sales_order_item) 'count_soi',
-            SUM(IFNULL(total_failed_delivery_cost_item, 0)) 'total_shipment_fee_mp_seller',
+            SUM(IFNULL(total_shipment_fee_mp_seller_item, 0)) 'total_shipment_fee_mp_seller',
             SUM(IFNULL(seller_cr_db_item, 0)) 'weekly_reimbursement'
     FROM
         anondb_calculate
     WHERE
         shipment_scheme LIKE '%DIRECT BILLING%'
-    GROUP BY order_nr , bob_id_supplier) ac
+    GROUP BY order_nr , id_package_dispatching , bob_id_supplier) ac
     RIGHT JOIN scgl.invoice inv ON ac.order_nr = inv.order_nr
         AND ac.short_code = inv.short_code) result;
