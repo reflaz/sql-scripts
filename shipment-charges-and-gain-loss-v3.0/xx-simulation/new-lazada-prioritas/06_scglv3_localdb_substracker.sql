@@ -32,7 +32,7 @@ SELECT
     fin.seller_type,
     fin.tax_class,
     fin.price_bucket,
-    fin.campaign 'campaign',
+    MAX(fin.campaign) 'campaign',
     SUM(fin.unit_price) 'total_unit_price',
     SUM(fin.paid_price) 'total_paid_price',
     SUM(fin.nmv) 'nmv',
@@ -101,7 +101,7 @@ FROM
     WHERE
         ac.order_date >= @extractstart
             AND ac.order_date < @extractend
-            AND ac.bob_id_supplier IN ()
+            AND ac.is_marketplace = 1
     GROUP BY ac.bob_id_sales_order_item
     HAVING pass = 1) fin
 GROUP BY bob_id_supplier , price_bucket
