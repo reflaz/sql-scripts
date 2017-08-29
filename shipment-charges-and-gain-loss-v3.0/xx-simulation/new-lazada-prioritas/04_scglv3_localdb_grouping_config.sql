@@ -15,7 +15,10 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv3;
+USE scglv3_qv;
+
+SET @extractstart = '2017-07-01';
+SET @extractend = '2017-07-02';
 
 SET SQL_SAFE_UPDATES = 0;
 
@@ -389,8 +392,9 @@ FROM
                         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= ss.start_date
                         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= ss.end_date) 'fk_shipment_scheme'
     FROM
-        anondb_extract ae
-    LIMIT 150000) ae
+        scglv3.anondb_calculate ae
+	WHERE order_date >= @extractstart
+		AND order_date < @extractend) ae
     LEFT JOIN shipment_scheme ss ON ae.fk_shipment_scheme = ss.id_shipment_scheme) ae) ae
     LEFT JOIN charges_scheme cs ON ae.fk_charges_scheme = cs.id_charges_scheme
     LEFT JOIN weight_threshold wt ON GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= wt.start_date

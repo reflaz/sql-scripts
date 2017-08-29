@@ -12,10 +12,10 @@ Instructions	: - Run the query by pressing the execute button
                   - Close the query WITHOUT SAVING ANY CHANGES
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
-DROP DATABASE IF EXISTS  `scglv3`;
+DROP DATABASE IF EXISTS  `scglv3_qv`;
 
-CREATE DATABASE IF NOT EXISTS `scglv3` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `scglv3`;
+CREATE DATABASE IF NOT EXISTS `scglv3_qv` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `scglv3_qv`;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;

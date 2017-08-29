@@ -15,13 +15,13 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv3;
+USE scglv3_qv;
 
 SET @runtime_date = NOW();
 
-TRUNCATE anondb_calculate_config;
+TRUNCATE anondb_calculate;
 
-INSERT INTO anondb_calculate_config
+INSERT INTO anondb_calculate
 SELECT 
 	bob_id_sales_order_item,
 		sc_sales_order_item,
@@ -184,6 +184,11 @@ FROM
 		wt.item_threshold,
 		wt.package_threshold,
 		CASE
+			WHEN
+				cam.shipment_fee_mp_seller_threshold IS NOT NULL
+					AND ae.unit_price < cam.shipment_fee_mp_seller_threshold
+			THEN
+				0
 			WHEN GREATEST(temp_weight_item, temp_volumetric_weight_item) = 0 THEN 0
 			WHEN
 				(CASE
@@ -197,6 +202,11 @@ FROM
 			ELSE 0
 		END 'weight_item',
 		CASE
+			WHEN
+				cam.shipment_fee_mp_seller_threshold IS NOT NULL
+					AND ae.unit_price < cam.shipment_fee_mp_seller_threshold
+			THEN
+				0
 			WHEN GREATEST(temp_weight_item, temp_volumetric_weight_item) = 0 THEN 0
 			WHEN
 				(CASE
@@ -240,7 +250,10 @@ FROM
 		ae.not_delivered_date,
 		ae.closed_date,
 		ae.refund_completed_date,
-		ae.pickup_provider_type,
+		CASE
+			WHEN ae.pickup_provider_type LIKE '%LEX%' THEN 'LEX'
+			ELSE '3PL'
+		END 'pickup_provider_type',
 		ae.package_number,
 		ae.id_package_dispatching,
 		ae.tenor,
@@ -334,9 +347,14 @@ FROM
 	*
 FROM
 	anondb_extract_temp) aet
-LEFT JOIN anondb_extract ae ON aet.order_nr = ae.order_nr
+LEFT JOIN scglv3.anondb_calculate ae ON aet.order_nr = ae.order_nr
 	AND aet.bob_id_supplier = ae.bob_id_supplier
 	AND IFNULL(aet.id_package_dispatching, 1) = IFNULL(ae.id_package_dispatching, 1)) ae
 LEFT JOIN weight_threshold wt ON GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= wt.start_date
 	AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= wt.end_date
-LEFT JOIN payment_cost_mapping pcm ON ae.fk_payment_cost_mapping = pcm.id_payment_cost_mapping) ae) ae) ae;
+LEFT JOIN campaign cam ON ae.campaign = cam.campaign
+	AND ae.pickup_provider_type = cam.pickup_provider_type
+	AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= cam.start_date
+	AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= cam.end_date
+LEFT JOIN payment_cost_mapping pcm ON ae.fk_payment_cost_mapping = pcm.id_payment_cost_mapping
+GROUP BY bob_id_sales_order_item) ae) ae) ae;

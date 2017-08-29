@@ -1,3 +1,5 @@
+USE scglv3_qv;
+
 SELECT 
     seller_type,
     package_number,
@@ -111,4 +113,4 @@ SELECT
     created_at,
     updated_at
 FROM
-    scglv3.anondb_calculate_config
+    anondb_calculate_config
