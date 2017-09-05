@@ -12,8 +12,6 @@ Instructions	: - Run the query by pressing the execute button
                   - Close the query WITHOUT SAVING ANY CHANGES
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
-DROP DATABASE IF EXISTS  `scglv3`;
-
 CREATE DATABASE IF NOT EXISTS `scglv3` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `scglv3`;
 
@@ -28,7 +26,7 @@ USE `scglv3`;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-CREATE TABLE `anondb_calculate` (
+CREATE TABLE IF NOT EXISTS `anondb_calculate` (
     `bob_id_sales_order_item` INT(10) UNSIGNED NOT NULL,
     `sc_sales_order_item` INT(10) UNSIGNED DEFAULT NULL,
     `order_nr` VARCHAR(45) DEFAULT NULL,
@@ -172,7 +170,7 @@ CREATE TABLE `anondb_calculate` (
     KEY (`updated_at`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='AnonDB Calculated data';
 
-CREATE TABLE `anondb_calculate_config` (
+CREATE TABLE IF NOT EXISTS `anondb_calculate_config` (
     `bob_id_sales_order_item` INT(10) UNSIGNED NOT NULL,
     `sc_sales_order_item` INT(10) UNSIGNED DEFAULT NULL,
     `order_nr` VARCHAR(45) DEFAULT NULL,
@@ -316,7 +314,7 @@ CREATE TABLE `anondb_calculate_config` (
     KEY (`updated_at`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='AnonDB Calculated Config data';
 
-CREATE TABLE `anondb_extract` (
+CREATE TABLE IF NOT EXISTS `anondb_extract` (
     `bob_id_sales_order_item` INT(10) UNSIGNED NOT NULL,
     `sc_sales_order_item` INT(10) UNSIGNED DEFAULT NULL,
     `order_nr` VARCHAR(45) DEFAULT NULL,
@@ -399,7 +397,7 @@ CREATE TABLE `anondb_extract` (
     KEY (`bank`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='AnonDB Extracted data';
 
-CREATE TABLE `anondb_extract_temp` (
+CREATE TABLE IF NOT EXISTS `anondb_extract_temp` (
     `bob_id_sales_order_item` INT(10) UNSIGNED NOT NULL,
     `order_nr` VARCHAR(45) DEFAULT NULL,
     `bob_id_supplier` INT(10) UNSIGNED DEFAULT NULL,
@@ -464,7 +462,7 @@ CREATE TABLE `anondb_extract_temp` (
     KEY (`id_package_dispatching`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='AnonDB temporary calculation data';
 
-CREATE TABLE `backmargin` (
+CREATE TABLE IF NOT EXISTS `backmargin` (
     `sku` VARCHAR(255) DEFAULT NULL,
     `backmargin` DECIMAL(20 , 4) DEFAULT NULL,
     `bm_date` DATE DEFAULT NULL,
@@ -472,7 +470,7 @@ CREATE TABLE `backmargin` (
     KEY (`bm_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Backmargin';
 
-CREATE TABLE `campaign` (
+CREATE TABLE IF NOT EXISTS `campaign` (
     `id_campaign` INT(10) UNSIGNED NOT NULL,
     `campaign` VARCHAR(50) DEFAULT NULL,
     `shipment_fee_mp_seller_flat_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
@@ -486,7 +484,7 @@ CREATE TABLE `campaign` (
     KEY `end_date` (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Campaign';
 
-CREATE TABLE `campaign_mapping` (
+CREATE TABLE IF NOT EXISTS `campaign_mapping` (
     `id_campaign_mapping` INT(10) UNSIGNED NOT NULL,
     `fk_campaign` VARCHAR(50) DEFAULT NULL,
     `shipment_scheme` VARCHAR(50) DEFAULT NULL,
@@ -499,7 +497,7 @@ CREATE TABLE `campaign_mapping` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Campaign';
 
-CREATE TABLE `campaign_shipment_scheme` (
+CREATE TABLE IF NOT EXISTS `campaign_shipment_scheme` (
     `id_campaign_shipment_scheme` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `fk_campaign` INT(10) DEFAULT NULL,
     `shipment_scheme` VARCHAR(50) DEFAULT NULL,
@@ -514,7 +512,7 @@ CREATE TABLE `campaign_shipment_scheme` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Campaign tracker';
 
-CREATE TABLE `campaign_tracker` (
+CREATE TABLE IF NOT EXISTS `campaign_tracker` (
     `id_campaign_tracker` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `fk_campaign` INT(10) DEFAULT NULL,
     `bob_id_supplier` INT(10) DEFAULT NULL,
@@ -530,7 +528,7 @@ CREATE TABLE `campaign_tracker` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Campaign tracker';
 
-CREATE TABLE `category_general_commission` (
+CREATE TABLE IF NOT EXISTS `category_general_commission` (
     `tax_class` VARCHAR(50) NOT NULL,
     `level0` VARCHAR(50) DEFAULT NULL,
     `level1` VARCHAR(255) DEFAULT NULL,
@@ -545,7 +543,7 @@ CREATE TABLE `category_general_commission` (
     PRIMARY KEY `pk_general_commission` (`tax_class` , `id_primary_category`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='General Commission';
 
-CREATE TABLE `category_tree` (
+CREATE TABLE IF NOT EXISTS `category_tree` (
     `level0_id` INT(11) DEFAULT NULL,
     `level0` VARCHAR(255) DEFAULT NULL,
     `level1_id` INT(11) DEFAULT NULL,
@@ -573,7 +571,7 @@ CREATE TABLE `category_tree` (
     KEY `id_primary_category` (`id_primary_category`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='BOB Category Tree';
 
-CREATE TABLE `charges_scheme` (
+CREATE TABLE IF NOT EXISTS `charges_scheme` (
     `id_charges_scheme` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `shipment_scheme` VARCHAR(50) DEFAULT NULL,
     `is_marketplace` TINYINT(4) DEFAULT NULL,
@@ -599,7 +597,7 @@ CREATE TABLE `charges_scheme` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Charges Scheme';
 
-CREATE TABLE `insurance_scheme` (
+CREATE TABLE IF NOT EXISTS `insurance_scheme` (
     `id_insurance_scheme` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `shipment_scheme` VARCHAR(50) DEFAULT NULL,
     `type` VARCHAR(50) DEFAULT NULL,
@@ -620,7 +618,7 @@ CREATE TABLE `insurance_scheme` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Insurance Scheme';
 
-CREATE TABLE `invoice` (
+CREATE TABLE IF NOT EXISTS `invoice` (
     `tracking_number` VARCHAR(45) NOT NULL,
     `order_nr` VARCHAR(45) DEFAULT NULL,
     `short_code` VARCHAR(7) DEFAULT NULL,
@@ -640,7 +638,7 @@ CREATE TABLE `invoice` (
     KEY (`short_code`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Invoice Data';
 
-CREATE TABLE `payment_cost_mapping` (
+CREATE TABLE IF NOT EXISTS `payment_cost_mapping` (
     `id_payment_cost_mapping` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `payment_method` VARCHAR(100) DEFAULT NULL,
     `tenor` INT(10) DEFAULT NULL,
@@ -658,7 +656,7 @@ CREATE TABLE `payment_cost_mapping` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Payment Cost Mapping';
 
-CREATE TABLE `shipping_fee_rate_card_3pl` (
+CREATE TABLE IF NOT EXISTS `shipping_fee_rate_card_3pl` (
     `id_rate_card` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `rate_card_scheme` VARCHAR(12) DEFAULT NULL,
     `origin` VARCHAR(64) NOT NULL,
@@ -680,7 +678,7 @@ CREATE TABLE `shipping_fee_rate_card_3pl` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Rate card';
 
-CREATE TABLE `shipping_fee_rate_card` (
+CREATE TABLE IF NOT EXISTS `shipping_fee_rate_card` (
     `id_shipping_fee_rate_card` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `origin` VARCHAR(128) NOT NULL DEFAULT '',
     `leadtime` ENUM('Standard', 'Express', 'Economy', 'Digital') DEFAULT NULL,
@@ -705,7 +703,7 @@ CREATE TABLE `shipping_fee_rate_card` (
     KEY (`is_live`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8;
 
-CREATE TABLE `shipping_fee_rate_card_kg` (
+CREATE TABLE IF NOT EXISTS `shipping_fee_rate_card_kg` (
     `id_shipping_fee_rate_card_kg` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `origin` VARCHAR(128) NOT NULL DEFAULT '',
     `leadtime` ENUM('Standard', 'Express', 'Economy', 'Digital') DEFAULT NULL,
@@ -722,7 +720,7 @@ CREATE TABLE `shipping_fee_rate_card_kg` (
     KEY (`is_live`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8;
 
-CREATE TABLE `shipment_scheme` (
+CREATE TABLE IF NOT EXISTS `shipment_scheme` (
     `id_shipment_scheme` INT(10) UNSIGNED NOT NULL,
     `shipment_scheme` VARCHAR(50) DEFAULT NULL,
     `tax_class` VARCHAR(15) DEFAULT NULL,
@@ -751,7 +749,21 @@ CREATE TABLE `shipment_scheme` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Shipment Scheme';
 
-CREATE TABLE `weight_threshold` (
+CREATE TABLE IF NOT EXISTS `tier_mapping` (
+    `id_tier_mapping` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_region` INT(10) UNSIGNED DEFAULT NULL,
+    `region` VARCHAR(255) DEFAULT '',
+    `id_city` INT(10) UNSIGNED DEFAULT NULL,
+    `city` VARCHAR(255) DEFAULT '',
+    `id_district` INT(10) UNSIGNED NOT NULL,
+    `district` VARCHAR(255) DEFAULT '',
+    `tier` VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY (`id_tier_mapping`),
+    KEY (`id_district`),
+    KEY (`tier`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Tier Mapping';
+
+CREATE TABLE IF NOT EXISTS `weight_threshold` (
     `id_weight_threshold` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `item_threshold` DECIMAL(20 , 4 ) DEFAULT NULL,
     `package_threshold` DECIMAL(20 , 4 ) DEFAULT NULL,
@@ -764,7 +776,7 @@ CREATE TABLE `weight_threshold` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Weight Threshold';
 
-CREATE TABLE `zone_mapping` (
+CREATE TABLE IF NOT EXISTS `zone_mapping` (
     `id_zone_mapping` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `id_region` INT(10) UNSIGNED DEFAULT NULL,
     `region` VARCHAR(255) DEFAULT '',

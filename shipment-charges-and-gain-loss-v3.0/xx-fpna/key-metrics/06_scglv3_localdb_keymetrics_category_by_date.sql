@@ -1287,7 +1287,7 @@ FROM
         (SELECT 
         category,
             temp_campaign 'campaign',
-            created_at,
+            created_at_temp 'created_at',
             shipped_at,
             delivered_at,
             failed_at,
@@ -1458,7 +1458,7 @@ FROM
                 THEN
                     DATE(ac.order_date)
                 ELSE 0
-            END 'created_at',
+            END 'created_at_temp',
             IFNULL(ac.paid_price / 1.1, 0) + IFNULL(ac.shipping_surcharge / 1.1, 0) + IFNULL(ac.shipping_amount / 1.1, 0) + IF(ac.coupon_type <> 'coupon', IFNULL(ac.coupon_money_value / 1.1, 0), 0) 'nmv',
             ac.delivery_cost_item + ac.delivery_cost_discount_item + ac.delivery_cost_vat_item + ac.insurance_3pl_item + ac.insurance_vat_3pl_item 'delivery_cost',
             ac.pickup_cost_item + ac.pickup_cost_discount_item + ac.pickup_cost_vat_item 'pickup_cost'

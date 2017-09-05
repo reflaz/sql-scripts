@@ -527,7 +527,7 @@ FROM
         (SELECT 
         bu,
             payment_method_temp 'payment_method',
-            created_at,
+            created_at_temp 'created_at',
             shipped_at,
             delivered_at,
             failed_at,
@@ -611,7 +611,7 @@ FROM
                 THEN
                     DATE(order_date)
                 ELSE 0
-            END 'created_at',
+            END 'created_at_temp',
             IFNULL(paid_price / 1.1, 0) + IFNULL(shipping_surcharge / 1.1, 0) + IFNULL(shipping_amount / 1.1, 0) + IF(coupon_type <> 'coupon', IFNULL(coupon_money_value / 1.1, 0), 0) 'nmv',
             delivery_cost_item + delivery_cost_discount_item + delivery_cost_vat_item + insurance_3pl_item + insurance_vat_3pl_item 'delivery_cost',
             pickup_cost_item + pickup_cost_discount_item + pickup_cost_vat_item 'pickup_cost'
