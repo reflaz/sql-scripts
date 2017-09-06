@@ -1,5 +1,5 @@
-SET @extractstart = '2017-05-01';
-SET @extractend = '2017-06-01';
+SET @extractstart = '2017-08-01';
+SET @extractend = '2017-09-01';
 
 SELECT 
     *
@@ -14,13 +14,13 @@ FROM
             result.*
     FROM
         (SELECT 
-        SUM(IF(tr.transaction_type = 'Payment Fee', value, 0)) / 1.1 'payment_fee',
-            SUM(IF(tr.transaction_type = 'Commission Credit', value, 0)) / 1.1 'commission_credit',
-            SUM(IF(tr.transaction_type = 'Commission', value, 0)) / 1.1 'commission',
-            SUM(IF(tr.transaction_type = 'Seller Credit', value, 0)) / 1.1 'seller_credit',
-            SUM(IF(tr.transaction_type = 'Seller Credit Item', value, 0)) / 1.1 'seller_credit_item',
-            SUM(IF(tr.transaction_type = 'Seller Debit Item', value, 0)) / 1.1 'seller_debit_item',
-            SUM(IF(tr.transaction_type = 'Other Fee', value, 0)) / 1.1 'other_fee',
+        SUM(IF(tr.transaction_type IN ('Payment Fee'), value, 0)) / 1.1 'payment_fee',
+            SUM(IF(tr.transaction_type IN ('Commission Credit' , 'Reversal Commission'), value, 0)) / 1.1 'commission_credit',
+            SUM(IF(tr.transaction_type IN ('Commission'), value, 0)) / 1.1 'commission',
+            SUM(IF(tr.transaction_type IN ('Seller Credit'), value, 0)) / 1.1 'seller_credit',
+            SUM(IF(tr.transaction_type IN ('Seller Credit Item'), value, 0)) / 1.1 'seller_credit_item',
+            SUM(IF(tr.transaction_type IN ('Seller Debit Item' , 'Other Debit - Non Taxable', 'Other Debits (Returns)'), value, 0)) / 1.1 'seller_debit_item',
+            SUM(IF(tr.transaction_type IN ('Other Fee' , 'Sponsored Product Fee'), value, 0)) / 1.1 'other_fee',
             - SUM(tr.value) 'amount_paid_to_seller',
             - SUM(tr.value) / 1.1 'amount_subjected_to_tax',
             - SUM(tr.value) + (SUM(value) / 1.1) 'tax_amount',
@@ -30,13 +30,12 @@ FROM
         *,
             CASE
                 WHEN
-                    -- transaction_type IN ('Payment Fee' , 'Commission Credit', 'Commission')
-                    transaction_type IN ('Commission Credit')
+                    transaction_type IN ('Commission Credit' , 'Reversal Commission')
                         AND delivered_date < @extractstart
                 THEN
                     0
-				WHEN
-                    transaction_type IN ('Commission Credit')
+                WHEN
+                    transaction_type IN ('Commission Credit' , 'Reversal Commission')
                         AND delivered_date IS NULL
                 THEN
                     0
@@ -48,5 +47,4 @@ FROM
     GROUP BY bob_id_supplier
     HAVING bob_id_supplier IS NOT NULL) result
     LEFT JOIN tias_java.seller_details sd ON result.bob_id_supplier = sd.bob_id_supplier
-        -- AND updated_at >= @extractstart
     LEFT JOIN tias_java.seller_details_manual sdm ON result.bob_id_supplier = sdm.bob_id_supplier) result
