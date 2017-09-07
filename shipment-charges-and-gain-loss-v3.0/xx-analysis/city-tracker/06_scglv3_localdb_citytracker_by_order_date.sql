@@ -65,7 +65,7 @@ FROM
             IF(weight_break = 999999, maks.max_weight_break, weight_break) 'rounding'
     FROM
         (SELECT 
-        pack.*, GREATEST(weight, volumetric_weight) 'formula_weight'
+        pack.*, least(GREATEST(weight, volumetric_weight),999999) 'formula_weight'
     FROM
         (SELECT 
         order_nr,
