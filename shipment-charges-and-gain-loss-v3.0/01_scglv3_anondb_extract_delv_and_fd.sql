@@ -17,7 +17,7 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2016-10-01';
-SET @extractend = '2016-10-02'; -- This MUST be D + 1
+SET @extractend = '2016-10-02';-- This MUST be D + 1
 
 SELECT 
     *,
@@ -123,8 +123,9 @@ FROM
                         WHEN soi.fk_mwh_warehouse = 2 THEN 'East Java'
                         WHEN soi.fk_mwh_warehouse = 3 THEN 'North Sumatera'
                         WHEN soi.fk_mwh_warehouse = 4 THEN 'DKI Jakarta'
+                        ELSE 'DKI Jakarta'
                     END
-                ELSE sfom.origin
+                ELSE IF(sfom.origin IN ('DKI Jakarta' , 'East Java', 'North Sumatera'), sfom.origin, 'DKI Jakarta')
             END 'origin',
             soa.city,
             dst.id_customer_address_region 'id_district',
