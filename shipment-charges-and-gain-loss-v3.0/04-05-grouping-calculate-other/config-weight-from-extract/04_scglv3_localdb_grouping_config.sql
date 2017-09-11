@@ -194,25 +194,32 @@ FROM
             SUM(IFNULL(ae.seller_cr_db_item, 0)) 'seller_cr_db_item',
             ae.shipment_scheme,
             ae.rate_card_scheme,
-            cam.campaign,
+            ae.campaign,
             COUNT(DISTINCT bob_id_sales_order_item) 'qty',
             IFNULL(ae.rounding_3pl, 0) 'rounding_3pl',
             IFNULL(ae.rounding_seller, 0) 'rounding_seller',
             IFNULL(CASE
                 WHEN css.id_campaign_shipment_scheme IS NOT NULL THEN css.shipment_fee_mp_seller_flat_rate
-                WHEN cam.id_campaign IS NOT NULL THEN cam.shipment_fee_mp_seller_flat_rate
+                WHEN ae.fk_campaign IS NOT NULL THEN ae.cam_shipment_fee_mp_seller_flat_rate
                 ELSE ae.shipment_fee_mp_seller_flat_rate
             END, 0) 'shipment_fee_mp_seller_flat_rate',
             IFNULL(CASE
                 WHEN css.id_campaign_shipment_scheme IS NOT NULL THEN css.shipment_fee_mp_seller_rate
-                WHEN cam.id_campaign IS NOT NULL THEN cam.shipment_fee_mp_seller_rate
+                WHEN ae.fk_campaign IS NOT NULL THEN ae.cam_shipment_fee_mp_seller_rate
                 ELSE ae.shipment_fee_mp_seller_rate
             END, 0) 'shipment_fee_mp_seller_rate',
             IFNULL(ae.pickup_cost_rate, 0) 'pickup_cost_rate',
             IFNULL(ae.pickup_cost_discount_rate, 0) 'pickup_cost_discount_rate',
             IFNULL(ae.pickup_cost_vat_rate, 0) 'pickup_cost_vat_rate',
             IFNULL(ae.delivery_cost_vat_rate, 0) 'delivery_cost_vat_rate',
-            cam.insurance_rate 'insurance_rate_tmp'
+            ae.cam_insurance_rate 'insurance_rate_tmp'
+    FROM
+        (SELECT 
+        ae.*,
+        cam.campaign,
+        MIN(cam.shipment_fee_mp_seller_flat_rate) 'cam_shipment_fee_mp_seller_flat_rate',
+        MIN(cam.shipment_fee_mp_seller_rate) 'cam_shipment_fee_mp_seller_rate',
+        MIN(cam.insurance_rate) 'cam_insurance_rate'
     FROM
         (SELECT 
         ae.*,
@@ -378,8 +385,10 @@ FROM
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= zm.start_date
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= zm.end_date) ae
     LEFT JOIN campaign cam ON ae.fk_campaign = cam.id_campaign
+        AND IFNULL(ae.pickup_provider_type, 1) = IFNULL(cam.pickup_provider_type, IFNULL(ae.pickup_provider_type, 1))
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= cam.start_date
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= cam.end_date
+    GROUP BY bob_id_sales_order_item) ae
     LEFT JOIN campaign_shipment_scheme css ON ae.fk_campaign = css.fk_campaign
         AND ae.shipment_scheme = css.shipment_scheme
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= css.start_date
