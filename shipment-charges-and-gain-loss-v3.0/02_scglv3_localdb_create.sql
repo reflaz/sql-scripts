@@ -12,6 +12,8 @@ Instructions	: - Run the query by pressing the execute button
                   - Close the query WITHOUT SAVING ANY CHANGES
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
+
+DROP DATABASE IF EXISTS `scglv3`;
 CREATE DATABASE IF NOT EXISTS `scglv3` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `scglv3`;
 
@@ -473,6 +475,7 @@ CREATE TABLE IF NOT EXISTS `backmargin` (
 CREATE TABLE IF NOT EXISTS `campaign` (
     `id_campaign` INT(10) UNSIGNED NOT NULL,
     `campaign` VARCHAR(50) DEFAULT NULL,
+    `pickup_provider_type` VARCHAR(12) DEFAULT NULL,
     `shipment_fee_mp_seller_flat_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
     `shipment_fee_mp_seller_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
     `insurance_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
@@ -480,6 +483,7 @@ CREATE TABLE IF NOT EXISTS `campaign` (
     `end_date` DATETIME DEFAULT NULL,
     KEY `id_campaign` (`id_campaign`),
     KEY `campaign` (`campaign`),
+    KEY `pickup_provider_type` (`pickup_provider_type`),
     KEY `start_date` (`start_date`),
     KEY `end_date` (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Campaign';

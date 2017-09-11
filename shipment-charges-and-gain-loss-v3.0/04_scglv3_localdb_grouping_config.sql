@@ -378,6 +378,7 @@ FROM
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= zm.start_date
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= zm.end_date) ae
     LEFT JOIN campaign cam ON ae.fk_campaign = cam.id_campaign
+        AND IFNULL(ae.pickup_provider_type, 1) = IFNULL(cam.pickup_provider_type, IFNULL(ae.pickup_provider_type, 1))
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) >= cam.start_date
         AND GREATEST(ae.order_date, IFNULL(ae.first_shipped_date, 1)) <= cam.end_date
     LEFT JOIN campaign_shipment_scheme css ON ae.fk_campaign = css.fk_campaign

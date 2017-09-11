@@ -34,9 +34,7 @@ FROM
     LEFT JOIN asc_live.transaction_type tt ON tr.fk_transaction_type = tt.id_transaction_type
     WHERE
         tr.created_at >= '2017-01-01'
-            AND tr.created_at < '2017-08-01'
-            AND ((tr.fk_transaction_type IN (7 , 20, 36, 37)
+            AND tr.created_at < '2017-09-01'
             AND (tr.description LIKE '%ship%'
-            OR tr.description LIKE '%flat%'))
-            OR tr.fk_transaction_type = 8)
+            OR tr.description LIKE '%flat%')
     GROUP BY transaction_month, tr.fk_transaction_type , breakdown) result
