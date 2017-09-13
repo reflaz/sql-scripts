@@ -1,14 +1,13 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Shipping Charges and Gain/Loss AnonDB Population Extract
+Shipping Charges and Gain/Loss AnonDB Population Extract by All SOISH Date
 
 Prepared by		: R Maliangkay
 Modified by		: RM
 Version			: 1.0
 Changes made	: 
 
-Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
-                  - Run the query by pressing the execute button
+Instructions	: - Run the query by pressing the execute button
                   - Wait until the query finished, then export the result
                   - Close the query WITHOUT SAVING ANY CHANGES
 -------------------------------------------------------------------------------------------------------------------------------------
@@ -16,8 +15,8 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2016-05-01';
-SET @extractend = '2016-05-02';-- This MUST be D + 1
+SET @extractstart = DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL 1 DAY);
+SET @extractend = DATE_FORMAT(NOW(), '%Y-%m-%d');-- This MUST be D + 1
 
 SELECT 
     result.*,
@@ -47,7 +46,7 @@ SELECT
                     asc_live.transaction_archive ta ON tr.number = ta.number
                 WHERE
                     tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 15
+                        AND tr.fk_transaction_type = 3
                         AND ta.id_transaction IS NULL),
             0) + IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
@@ -55,8 +54,8 @@ SELECT
                     asc_live.transaction_archive tr
                 WHERE
                     tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 15),
-            0)) * - 1 'commission_reversal',
+                        AND tr.fk_transaction_type = 3),
+            0)) * - 1 'payment_fee',
     (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
@@ -74,25 +73,7 @@ SELECT
                 WHERE
                     tr.ref = sc_sales_order_item
                         AND tr.fk_transaction_type = 8),
-            0)) * - 1 'auto_shipping_fee',
-    (IFNULL((SELECT 
-                    SUM(IFNULL(tr.value, 0))
-                FROM
-                    asc_live.transaction tr
-                        LEFT JOIN
-                    asc_live.transaction_archive ta ON tr.number = ta.number
-                WHERE
-                    tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 142
-                        AND ta.id_transaction IS NULL),
-            0) + IFNULL((SELECT 
-                    SUM(IFNULL(tr.value, 0))
-                FROM
-                    asc_live.transaction_archive tr
-                WHERE
-                    tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 142),
-            0)) * - 1 'auto_shipping_fee_reversal',
+            0)) * - 1 'auto_shipping_fee_credit',
     (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
@@ -110,25 +91,7 @@ SELECT
                 WHERE
                     tr.ref = sc_sales_order_item
                         AND tr.fk_transaction_type = 7),
-            0)) * - 1 'manual_shipping_fee',
-    (IFNULL((SELECT 
-                    SUM(IFNULL(tr.value, 0))
-                FROM
-                    asc_live.transaction tr
-                        LEFT JOIN
-                    asc_live.transaction_archive ta ON tr.number = ta.number
-                WHERE
-                    tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 143
-                        AND ta.id_transaction IS NULL),
-            0) + IFNULL((SELECT 
-                    SUM(IFNULL(tr.value, 0))
-                FROM
-                    asc_live.transaction_archive tr
-                WHERE
-                    tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 143),
-            0)) * - 1 'manual_shipping_fee_reversal'
+            0)) * - 1 'manual_shipping_fee'
 FROM
     (SELECT 
         soi.bob_id_sales_order_item,
@@ -177,46 +140,14 @@ FROM
             soi.coupon_money_value,
             soi.cart_rule_discount,
             IFNULL(IFNULL(poi.cost, soi.cost), 0) 'retail_cogs',
-            so.coupon_code,
             sovt.name 'coupon_type',
-            soi.cart_rule_display_names,
             sois.name 'last_status',
             so.created_at 'order_date',
-            (SELECT 
-                    MIN(created_at)
-                FROM
-                    oms_live.ims_sales_order_item_status_history
-                WHERE
-                    fk_sales_order_item = soi.id_sales_order_item
-                        AND fk_sales_order_item_status = 67) 'finance_verified_date',
-            (SELECT 
-                    MIN(created_at)
-                FROM
-                    oms_live.ims_sales_order_item_status_history
-                WHERE
-                    fk_sales_order_item = soi.id_sales_order_item
-                        AND fk_sales_order_item_status = 5) 'first_shipped_date',
-            (SELECT 
-                    MAX(created_at)
-                FROM
-                    oms_live.ims_sales_order_item_status_history
-                WHERE
-                    fk_sales_order_item = soi.id_sales_order_item
-                        AND fk_sales_order_item_status = 5) 'last_shipped_date',
-            (SELECT 
-                    MIN(created_at)
-                FROM
-                    oms_live.ims_sales_order_item_status_history
-                WHERE
-                    fk_sales_order_item = soi.id_sales_order_item
-                        AND fk_sales_order_item_status = 27) 'delivered_date',
-            (SELECT 
-                    MIN(created_at)
-                FROM
-                    oms_live.ims_sales_order_item_status_history
-                WHERE
-                    fk_sales_order_item = soi.id_sales_order_item
-                        AND fk_sales_order_item_status = 44) 'not_delivered_date',
+            MIN(IF(soish.fk_sales_order_item_status = 67, soish.created_at, NULL)) 'finance_verified_date',
+            MIN(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'first_shipped_date',
+            MAX(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'last_shipped_date',
+            MIN(IF(soish.fk_sales_order_item_status = 27, soish.created_at, NULL)) 'delivered_date',
+            MIN(IF(soish.fk_sales_order_item_status = 44, soish.created_at, NULL)) 'not_delivered_date',
             CASE
                 WHEN ascsel.tax_class = 1 THEN 'Cross Border'
                 WHEN
@@ -251,15 +182,20 @@ FROM
             cspu.height 'simple_height',
             cspu.weight 'simple_weight',
             st.name 'shipping_type',
-            soi.delivery_type,
-            soi.is_express_shipping
+            soi.delivery_type
     FROM
-        oms_live.ims_sales_order so
-    LEFT JOIN oms_live.ims_sales_order_item soi ON so.id_sales_order = soi.fk_sales_order
+        (SELECT 
+        *
+    FROM
+        oms_live.ims_sales_order_item_status_history
+    WHERE
+        updated_at >= @extractstart
+            AND updated_at < @extractend
+    HAVING fk_sales_order_item_status IN (5 , 67, 69, 27, 44)) soish
+    LEFT JOIN oms_live.ims_sales_order_item soi ON soish.fk_sales_order_item = soi.id_sales_order_item
+    LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
     LEFT JOIN oms_live.ims_sales_order_item_status sois ON soi.fk_sales_order_item_status = sois.id_sales_order_item_status
     LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON so.fk_voucher_type = sovt.id_sales_order_voucher_type
-    JOIN oms_live.ims_sales_order_item_status_history ovip ON soi.id_sales_order_item = ovip.fk_sales_order_item
-        AND ovip.fk_sales_order_item_status = 69
     LEFT JOIN oms_live.ims_supplier osup ON soi.bob_id_supplier = osup.bob_id_supplier
     LEFT JOIN oms_live.oms_pickup_provider_type ppt ON osup.fk_pickup_provider_type = ppt.id_pickup_provider_type
     LEFT JOIN oms_live.oms_shipping_type st ON soi.fk_shipping_type = st.id_shipping_type
@@ -306,7 +242,4 @@ FROM
                 AND fk_country_region = sa.fk_country_region
                 AND is_live = 1)
     LEFT JOIN asc_live.seller ascsel ON sup.id_supplier = ascsel.src_id
-    WHERE
-        so.created_at >= @extractstart
-            AND so.created_at < @extractend
     GROUP BY soi.bob_id_sales_order_item) result
