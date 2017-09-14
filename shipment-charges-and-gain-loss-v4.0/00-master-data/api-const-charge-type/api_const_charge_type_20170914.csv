@@ -1,0 +1,5 @@
+id_charge_type,charge_type,description,created_at,updated_at
+NULL,DELIVERY,Charged when a package successfully delivered to destination,2017-09-14 00:00:00,2017-09-14 00:00:00
+NULL,FAILED DELIVERY,Charged when a package failed to reach destination,2017-09-14 00:00:00,2017-09-14 00:00:00
+NULL,PICKUP,Charged for pickup items,2017-09-14 00:00:00,2017-09-14 00:00:00
+NULL,COD,Charged for items delivered using CashOnDelivery payment method,2017-09-14 00:00:00,2017-09-14 00:00:00

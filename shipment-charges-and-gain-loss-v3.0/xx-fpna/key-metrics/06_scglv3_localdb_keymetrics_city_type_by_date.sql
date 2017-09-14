@@ -23,7 +23,7 @@ SET @extractend = '2017-08-15';-- This MUST be D + 1
 
 CREATE TEMPORARY TABLE period_zt (
    `period` DATETIME NOT NULL,
-   KEY (period)
+   UNIQUE KEY (period)
 );
 
 delimiter //
@@ -389,7 +389,7 @@ FROM
             OR (order_date >= @extractstart
             AND order_date < @extractend)
     HAVING pass = 1) result
-    GROUP BY zone_type_temp , created_at , shipped_at , delivered_at , failed_at) result
+    GROUP BY zone_type_temp , created_at_temp , shipped_at , delivered_at , failed_at) result
     LEFT JOIN period_zt pd ON (pd.period = result.created_at
         OR pd.period = result.shipped_at
         OR pd.period = result.delivered_at
