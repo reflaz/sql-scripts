@@ -18,8 +18,8 @@ USE scglv3;
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-07-01';
-SET @extractend = '2017-08-01';-- This MUST be D + 1
+SET @extractstart = '2017-09-06';
+SET @extractend = '2017-09-13';-- This MUST be D + 1
 
 SELECT 
     fin.city_temp 'city',
@@ -72,6 +72,7 @@ FROM
             id_package_dispatching,
             zone_type_temp 'zone_type',
             id_district_temp,
+            id_city,
             city_temp,
             COUNT(bob_id_sales_order_item) 'qty',
             origin_temp,
@@ -91,6 +92,7 @@ FROM
             ac.id_package_dispatching,
             ac.zone_type 'zone_type_temp',
             ac.id_district 'id_district_temp',
+            zm.id_city 'id_city',
             zm.city 'city_temp',
             ac.bob_id_sales_order_item,
             ac.origin 'origin_temp',
@@ -139,6 +141,7 @@ FROM
         ac.order_date >= @extractstart
             AND ac.order_date < @extractend
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
+            and zm.id_city in ('844')
     HAVING pass = 1) item
     GROUP BY order_nr , id_package_dispatching) pack) package
     LEFT JOIN shipping_fee_rate_card sfrc ON package.id_district_temp = sfrc.destination_zone
@@ -175,4 +178,4 @@ FROM
                     AND sfrck_max.destination_zone = sfrck.destination_zone
                     AND sfrck_max.origin = sfrck.origin)) maks ON maks.destination_zone = sfrck.destination_zone
         AND maks.origin = sfrck.origin) city) fin
-GROUP BY fin.city_temp , fin.zone_type , threshold_kg , threshold_order
+GROUP BY fin.id_city, fin.zone_type , threshold_kg , threshold_order
