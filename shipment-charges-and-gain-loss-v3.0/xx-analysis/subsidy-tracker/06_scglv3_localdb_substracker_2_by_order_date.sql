@@ -26,6 +26,7 @@ SELECT
     fin.zone_type,
     threshold_kg,
     threshold_order,
+    is_free,
     SUM(fin.unit_price) 'total_unit_price',
     SUM(fin.paid_price) 'total_paid_price',
     SUM(fin.nmv) 'nmv',
@@ -71,6 +72,7 @@ FROM
             id_district_temp,
             id_city,
             city_temp,
+            is_free,
             COUNT(bob_id_sales_order_item) 'qty',
             origin_temp,
             order_value,
@@ -98,6 +100,14 @@ FROM
             ac.paid_price,
             ac.total_shipment_fee_mp_seller_item,
             ac.total_delivery_cost_item,
+            CASE
+                WHEN
+                    IFNULL(ac.shipping_amount, 0) = 0
+                        AND IFNULL(ac.shipping_surcharge, 0) = 0
+                THEN
+                    'free'
+                ELSE 'paid'
+            END 'is_free',
             CASE
                 WHEN chargeable_weight_3pl_ps / qty_ps > 400 THEN 0
                 WHEN ABS(total_delivery_cost_item / unit_price) > 5 THEN 0
@@ -140,4 +150,4 @@ FROM
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
     HAVING pass = 1) item
     GROUP BY order_nr , id_package_dispatching) pack) city) fin
-GROUP BY fin.id_city , fin.zone_type , threshold_kg , threshold_order
+GROUP BY fin.id_city , fin.zone_type , threshold_kg , threshold_order , is_free
