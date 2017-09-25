@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Subsidy Tracker
+Subsidy Tracker by City Tier Mapping
  
 Prepared by		: Ryan Disastra
 Modified by		: 
@@ -22,9 +22,11 @@ SET @extractstart = '2017-08-14';
 SET @extractend = '2017-08-16';-- This MUST be D + 1
 
 SELECT 
+    fin.city,
     fin.tier,
-    threshold_kg,
-    threshold_order,
+    fin.threshold_kg,
+    fin.threshold_order,
+    fin.is_free,
     SUM(fin.unit_price) 'total_unit_price',
     SUM(fin.paid_price) 'total_paid_price',
     SUM(fin.nmv) 'nmv',
@@ -61,16 +63,28 @@ FROM
             END 'threshold_order'
     FROM
         (SELECT 
-        pack.*, GREATEST(weight, volumetric_weight) 'formula_weight'
+        pack.*,
+            GREATEST(weight, volumetric_weight) 'formula_weight',
+            CASE
+                WHEN
+                    IFNULL(shipping_amount, 0) = 0
+                        AND IFNULL(shipping_surcharge, 0) = 0
+                THEN
+                    'free'
+                ELSE 'paid'
+            END 'is_free'
     FROM
         (SELECT 
         order_nr,
             id_package_dispatching,
-            zone_type_temp 'zone_type',
-            id_district_temp,
+            zone_type,
+            id_district,
+            id_city,
+            city,
+            id_tier_mapping,
             tier,
             COUNT(bob_id_sales_order_item) 'qty',
-            origin_temp,
+            origin,
             order_value,
             SUM(unit_price) 'unit_price',
             SUM(paid_price) 'paid_price',
@@ -85,11 +99,14 @@ FROM
         (SELECT 
         ac.order_nr,
             ac.id_package_dispatching,
-            ac.zone_type 'zone_type_temp',
-            ac.id_district 'id_district_temp',
+            ac.zone_type,
+            ac.id_district,
+            tm.id_city,
+            tm.city,
+            tm.id_tier_mapping,
             tm.tier,
             ac.bob_id_sales_order_item,
-            ac.origin 'origin_temp',
+            ac.origin,
             ac.order_value,
             ac.unit_price,
             ac.paid_price,
@@ -135,4 +152,4 @@ FROM
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
     HAVING pass = 1) item
     GROUP BY order_nr , id_package_dispatching) pack) city) fin
-GROUP BY fin.tier , threshold_kg , threshold_order
+GROUP BY fin.id_city , fin.id_tier_mapping , is_free , threshold_kg , threshold_order

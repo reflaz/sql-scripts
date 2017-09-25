@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Subsidy Tracker
+Subsidy Tracker by Seller
  
 Prepared by		: Ryan Disastra
 Modified by		: 
@@ -22,10 +22,13 @@ SET @extractstart = '2017-08-14';
 SET @extractend = '2017-08-16';-- This MUST be D + 1
 
 SELECT 
-    fin.city_temp 'city',
-    fin.zone_type,
-    threshold_kg,
-    threshold_order,
+    fin.bob_id_supplier,
+    fin.short_code,
+    fin.seller_name,
+    fin.seller_type,
+    fin.threshold_kg,
+    fin.threshold_order,
+    fin.is_free,
     SUM(fin.unit_price) 'total_unit_price',
     SUM(fin.paid_price) 'total_paid_price',
     SUM(fin.nmv) 'nmv',
@@ -62,17 +65,32 @@ FROM
             END 'threshold_order'
     FROM
         (SELECT 
-        pack.*, GREATEST(weight, volumetric_weight) 'formula_weight'
+        pack.*,
+            GREATEST(weight, volumetric_weight) 'formula_weight',
+            CASE
+                WHEN
+                    IFNULL(shipping_amount, 0) = 0
+                        AND IFNULL(shipping_surcharge, 0) = 0
+                THEN
+                    'free'
+                ELSE 'paid'
+            END 'is_free'
     FROM
         (SELECT 
         order_nr,
             id_package_dispatching,
-            zone_type_temp 'zone_type',
-            id_district_temp,
+            bob_id_supplier,
+            short_code,
+            seller_name,
+            seller_type,
+            zone_type,
+            id_district,
             id_city,
-            city_temp,
+            city,
+            id_tier_mapping,
+            tier,
             COUNT(bob_id_sales_order_item) 'qty',
-            origin_temp,
+            origin,
             order_value,
             SUM(unit_price) 'unit_price',
             SUM(paid_price) 'paid_price',
@@ -87,12 +105,18 @@ FROM
         (SELECT 
         ac.order_nr,
             ac.id_package_dispatching,
-            ac.zone_type 'zone_type_temp',
-            ac.id_district 'id_district_temp',
-            zm.id_city,
-            zm.city 'city_temp',
+            ac.zone_type,
+            ac.id_district,
+            tm.id_city,
+            tm.city,
+            tm.id_tier_mapping,
+            tm.tier,
             ac.bob_id_sales_order_item,
-            ac.origin 'origin_temp',
+            ac.bob_id_supplier,
+            ac.short_code,
+            ac.seller_name,
+            ac.seller_type,
+            ac.origin,
             ac.order_value,
             ac.unit_price,
             ac.paid_price,
@@ -131,13 +155,11 @@ FROM
             END, 0) 'volumetric_weight'
     FROM
         anondb_calculate ac
-    LEFT JOIN zone_mapping zm ON ac.id_district = zm.id_district
-        AND GREATEST(ac.order_date, IFNULL(ac.first_shipped_date, 1)) >= zm.start_date
-        AND GREATEST(ac.order_date, IFNULL(ac.first_shipped_date, 1)) <= zm.end_date
+    LEFT JOIN tier_mapping tm ON ac.id_district = tm.id_district
     WHERE
         ac.order_date >= @extractstart
             AND ac.order_date < @extractend
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
     HAVING pass = 1) item
     GROUP BY order_nr , id_package_dispatching) pack) city) fin
-GROUP BY fin.id_city , fin.zone_type , threshold_kg , threshold_order
+GROUP BY fin.bob_id_supplier , is_free , threshold_kg , threshold_order

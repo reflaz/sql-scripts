@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Subsidy Tracker
+Subsidy Tracker by Zone Mapping
  
 Prepared by		: Ryan Disastra
 Modified by		: 
@@ -22,11 +22,11 @@ SET @extractstart = '2017-08-01';
 SET @extractend = '2017-08-18';-- This MUST be D + 1
 
 SELECT 
-    fin.city_temp 'city',
+    fin.city,
     fin.zone_type,
-    threshold_kg,
-    threshold_order,
-    is_free,
+    fin.threshold_kg,
+    fin.threshold_order,
+    fin.is_free,
     SUM(fin.unit_price) 'total_unit_price',
     SUM(fin.paid_price) 'total_paid_price',
     SUM(fin.nmv) 'nmv',
@@ -77,12 +77,12 @@ FROM
         (SELECT 
         order_nr,
             id_package_dispatching,
-            zone_type_temp 'zone_type',
-            id_district_temp,
+            zone_type,
+            id_district,
             id_city,
-            city_temp,
+            city,
             COUNT(bob_id_sales_order_item) 'qty',
-            origin_temp,
+            origin,
             order_value,
             SUM(unit_price) 'unit_price',
             SUM(paid_price) 'paid_price',
@@ -97,12 +97,12 @@ FROM
         (SELECT 
         ac.order_nr,
             ac.id_package_dispatching,
-            ac.zone_type 'zone_type_temp',
-            ac.id_district 'id_district_temp',
+            ac.zone_type,
+            ac.id_district,
             zm.id_city,
-            zm.city 'city_temp',
+            zm.city,
             ac.bob_id_sales_order_item,
-            ac.origin 'origin_temp',
+            ac.origin,
             ac.order_value,
             ac.unit_price,
             ac.paid_price,
