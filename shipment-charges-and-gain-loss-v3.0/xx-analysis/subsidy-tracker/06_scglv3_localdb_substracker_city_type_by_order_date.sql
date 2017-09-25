@@ -23,6 +23,7 @@ SET @extractend = '2017-08-16';-- This MUST be D + 1
 
 SELECT 
     fin.city,
+    fin.zone_type,
     fin.tier,
     fin.threshold_kg,
     fin.threshold_order,
@@ -152,4 +153,4 @@ FROM
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
     HAVING pass = 1) item
     GROUP BY order_nr , id_package_dispatching) pack) city) fin
-GROUP BY fin.id_city , fin.id_tier_mapping , is_free , threshold_kg , threshold_order
+GROUP BY fin.id_city , fin.zone_type , fin.id_tier_mapping , fin.threshold_order , fin.is_free , fin.threshold_kg
