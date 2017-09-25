@@ -153,4 +153,4 @@ FROM
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
     HAVING pass = 1) item
     GROUP BY order_nr , id_package_dispatching) pack) city) fin
-GROUP BY fin.id_city , fin.zone_type , fin.id_tier_mapping , fin.threshold_order , fin.is_free , fin.threshold_kg
+GROUP BY fin.id_city , fin.zone_type , fin.tier , fin.threshold_order , fin.is_free , fin.threshold_kg
