@@ -6,3 +6,4 @@ NULL,COMPLETE,Data found in Anon DB Extract with complete fields,2017-09-14 00:0
 NULL,DUPLICATE,Another data with same keys exists,2017-09-14 00:00:00,2017-09-14 00:00:00
 NULL,ACTIVE,Data has been checked and ready to be used in calculation,2017-09-14 00:00:00,2017-09-14 00:00:00
 NULL,DELETED,Data has been deleted,2017-09-14 00:00:00,2017-09-14 00:00:00
+NULL,NO_REFERENCE,Data referred not exists,2017-09-14 00:00:00,2017-09-14 00:00:00

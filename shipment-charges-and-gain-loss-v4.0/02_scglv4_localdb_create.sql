@@ -1,6 +1,7 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Shipping Charges and Gain/Loss LocalDB Create
+Shipping Charges and Gain/Loss
+LocalDB Create
 
 Prepared by		: R Maliangkay
 Modified by		: RM
@@ -168,7 +169,7 @@ CREATE TABLE `api_direct_billing` (
     `amount` DECIMAL(20 , 4 ) DEFAULT NULL,
     `tax_amount` DECIMAL(20 , 4 ) DEFAULT NULL,
     `total_amount` DECIMAL(20 , 4 ) DEFAULT NULL,
-    `id_api_direct_billing_reverse` BIGINT(20) DEFAULT NULL,
+    `id_api_direct_billing_reference` BIGINT(20) DEFAULT NULL,
     `commentary` VARCHAR(255) DEFAULT NULL,
     `is_in_master_account` TINYINT(4) DEFAULT NULL,
     `status` VARCHAR(20) DEFAULT NULL,
@@ -184,7 +185,7 @@ CREATE TABLE `api_direct_billing` (
     KEY (`package_number`),
     KEY (`bob_id_supplier`),
     KEY (`short_code`),
-    KEY (`id_api_direct_billing_reverse`),
+    KEY (`id_api_direct_billing_reference`),
     KEY (`is_in_master_account`),
     KEY (`status`),
     KEY (`delivered_date`),
@@ -217,7 +218,7 @@ CREATE TABLE `api_master_account` (
     `amount` DECIMAL(20 , 4 ) DEFAULT NULL,
     `tax_amount` DECIMAL(20 , 4 ) DEFAULT NULL,
     `total_amount` DECIMAL(20 , 4 ) DEFAULT NULL,
-    `id_api_master_account_reverse` BIGINT(20) DEFAULT NULL,
+    `id_api_master_account_reference` BIGINT(20) DEFAULT NULL,
     `commentary` VARCHAR(255) DEFAULT NULL,
     `is_in_direct_billing` TINYINT(4) DEFAULT NULL,
     `status` VARCHAR(20) DEFAULT NULL,
@@ -233,7 +234,7 @@ CREATE TABLE `api_master_account` (
     KEY (`package_number`),
     KEY (`bob_id_supplier`),
     KEY (`short_code`),
-    KEY (`id_api_master_account_reverse`),
+    KEY (`id_api_master_account_reference`),
     KEY (`is_in_direct_billing`),
     KEY (`status`),
     KEY (`delivered_date`),
