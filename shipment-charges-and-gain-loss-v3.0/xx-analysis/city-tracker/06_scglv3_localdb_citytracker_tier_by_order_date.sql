@@ -181,4 +181,4 @@ FROM
                     AND sfrck_max.destination_zone = sfrck.destination_zone
                     AND sfrck_max.origin = sfrck.origin)) maks ON maks.destination_zone = sfrck.destination_zone
         AND maks.origin = sfrck.origin) city) fin
-GROUP BY fin.id_city, fin.zone_type , threshold_kg , threshold_order
+GROUP BY fin.id_city, fin.zone_type, tier, threshold_kg, threshold_order
