@@ -43,7 +43,7 @@ SELECT
     SUM(fin.shipping_surcharge) + SUM(fin.shipping_amount) + SUM(fin.total_shipment_fee_mp_seller) + SUM(fin.total_delivery_cost) 'net_subsidy'
 FROM
     (SELECT 
-        city.*,
+        pack.*,
             CASE
                 WHEN formula_weight <= 1.3 THEN '<= 1kg'
                 WHEN formula_weight <= 2.3 THEN '<= 2kg'
@@ -161,5 +161,5 @@ FROM
             AND ac.order_date < @extractend
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
     HAVING pass = 1) item
-    GROUP BY order_nr , id_package_dispatching) pack) city) fin
+    GROUP BY order_nr , id_package_dispatching , bob_id_supplier) pack) pack) fin
 GROUP BY fin.bob_id_supplier , is_free , threshold_kg , threshold_order
