@@ -161,7 +161,10 @@ FROM
             ae.first_shipment_provider,
             ae.last_tracking_number,
             ae.last_shipment_provider,
-            ae.origin,
+            CASE
+				WHEN ae.origin IN ('Cross Border','DKI Jakarta','East Java','North Sumatera') THEN ae.origin
+                ELSE 'DKI Jakarta'
+            END 'origin',
             ae.city,
             ae.id_district,
             ae.zone_type,

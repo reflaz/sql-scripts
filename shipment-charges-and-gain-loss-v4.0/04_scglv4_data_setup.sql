@@ -8,8 +8,7 @@ Modified by		: RM
 Version			: 1.0
 Changes made	: 
 
-Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
-				  - Run the query by pressing the execute button
+Instructions	: - Run the query by pressing the execute button
                   - Wait until the query finished
                   - Close the query WITHOUT SAVING ANY CHANGES
 -------------------------------------------------------------------------------------------------------------------------------------
@@ -17,8 +16,28 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 
 USE scglv4;
 
-SET @updated_at = NOW();
 SET SQL_SAFE_UPDATES = 0;
+
+/*-----------------------------------------------------------------------------------------------------------------------------------
+Set data update timestamp
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+SET @updated_at = NOW();
+
+/*-----------------------------------------------------------------------------------------------------------------------------------
+Update campaign tracker end date
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+UPDATE campaign_tracker 
+SET 
+    end_date = CASE
+        WHEN
+            end_date < start_date
+                OR end_date IS NULL
+        THEN
+            '9999-12-31 23:59:59'
+        ELSE DATE_FORMAT(end_date, '%Y-%m-%d 23:59:59')
+    END;
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Initialize temporary API data creation date and update date 
@@ -30,7 +49,7 @@ SET
             '%Y-%m-%d %T'),
     adb.updated_at = @updated_at
 WHERE
-    adb.status = 'TEMPORARY';
+    adb.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
 
 UPDATE api_master_account ama 
 SET 
@@ -38,12 +57,12 @@ SET
             '%Y-%m-%d %T'),
     ama.updated_at = @updated_at
 WHERE
-    ama.status = 'TEMPORARY';
+    ama.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check if temporary API data exists in different types of APIs
 Temporary data checked to all data regardless of its posting and charge type
-Comparing data status is not deleted
+Comparing data status is not 'DELETED'
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE api_direct_billing adb
@@ -52,9 +71,9 @@ UPDATE api_direct_billing adb
         AND adb.short_code = ama.short_code
         AND ama.status <> 'DELETED' 
 SET 
-    adb.is_in_master_account = 1
+    adb.status = 'API_TYPE_CONFLICT'
 WHERE
-    adb.status = 'TEMPORARY';
+    adb.status IN ('TEMPORARY' , 'API_TYPE_CONFLICT');
     
 UPDATE api_master_account ama
         JOIN
@@ -62,13 +81,13 @@ UPDATE api_master_account ama
         AND ama.short_code = adb.short_code
         AND adb.status <> 'DELETED' 
 SET 
-    ama.is_in_direct_billing = 1
+    ama.status = 'API_TYPE_CONFLICT'
 WHERE
-    ama.status = 'TEMPORARY';
+    ama.status IN ('TEMPORARY' , 'API_TYPE_CONFLICT');
     
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check for duplicate API data entries
-Comparing data status is not deleted
+Comparing data status is not 'DELETED'
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE api_direct_billing adb1
@@ -82,7 +101,7 @@ UPDATE api_direct_billing adb1
 SET 
     adb1.status = 'DUPLICATE'
 WHERE
-    adb1.status = 'TEMPORARY';
+    adb1.status IN ('TEMPORARY' , 'DUPLICATE');
     
 UPDATE api_master_account ama1
         JOIN
@@ -95,10 +114,11 @@ UPDATE api_master_account ama1
 SET 
     ama1.status = 'DUPLICATE'
 WHERE
-    ama1.status = 'TEMPORARY';
+    ama1.status IN ('TEMPORARY' , 'DUPLICATE');
     
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check reference for temporary reversal and adjustment API data
+Comparing data status is not 'DELETED'
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE api_direct_billing adb1
@@ -115,7 +135,7 @@ SET
         ELSE 'NO_REFERENCE'
     END
 WHERE
-    adb1.status = 'TEMPORARY'
+    adb1.status IN ('TEMPORARY' , 'NO_REFERENCE')
         AND adb1.posting_type IN ('REVERSAL' , 'ADJUSTMENT');
 
 UPDATE api_master_account ama1
@@ -132,26 +152,27 @@ SET
         ELSE 'NO_REFERENCE'
     END
 WHERE
-    ama1.status = 'TEMPORARY'
+    ama1.status IN ('TEMPORARY' , 'NO_REFERENCE')
         AND ama1.posting_type IN ('REVERSAL' , 'ADJUSTMENT');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
-Complete missing fields from ANON DB data extract
+Complete missing API fields from ANON DB data extract
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE api_direct_billing adb
         JOIN
-    anondb_extract ae ON adb.package_number = ae.package_number
-        AND adb.short_code = ae.short_code 
+    anondb_extract_item_level aeil ON adb.package_number = aeil.package_number
+        AND adb.short_code = aeil.short_code 
 SET 
-    adb.id_package_dispatching = ae.id_package_dispatching,
-    adb.bob_id_supplier = ae.bob_id_supplier,
+    aeil.api_type = 1,
+    adb.id_package_dispatching = aeil.id_package_dispatching,
+    adb.bob_id_supplier = aeil.bob_id_supplier,
     adb.weight_source = 'Direct Billing API',
-    adb.delivered_date = ae.delivered_date,
+    adb.delivered_date = aeil.delivered_date,
     adb.status = CASE
-        WHEN ae.id_package_dispatching IS NULL THEN 'INCOMPLETE'
-        WHEN ae.bob_id_supplier IS NULL THEN 'INCOMPLETE'
-        WHEN ae.delivered_date IS NULL THEN 'INCOMPLETE'
+        WHEN aeil.id_package_dispatching IS NULL THEN 'INCOMPLETE'
+        WHEN aeil.bob_id_supplier IS NULL THEN 'INCOMPLETE'
+        WHEN aeil.delivered_date IS NULL THEN 'INCOMPLETE'
         ELSE 'COMPLETE'
     END
 WHERE
@@ -159,16 +180,17 @@ WHERE
     
 UPDATE api_master_account ama
         JOIN
-    anondb_extract ae ON ama.package_number = ae.package_number
-        AND ama.short_code = ae.short_code 
+    anondb_extract_item_level aeil ON ama.package_number = aeil.package_number
+        AND ama.short_code = aeil.short_code 
 SET 
-    ama.id_package_dispatching = ae.id_package_dispatching,
-    ama.bob_id_supplier = ae.bob_id_supplier,
-    ama.delivered_date = ae.delivered_date,
+    aeil.api_type = 2,
+    ama.id_package_dispatching = aeil.id_package_dispatching,
+    ama.bob_id_supplier = aeil.bob_id_supplier,
+    ama.delivered_date = aeil.delivered_date,
     ama.status = CASE
-        WHEN ae.id_package_dispatching IS NULL THEN 'INCOMPLETE'
-        WHEN ae.bob_id_supplier IS NULL THEN 'INCOMPLETE'
-        WHEN ae.delivered_date IS NULL THEN 'INCOMPLETE'
+        WHEN aeil.id_package_dispatching IS NULL THEN 'INCOMPLETE'
+        WHEN aeil.bob_id_supplier IS NULL THEN 'INCOMPLETE'
+        WHEN aeil.delivered_date IS NULL THEN 'INCOMPLETE'
         ELSE 'COMPLETE'
     END
 WHERE
@@ -193,5 +215,5 @@ WHERE
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Data setup completed
 -----------------------------------------------------------------------------------------------------------------------------------*/
-    
+
 SET SQL_SAFE_UPDATES = 1;
