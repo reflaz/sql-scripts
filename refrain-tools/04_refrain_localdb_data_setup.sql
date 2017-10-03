@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Shipping Charges and Gain/Loss
+Refrain Tools
 Data Setup
 
 Prepared by		: R Maliangkay
@@ -14,7 +14,7 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv4;
+USE refrain;
 
 SET SQL_SAFE_UPDATES = 0;
 
@@ -28,7 +28,7 @@ SET @updated_at = NOW();
 Update campaign tracker end date
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-UPDATE campaign_tracker 
+UPDATE map_campaign_tracker 
 SET 
     end_date = CASE
         WHEN
@@ -43,21 +43,21 @@ SET
 Initialize temporary API data creation date and update date 
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-UPDATE api_direct_billing adb 
+UPDATE api_data_direct_billing addb 
 SET 
-    adb.created_at = DATE_FORMAT(SUBSTRING_INDEX(adb.api_date, '-', - 1),
+    addb.created_at = DATE_FORMAT(SUBSTRING_INDEX(addb.api_date, '-', - 1),
             '%Y-%m-%d %T'),
-    adb.updated_at = @updated_at
+    addb.updated_at = @updated_at
 WHERE
-    adb.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
+    addb.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
 
-UPDATE api_master_account ama 
+UPDATE api_data_master_account adma 
 SET 
-    ama.created_at = DATE_FORMAT(SUBSTRING_INDEX(ama.api_date, '-', - 1),
+    adma.created_at = DATE_FORMAT(SUBSTRING_INDEX(adma.api_date, '-', - 1),
             '%Y-%m-%d %T'),
-    ama.updated_at = @updated_at
+    adma.updated_at = @updated_at
 WHERE
-    ama.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
+    adma.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check if temporary API data exists in different types of APIs
@@ -65,152 +65,152 @@ Temporary data checked to all data regardless of its posting and charge type
 Comparing data status is not 'DELETED'
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-UPDATE api_direct_billing adb
+UPDATE api_data_direct_billing addb
         JOIN
-    api_master_account ama ON adb.package_number = ama.package_number
-        AND adb.short_code = ama.short_code
-        AND ama.status <> 'DELETED' 
+    api_data_master_account adma ON addb.package_number = adma.package_number
+        AND addb.short_code = adma.short_code
+        AND adma.status <> 'DELETED' 
 SET 
-    adb.status = 'API_TYPE_CONFLICT'
+    addb.status = 'API_TYPE_CONFLICT'
 WHERE
-    adb.status IN ('TEMPORARY' , 'API_TYPE_CONFLICT');
+    addb.status IN ('TEMPORARY' , 'API_TYPE_CONFLICT');
     
-UPDATE api_master_account ama
+UPDATE api_data_master_account adma
         JOIN
-    api_direct_billing adb ON ama.package_number = adb.package_number
-        AND ama.short_code = adb.short_code
-        AND adb.status <> 'DELETED' 
+    api_data_direct_billing addb ON adma.package_number = addb.package_number
+        AND adma.short_code = addb.short_code
+        AND addb.status <> 'DELETED' 
 SET 
-    ama.status = 'API_TYPE_CONFLICT'
+    adma.status = 'API_TYPE_CONFLICT'
 WHERE
-    ama.status IN ('TEMPORARY' , 'API_TYPE_CONFLICT');
+    adma.status IN ('TEMPORARY' , 'API_TYPE_CONFLICT');
     
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check for duplicate API data entries
 Comparing data status is not 'DELETED'
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-UPDATE api_direct_billing adb1
+UPDATE api_data_direct_billing addb1
         JOIN
-    api_direct_billing adb2 ON adb1.package_number = adb2.package_number
-        AND adb1.short_code = adb2.short_code
-        AND adb1.posting_type = adb2.posting_type
-        AND adb1.charge_type = adb2.charge_type
-        AND adb1.id_api_direct_billing <> adb2.id_api_direct_billing
-        AND adb2.status <> 'DELETED' 
+    api_data_direct_billing addb2 ON addb1.package_number = addb2.package_number
+        AND addb1.short_code = addb2.short_code
+        AND addb1.posting_type = addb2.posting_type
+        AND addb1.charge_type = addb2.charge_type
+        AND addb1.id_api_direct_billing <> addb2.id_api_direct_billing
+        AND addb2.status <> 'DELETED' 
 SET 
-    adb1.status = 'DUPLICATE'
+    addb1.status = 'DUPLICATE'
 WHERE
-    adb1.status IN ('TEMPORARY' , 'DUPLICATE');
+    addb1.status IN ('TEMPORARY' , 'DUPLICATE');
     
-UPDATE api_master_account ama1
+UPDATE api_data_master_account adma1
         JOIN
-    api_master_account ama2 ON ama1.package_number = ama2.package_number
-        AND ama1.short_code = ama2.short_code
-        AND ama1.posting_type = ama2.posting_type
-        AND ama1.charge_type = ama2.charge_type
-        AND ama1.id_api_master_account <> ama2.id_api_master_account
-        AND ama2.status <> 'DELETED' 
+    api_data_master_account adma2 ON adma1.package_number = adma2.package_number
+        AND adma1.short_code = adma2.short_code
+        AND adma1.posting_type = adma2.posting_type
+        AND adma1.charge_type = adma2.charge_type
+        AND adma1.id_api_master_account <> adma2.id_api_master_account
+        AND adma2.status <> 'DELETED' 
 SET 
-    ama1.status = 'DUPLICATE'
+    adma1.status = 'DUPLICATE'
 WHERE
-    ama1.status IN ('TEMPORARY' , 'DUPLICATE');
+    adma1.status IN ('TEMPORARY' , 'DUPLICATE');
     
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check reference for temporary reversal and adjustment API data
 Comparing data status is not 'DELETED'
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-UPDATE api_direct_billing adb1
+UPDATE api_data_direct_billing addb1
         LEFT JOIN
-    api_direct_billing adb2 ON adb1.package_number = adb2.package_number
-        AND adb1.short_code = adb2.short_code
-        AND adb1.id_api_direct_billing <> adb2.id_api_direct_billing
-        AND adb2.charge_type = 'INCOMING'
-        AND adb2.status <> 'DELETED' 
+    api_data_direct_billing addb2 ON addb1.package_number = addb2.package_number
+        AND addb1.short_code = addb2.short_code
+        AND addb1.id_api_direct_billing <> addb2.id_api_direct_billing
+        AND addb2.charge_type = 'INCOMING'
+        AND addb2.status <> 'DELETED' 
 SET 
-    adb1.id_api_direct_billing_reference = adb2.id_api_direct_billing,
-    adb1.status = CASE
-        WHEN adb2.id_api_direct_billing IS NOT NULL THEN adb1.status
+    addb1.id_api_direct_billing_reference = addb2.id_api_direct_billing,
+    addb1.status = CASE
+        WHEN addb2.id_api_direct_billing IS NOT NULL THEN addb1.status
         ELSE 'NO_REFERENCE'
     END
 WHERE
-    adb1.status IN ('TEMPORARY' , 'NO_REFERENCE')
-        AND adb1.posting_type IN ('REVERSAL' , 'ADJUSTMENT');
+    addb1.status IN ('TEMPORARY' , 'NO_REFERENCE')
+        AND addb1.posting_type IN ('REVERSAL' , 'ADJUSTMENT');
 
-UPDATE api_master_account ama1
+UPDATE api_data_master_account adma1
         LEFT JOIN
-    api_master_account ama2 ON ama1.package_number = ama2.package_number
-        AND ama1.short_code = ama2.short_code
-        AND ama1.id_api_master_account <> ama2.id_api_master_account
-        AND ama2.charge_type = 'INCOMING'
-        AND ama2.status <> 'DELETED' 
+    api_data_master_account adma2 ON adma1.package_number = adma2.package_number
+        AND adma1.short_code = adma2.short_code
+        AND adma1.id_api_master_account <> adma2.id_api_master_account
+        AND adma2.charge_type = 'INCOMING'
+        AND adma2.status <> 'DELETED' 
 SET 
-    ama1.id_api_master_account_reference = ama2.id_api_master_account,
-    ama1.status = CASE
-        WHEN ama2.id_api_master_account IS NOT NULL THEN ama1.status
+    adma1.id_api_master_account_reference = adma2.id_api_master_account,
+    adma1.status = CASE
+        WHEN adma2.id_api_master_account IS NOT NULL THEN adma1.status
         ELSE 'NO_REFERENCE'
     END
 WHERE
-    ama1.status IN ('TEMPORARY' , 'NO_REFERENCE')
-        AND ama1.posting_type IN ('REVERSAL' , 'ADJUSTMENT');
+    adma1.status IN ('TEMPORARY' , 'NO_REFERENCE')
+        AND adma1.posting_type IN ('REVERSAL' , 'ADJUSTMENT');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Complete missing API fields from ANON DB data extract
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-UPDATE api_direct_billing adb
+UPDATE api_data_direct_billing addb
         JOIN
-    anondb_extract_item_level aeil ON adb.package_number = aeil.package_number
-        AND adb.short_code = aeil.short_code 
+    tmp_item_level til ON addb.package_number = til.package_number
+        AND addb.short_code = til.short_code 
 SET 
-    aeil.api_type = 1,
-    adb.id_package_dispatching = aeil.id_package_dispatching,
-    adb.bob_id_supplier = aeil.bob_id_supplier,
-    adb.weight_source = 'Direct Billing API',
-    adb.delivered_date = aeil.delivered_date,
-    adb.status = CASE
-        WHEN aeil.id_package_dispatching IS NULL THEN 'INCOMPLETE'
-        WHEN aeil.bob_id_supplier IS NULL THEN 'INCOMPLETE'
-        WHEN aeil.delivered_date IS NULL THEN 'INCOMPLETE'
+    til.api_type = 1,
+    addb.id_package_dispatching = til.id_package_dispatching,
+    addb.bob_id_supplier = til.bob_id_supplier,
+    addb.weight_source = 'Direct Billing API',
+    addb.delivered_date = til.delivered_date,
+    addb.status = CASE
+        WHEN til.id_package_dispatching IS NULL THEN 'INCOMPLETE'
+        WHEN til.bob_id_supplier IS NULL THEN 'INCOMPLETE'
+        WHEN til.delivered_date IS NULL THEN 'INCOMPLETE'
         ELSE 'COMPLETE'
     END
 WHERE
-    adb.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
+    addb.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
     
-UPDATE api_master_account ama
+UPDATE api_data_master_account adma
         JOIN
-    anondb_extract_item_level aeil ON ama.package_number = aeil.package_number
-        AND ama.short_code = aeil.short_code 
+    tmp_item_level til ON adma.package_number = til.package_number
+        AND adma.short_code = til.short_code 
 SET 
-    aeil.api_type = 2,
-    ama.id_package_dispatching = aeil.id_package_dispatching,
-    ama.bob_id_supplier = aeil.bob_id_supplier,
-    ama.delivered_date = aeil.delivered_date,
-    ama.status = CASE
-        WHEN aeil.id_package_dispatching IS NULL THEN 'INCOMPLETE'
-        WHEN aeil.bob_id_supplier IS NULL THEN 'INCOMPLETE'
-        WHEN aeil.delivered_date IS NULL THEN 'INCOMPLETE'
+    til.api_type = 2,
+    adma.id_package_dispatching = til.id_package_dispatching,
+    adma.bob_id_supplier = til.bob_id_supplier,
+    adma.delivered_date = til.delivered_date,
+    adma.status = CASE
+        WHEN til.id_package_dispatching IS NULL THEN 'INCOMPLETE'
+        WHEN til.bob_id_supplier IS NULL THEN 'INCOMPLETE'
+        WHEN til.delivered_date IS NULL THEN 'INCOMPLETE'
         ELSE 'COMPLETE'
     END
 WHERE
-    ama.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
+    adma.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Set status to NA for all API data not found in ANON DB extract
 -----------------------------------------------------------------------------------------------------------------------------------*/
     
-UPDATE api_direct_billing adb 
+UPDATE api_data_direct_billing addb 
 SET 
-    adb.status = 'NA'
+    addb.status = 'NA'
 WHERE
-    adb.status = 'TEMPORARY';
+    addb.status = 'TEMPORARY';
 
-UPDATE api_master_account ama 
+UPDATE api_data_master_account adma 
 SET 
-    ama.status = 'NA'
+    adma.status = 'NA'
 WHERE
-    ama.status = 'TEMPORARY';
+    adma.status = 'TEMPORARY';
     
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Data setup completed

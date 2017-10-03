@@ -1,5 +1,4 @@
-id_campaign,campaign,pickup_provider_type,shipment_fee_mp_seller_flat_rate,shipment_fee_mp_seller_rate,insurance_rate,start_date,end_date
-0,NA,NULL,0,NULL,NULL,1900-01-01 00:00:00,9999-12-31 23:59:59
+id_campaign,campaign,pickup_provider_type,seller_flat_charge_rate,seller_charge_rate,insurance_rate,start_date,end_date
 1,Insurance Waive,NULL,0,NULL,0,1900-01-01 00:00:00,2016-09-30 23:59:59
 2,VIP Seller,NULL,0,1000,NULL,1900-01-01 00:00:00,2016-11-30 23:59:59
 2,VIP Seller,NULL,0,2500,NULL,2016-12-01 00:00:00,2017-03-31 23:59:59
@@ -11,9 +10,9 @@ id_campaign,campaign,pickup_provider_type,shipment_fee_mp_seller_flat_rate,shipm
 5,Rising Star Program,NULL,0,3500,0,2016-12-01 00:00:00,9999-12-31 23:59:59
 6,Lazada Prioritas,NULL,0,0,0,2017-08-14 00:00:00,2017-09-03 23:59:59
 7,Lazada Prioritas - VIP,NULL,0,0,0,2017-08-14 00:00:00,2017-09-03 23:59:59
-8,LP - Juragan,LEX,0,3250,NULL,2017-09-04 00:00:00,9999-12-31 23:59:59
-8,LP - Juragan,NULL,0,3500,NULL,2017-09-04 00:00:00,9999-12-31 23:59:59
-9,LP - Jagoan,LEX,0,3250,NULL,2017-09-04 00:00:00,9999-12-31 23:59:59
-9,LP - Jagoan,NULL,0,3500,NULL,2017-09-04 00:00:00,9999-12-31 23:59:59
-10,LP - Jawara,NULL,0,0,0,2017-09-04 00:00:00,9999-12-31 23:59:59
-11,LP - Maestro,NULL,0,0,0,2017-09-04 00:00:00,9999-12-31 23:59:59
+8,Lazada Prioritas - Juragan,LEX,0,3250,NULL,2017-09-04 00:00:00,9999-12-31 23:59:59
+8,Lazada Prioritas - Juragan,NULL,0,3500,NULL,2017-09-04 00:00:00,9999-12-31 23:59:59
+9,Lazada Prioritas - Jagoan,LEX,0,3250,NULL,2017-09-04 00:00:00,9999-12-31 23:59:59
+9,Lazada Prioritas - Jagoan,NULL,0,3500,NULL,2017-09-04 00:00:00,9999-12-31 23:59:59
+10,Lazada Prioritas - Jawara,NULL,0,0,0,2017-09-04 00:00:00,9999-12-31 23:59:59
+11,Lazada Prioritas - Maestro,NULL,0,0,0,2017-09-04 00:00:00,9999-12-31 23:59:59

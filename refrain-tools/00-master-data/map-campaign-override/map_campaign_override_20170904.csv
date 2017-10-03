@@ -1,0 +1,5 @@
+id_campaign_override,fk_campaign,shipment_scheme,seller_flat_charge_rate,seller_charge_rate,start_date,end_date
+1,2,EXPRESS FBL,0,3000,2017-07-01 00:00:00,2017-07-31 23:59:59
+2,2,EXPRESS MASTER ACCOUNT,4000,0,2017-08-01 00:00:00,2017-09-03 23:59:59
+3,2,EXPRESS FBL,3000,0,2017-08-01 00:00:00,2017-09-03 23:59:59
+4,2,FBL,0,3000,2017-07-01 00:00:00,2017-09-03 23:59:59
