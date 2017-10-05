@@ -18,8 +18,8 @@ USE scglv3;
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-09-06';
-SET @extractend = '2017-09-13';-- This MUST be D + 1
+SET @extractstart = '2017-07-29';
+SET @extractend = '2017-08-01';-- This MUST be D + 1
 
 SELECT 
     fin.city_temp 'city',
@@ -141,7 +141,6 @@ FROM
         ac.order_date >= @extractstart
             AND ac.order_date < @extractend
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
-            and zm.id_city in ('844')
     HAVING pass = 1) item
     GROUP BY order_nr , id_package_dispatching) pack) package
     LEFT JOIN shipping_fee_rate_card sfrc ON package.id_district_temp = sfrc.destination_zone
@@ -150,6 +149,7 @@ FROM
         AND sfrc.threshold_level = 'Source'
         AND sfrc.leadtime = 'Standard'
         AND sfrc.fee_type = 'FIX'
+        AND sfrc.product_class = 'A'
     LEFT JOIN shipping_fee_rate_card_kg sfrck ON package.id_district_temp = sfrck.destination_zone
         AND sfrck.origin = package.origin_temp
         AND sfrck.leadtime = 'Standard'
@@ -160,7 +160,7 @@ FROM
         WHERE
             sfrc_kg.destination_zone = package.id_district_temp
                 AND sfrc_kg.origin = package.origin_temp
-                AND formula_weight <= sfrc_kg.weight_break)
+                AND formula_weight <= (sfrc_kg.weight_break + 0.3))
     LEFT JOIN (SELECT 
         id_shipping_fee_rate_card_kg,
             destination_zone,

@@ -153,6 +153,7 @@ FROM
         AND sfrc.threshold_level = 'Source'
         AND sfrc.leadtime = 'Standard'
         AND sfrc.fee_type = 'FIX'
+        AND sfrc.product_class = 'A'
     LEFT JOIN shipping_fee_rate_card_kg sfrck ON package.id_district_temp = sfrck.destination_zone
         AND sfrck.origin = package.origin_temp
         AND sfrck.leadtime = 'Standard'
@@ -163,7 +164,7 @@ FROM
         WHERE
             sfrc_kg.destination_zone = package.id_district_temp
                 AND sfrc_kg.origin = package.origin_temp
-                AND formula_weight <= sfrc_kg.weight_break)
+                AND formula_weight <= (sfrc_kg.weight_break + 0.3))
     LEFT JOIN (SELECT 
         id_shipping_fee_rate_card_kg,
             destination_zone,
