@@ -102,15 +102,15 @@ CREATE TABLE IF NOT EXISTS `api_data_direct_billing` (
     KEY (`created_at`),
     KEY (`updated_at`),
     CONSTRAINT `posting_type_constraint_db` FOREIGN KEY (`posting_type`)
-        REFERENCES `api_const_posting_type` (`posting_type`)
+        REFERENCES `api_cons_posting_type` (`posting_type`)
         ON DELETE RESTRICT ON UPDATE RESTRICT,
     CONSTRAINT `charge_type_constraint_db` FOREIGN KEY (`charge_type`)
-        REFERENCES `api_const_charge_type` (`charge_type`)
+        REFERENCES `api_cons_charge_type` (`charge_type`)
         ON DELETE RESTRICT ON UPDATE RESTRICT,
     CONSTRAINT `status_constraint_db` FOREIGN KEY (`status`)
-        REFERENCES `api_const_status` (`status`)
+        REFERENCES `api_cons_status` (`status`)
         ON DELETE RESTRICT ON UPDATE RESTRICT
-)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Direct Billing API Data';
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Direct billing API data';
 
 CREATE TABLE IF NOT EXISTS `api_data_master_account` (
     `id_api_master_account` BIGINT(20) NOT NULL AUTO_INCREMENT,
@@ -149,15 +149,15 @@ CREATE TABLE IF NOT EXISTS `api_data_master_account` (
     KEY (`created_at`),
     KEY (`updated_at`),
     CONSTRAINT `posting_type_constraint_ma` FOREIGN KEY (`posting_type`)
-        REFERENCES `api_const_posting_type` (`posting_type`)
+        REFERENCES `api_cons_posting_type` (`posting_type`)
         ON DELETE RESTRICT ON UPDATE RESTRICT,
     CONSTRAINT `charge_type_constraint_ma` FOREIGN KEY (`charge_type`)
-        REFERENCES `api_const_charge_type` (`charge_type`)
+        REFERENCES `api_cons_charge_type` (`charge_type`)
         ON DELETE RESTRICT ON UPDATE RESTRICT,
     CONSTRAINT `status_constraint_ma` FOREIGN KEY (`status`)
-        REFERENCES `api_const_status` (`status`)
+        REFERENCES `api_cons_status` (`status`)
         ON DELETE RESTRICT ON UPDATE RESTRICT
-)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Master Account API Data';
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Master account API data';
 
 CREATE TABLE IF NOT EXISTS `map_campaign` (
     `id_campaign` INT(10) UNSIGNED NOT NULL,
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS `map_campaign_access` (
     KEY (`shipment_scheme`),
     KEY (`start_date`),
     KEY (`end_date`)
-)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Campaign';
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Campaign access';
 
 CREATE TABLE IF NOT EXISTS `map_campaign_override` (
     `id_campaign_override` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -201,7 +201,7 @@ CREATE TABLE IF NOT EXISTS `map_campaign_override` (
     KEY (`shipment_scheme`),
     KEY (`start_date`),
     KEY (`end_date`)
-)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Campaign tracker';
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Campaign override';
 
 CREATE TABLE IF NOT EXISTS `map_campaign_tracker` (
     `id_campaign_tracker` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -218,6 +218,53 @@ CREATE TABLE IF NOT EXISTS `map_campaign_tracker` (
     KEY (`start_date`),
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Campaign tracker';
+
+CREATE TABLE IF NOT EXISTS `map_default_charges` (
+    `id_default_charges` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `shipment_scheme` VARCHAR(50) DEFAULT NULL,
+    `is_marketplace` TINYINT(4) DEFAULT NULL,
+    `pickup_provider_type` VARCHAR(12) DEFAULT NULL,
+    `first_shipment_provider` VARCHAR(64) DEFAULT NULL,
+    `rounding_seller` DECIMAL(6 , 4 ) DEFAULT NULL,
+    `seller_flat_charge_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `seller_charge_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `rate_card_scheme` VARCHAR(12) DEFAULT NULL,
+    `rounding_3pl` DECIMAL(6 , 4 ) DEFAULT NULL,
+    `pickup_cost_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `pickup_cost_discount_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `pickup_cost_vat_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `delivery_cost_vat_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `start_date` DATETIME DEFAULT NULL,
+    `end_date` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id_default_charges`),
+    KEY (`shipment_scheme`),
+    KEY (`is_marketplace`),
+    KEY (`pickup_provider_type`),
+    KEY (`first_shipment_provider`),
+    KEY (`start_date`),
+    KEY (`end_date`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Default charges scheme';
+
+CREATE TABLE IF NOT EXISTS `map_default_insurance` (
+    `id_default_insurance` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `rate_card_scheme` VARCHAR(50) DEFAULT NULL,
+    `type` VARCHAR(50) DEFAULT NULL,
+    `is_marketplace` TINYINT(4) DEFAULT NULL,
+    `min_package_value` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `max_package_value` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `insurance_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `insurance_vat_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `start_date` DATETIME DEFAULT NULL,
+    `end_date` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id_default_insurance`),
+    KEY (`rate_card_scheme`),
+    KEY (`type`),
+    KEY (`is_marketplace`),
+    KEY (`min_package_value`),
+    KEY (`max_package_value`),
+    KEY (`start_date`),
+    KEY (`end_date`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Default insurance scheme';
 
 CREATE TABLE IF NOT EXISTS `map_shipment_scheme` (
     `id_shipment_scheme` INT(10) UNSIGNED NOT NULL,
@@ -248,7 +295,7 @@ CREATE TABLE IF NOT EXISTS `map_shipment_scheme` (
     KEY (`api_type`),
     KEY (`start_date`),
     KEY (`end_date`)
-)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Shipment Scheme';
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Shipment scheme';
 
 CREATE TABLE IF NOT EXISTS `map_weight_threshold_seller` (
     `id_weight_threshold_seller` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -309,7 +356,7 @@ CREATE TABLE IF NOT EXISTS `scn_transaction_type` (
     PRIMARY KEY (`id_transaction_type`),
     KEY `description` (`description`),
     KEY `fk_fee_type` (`fk_fee_type`)
-)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Transaction Type';
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Transaction type';
 
 CREATE TABLE IF NOT EXISTS `tmp_item_level` (
     `bob_id_sales_order_item` INT(10) UNSIGNED NOT NULL,
@@ -368,14 +415,16 @@ CREATE TABLE IF NOT EXISTS `tmp_item_level` (
     `auto_shipping_fee_credit` DECIMAL(20 , 4 ) DEFAULT NULL,
     `manual_shipping_fee` DECIMAL(20 , 4 ) DEFAULT NULL,
     `api_type` TINYINT(4) DEFAULT 0,
-    `fk_shipment_scheme` INT(10) UNSIGNED DEFAULT NULL,
     `shipment_scheme` VARCHAR(50) DEFAULT NULL,
     `rate_card_scheme` VARCHAR(12) DEFAULT NULL,
-    `id_campaign` INT(10) UNSIGNED DEFAULT NULL,
     `campaign` VARCHAR(50) DEFAULT NULL,
-    `weight_source` VARCHAR(50) DEFAULT NULL,
     `rounding_seller` DECIMAL(20 , 4 ) DEFAULT NULL,
     `rounding_3pl` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `item_weight_flag` TINYINT(4) DEFAULT 0,
+    `package_weight_source` VARCHAR(50) DEFAULT NULL,
+    `weight` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `volumetric_weight` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `package_weight` DECIMAL(20 , 4 ) DEFAULT NULL,
     `formula_weight_seller` DECIMAL(20 , 4 ) DEFAULT NULL,
     `chargeable_weight_seller` DECIMAL(20 , 4 ) DEFAULT NULL,
     `formula_weight_3pl` DECIMAL(20 , 4 ) DEFAULT NULL,
@@ -449,4 +498,4 @@ CREATE TABLE IF NOT EXISTS `tmp_item_level` (
     KEY (`last_tracking_number`),
     KEY (`last_shipment_provider`),
     KEY (`api_type`)
-)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='AnonDB Extracted data';
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Temporary calculation data';

@@ -1,0 +1,5 @@
+id_default_insurance,rate_card_scheme,type,is_marketplace,min_package_value,max_package_value,insurance_rate,insurance_rate_vat,start_date,end_date
+NULL,LEL,seller,1,0,500000,0,0,1900-01-01 00:00:00,9999-12-31 23:59:59
+NULL,LEL,seller,1,500000,NULL,0.0025,0.1,1900-01-01 00:00:00,9999-12-31 23:59:59
+NULL,LEL,3pl,NULL,0,500000,0,0,1900-01-01 00:00:00,9999-12-31 23:59:59
+NULL,LEL,3pl,NULL,500000,NULL,0.0025,0.1,1900-01-01 00:00:00,9999-12-31 23:59:59

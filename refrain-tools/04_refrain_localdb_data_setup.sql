@@ -63,18 +63,9 @@ WHERE
 Check if temporary API data exists in different types of APIs
 Temporary data checked to all data regardless of its posting and charge type
 Comparing data status is not 'DELETED'
+Only check Master Account data, as Direct Billing data is more reliable
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-UPDATE api_data_direct_billing addb
-        JOIN
-    api_data_master_account adma ON addb.package_number = adma.package_number
-        AND addb.short_code = adma.short_code
-        AND adma.status <> 'DELETED' 
-SET 
-    addb.status = 'API_TYPE_CONFLICT'
-WHERE
-    addb.status IN ('TEMPORARY' , 'API_TYPE_CONFLICT');
-    
 UPDATE api_data_master_account adma
         JOIN
     api_data_direct_billing addb ON adma.package_number = addb.package_number
@@ -165,6 +156,7 @@ UPDATE api_data_direct_billing addb
         AND addb.short_code = til.short_code 
 SET 
     til.api_type = 1,
+    til.package_weight_source = 'API_DIRECT_BILLING',
     addb.id_package_dispatching = til.id_package_dispatching,
     addb.bob_id_supplier = til.bob_id_supplier,
     addb.weight_source = 'Direct Billing API',
@@ -184,6 +176,7 @@ UPDATE api_data_master_account adma
         AND adma.short_code = til.short_code 
 SET 
     til.api_type = 2,
+    til.package_weight_source = 'API_MASTER_ACCOUNT',
     adma.id_package_dispatching = til.id_package_dispatching,
     adma.bob_id_supplier = til.bob_id_supplier,
     adma.delivered_date = til.delivered_date,
