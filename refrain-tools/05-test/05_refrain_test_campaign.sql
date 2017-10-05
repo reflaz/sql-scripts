@@ -33,4 +33,5 @@ FROM
         AND til.shipment_scheme = mco.shipment_scheme
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mco.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mco.end_date
-	GROUP BY bob_id_sales_order_item) result
+    WHERE
+        til.bob_id_sales_order_item IN ()) result

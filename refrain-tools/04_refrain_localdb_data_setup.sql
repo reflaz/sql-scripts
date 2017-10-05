@@ -25,6 +25,66 @@ Set data update timestamp
 SET @updated_at = NOW();
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
+Initialize ANON DB extract temporary data
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+UPDATE tmp_item_level 
+SET 
+    api_type = 0,
+    shipment_scheme = NULL,
+    rate_card_scheme = NULL,
+    campaign = NULL,
+    rounding_seller = NULL,
+    rounding_3pl = NULL,
+    item_weight_flag = 0,
+    package_weight_source = NULL,
+    weight = NULL,
+    volumetric_weight = NULL,
+    package_weight = NULL,
+    formula_weight_seller = NULL,
+    chargeable_weight_seller = NULL,
+    formula_weight_3pl = NULL,
+    chargeable_weight_3pl = NULL,
+    order_flat_rate = NULL,
+    mdr_rate = NULL,
+    ipp_rate = NULL,
+    seller_flat_charge_rate = NULL,
+    seller_charge_rate = NULL,
+    insurance_rate_sel = NULL,
+    insurance_vat_rate_sel = NULL,
+    pickup_cost_rate = NULL,
+    pickup_cost_discount_rate = NULL,
+    pickup_cost_vat_rate = NULL,
+    delivery_flat_cost_rate = NULL,
+    delivery_cost_rate = NULL,
+    delivery_cost_discount_rate = NULL,
+    delivery_cost_vat_rate = NULL,
+    insurance_rate_3pl = NULL,
+    insurance_vat_rate_3pl = NULL,
+    unit_price_pct = NULL,
+    customer_charge_pct = NULL,
+    weight_seller_pct = NULL,
+    weight_3pl_pct = NULL,
+    order_flat = NULL,
+    mdr = NULL,
+    ipp = NULL,
+    seller_flat_charge = NULL,
+    seller_charge = NULL,
+    insurance_seller = NULL,
+    insurance_vat_seller = NULL,
+    pickup_cost = NULL,
+    pickup_cost_discount = NULL,
+    pickup_cost_vat = NULL,
+    delivery_flat_cost = NULL,
+    delivery_cost = NULL,
+    delivery_cost_discount = NULL,
+    delivery_cost_vat = NULL,
+    insurance_3pl = NULL,
+    insurance_vat_3pl = NULL,
+    created_at = IFNULL(created_at, @updated_at),
+    updated_at = @updated_at;
+
+/*-----------------------------------------------------------------------------------------------------------------------------------
 Update campaign tracker end date
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -63,7 +123,7 @@ WHERE
 Check if temporary API data exists in different types of APIs
 Temporary data checked to all data regardless of its posting and charge type
 Comparing data status is not 'DELETED'
-Only check Master Account data, as Direct Billing data is more reliable
+Only check Master Account data, as Direct Billing data are more reliable
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE api_data_master_account adma
@@ -168,7 +228,7 @@ SET
         ELSE 'COMPLETE'
     END
 WHERE
-    addb.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
+    addb.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE', 'COMPLETE');
     
 UPDATE api_data_master_account adma
         JOIN
@@ -187,7 +247,7 @@ SET
         ELSE 'COMPLETE'
     END
 WHERE
-    adma.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
+    adma.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE', 'COMPLETE');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Set status to NA for all API data not found in ANON DB extract

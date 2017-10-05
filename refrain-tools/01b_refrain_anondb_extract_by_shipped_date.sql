@@ -118,6 +118,11 @@ FROM
             sup.name 'seller_name',
             sup.type 'seller_type',
             CASE
+                WHEN
+                    is_marketplace = 1
+                        AND sa.fk_country = 101
+                THEN
+                    'local'
                 WHEN ascsel.tax_class = 0 THEN 'local'
                 WHEN ascsel.tax_class = 1 THEN 'international'
             END 'tax_class',
@@ -180,20 +185,20 @@ FROM
                     fk_sales_order_item = soi.id_sales_order_item
                         AND fk_sales_order_item_status = 44) 'not_delivered_date',
             CASE
-                WHEN ascsel.tax_class = 1 THEN 'Cross Border'
                 WHEN
                     sup.type = 'supplier'
-                        OR st.name = 'warehouse'
-                        OR soi.fk_mwh_warehouse <> 1
-                        OR sfom.origin IS NULL
+                        OR (ascsel.tax_class = 0
+                        AND st.name = 'warehouse')
+                        OR (ascsel.tax_class = 0
+                        AND sfom.origin IS NULL)
                 THEN
                     CASE
-                        WHEN soi.fk_mwh_warehouse = 1 THEN 'DKI Jakarta'
                         WHEN soi.fk_mwh_warehouse = 2 THEN 'East Java'
                         WHEN soi.fk_mwh_warehouse = 3 THEN 'North Sumatera'
-                        WHEN soi.fk_mwh_warehouse = 4 THEN 'DKI Jakarta'
+                        ELSE 'DKI Jakarta'
                     END
-                ELSE sfom.origin
+                WHEN sfom.origin IS NOT NULL THEN sfom.origin
+                ELSE 'Cross Border'
             END 'origin',
             dst.id_customer_address_region 'id_district',
             so.bob_id_customer,
@@ -288,14 +293,14 @@ FROM
             fk_supplier = sup.id_supplier
                 AND fk_country_region IS NOT NULL
                 AND address_type = 'warehouse')
-    LEFT JOIN bob_live.shipping_fee_origin_mapping sfom ON sa.fk_country_region = sfom.fk_country_region
+    LEFT JOIN bob_live.shipping_fee_origin_mapping sfom ON sa.fk_country = sfom.fk_country
         AND sfom.id_shipping_fee_origin_mapping = (SELECT 
             MAX(id_shipping_fee_origin_mapping)
         FROM
             bob_live.shipping_fee_origin_mapping
         WHERE
             fk_country = sa.fk_country
-                AND fk_country_region = sa.fk_country_region
+                AND IFNULL(fk_country_region, sa.fk_country_region) = sa.fk_country_region
                 AND is_live = 1)
     LEFT JOIN asc_live.seller ascsel ON sup.id_supplier = ascsel.src_id
     GROUP BY soi.bob_id_sales_order_item

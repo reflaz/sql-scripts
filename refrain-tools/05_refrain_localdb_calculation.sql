@@ -23,7 +23,7 @@ Assign shipment scheme
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE tmp_item_level til
-        JOIN
+		JOIN
     map_shipment_scheme mss ON til.payment_method <> IFNULL(mss.exclude_payment_method, '')
         AND IFNULL(til.tax_class, 'tax_class') = IFNULL(mss.tax_class, IFNULL(til.tax_class, 'tax_class'))
         AND IFNULL(til.is_marketplace, 0) = IFNULL(mss.is_marketplace, IFNULL(til.is_marketplace, 0))
@@ -38,14 +38,23 @@ UPDATE tmp_item_level til
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mss.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mss.end_date
 SET 
-    til.shipment_scheme = mss.shipment_scheme;
+    til.shipment_scheme = mss.shipment_scheme,
+    til.rounding_seller = 0,
+	til.seller_flat_charge_rate = 0,
+	til.seller_charge_rate = 0,
+	til.rate_card_scheme = 0,
+	til.rounding_3pl = 0,
+	til.pickup_cost_rate = 0,
+	til.pickup_cost_discount_rate = 0,
+	til.pickup_cost_vat_rate = 0,
+	til.delivery_cost_vat_rate = 0;
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Set default charges
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE tmp_item_level til
-        JOIN
+		JOIN
 	map_default_charges mdc ON til.shipment_scheme = mdc.shipment_scheme
         AND til.is_marketplace = IFNULL(mdc.is_marketplace, til.is_marketplace)
         AND IFNULL(til.first_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', IFNULL(mdc.first_shipment_provider, IFNULL(til.first_shipment_provider, 'first_shipment_provider')), '%')
@@ -63,10 +72,12 @@ SET
 	til.delivery_cost_vat_rate = mdc.delivery_cost_vat_rate;
 
 UPDATE tmp_item_level til
-    JOIN map_default_insurance mdi ON til.rate_card_scheme = mdi.rate_card_scheme
+		JOIN
+	map_default_insurance mdi ON til.rate_card_scheme = mdi.rate_card_scheme
         AND mdi.is_marketplace = 1
         AND mdi.type = 'seller'
-    JOIN (SELECT 
+        JOIN
+	(SELECT 
         order_nr,
             bob_id_supplier,
             id_package_dispatching,
@@ -85,9 +96,11 @@ SET
 	til.insurance_vat_rate_sel = mdi.insurance_vat_rate;
 
 UPDATE tmp_item_level til
-    JOIN map_default_insurance mdi ON til.rate_card_scheme = mdi.rate_card_scheme
+		JOIN
+	map_default_insurance mdi ON til.rate_card_scheme = mdi.rate_card_scheme
         AND mdi.type = '3pl'
-    JOIN (SELECT 
+        JOIN
+    (SELECT 
         order_nr,
             bob_id_supplier,
             id_package_dispatching,
@@ -112,25 +125,25 @@ UPDATE tmp_item_level til
 	map_campaign_tracker mct ON til.bob_id_supplier = mct.bob_id_supplier
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mct.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mct.end_date
-		JOIN
+        JOIN
 	map_campaign mcam ON mct.fk_campaign = mcam.id_campaign
         AND IFNULL(til.pickup_provider_type, 'pickup_provider_type') = IFNULL(mcam.pickup_provider_type, IFNULL(til.pickup_provider_type, 'pickup_provider_type'))
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mcam.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mcam.end_date
-		JOIN
+        JOIN
 	map_campaign_access mca ON mcam.id_campaign = mca.fk_campaign
         AND til.shipment_scheme = mca.shipment_scheme
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mca.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mca.end_date
-		LEFT JOIN
+        LEFT JOIN
 	map_campaign_override mco ON mcam.id_campaign = mco.fk_campaign
         AND til.shipment_scheme = mco.shipment_scheme
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mco.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mco.end_date
 SET
 	til.campaign = mcam.campaign,
-	til.seller_flat_charge_rate = IFNULL(mco.seller_flat_charge_rate, mcam.seller_flat_charge_rate),
-	til.seller_charge_rate = IFNULL(mco.seller_charge_rate, mcam.seller_charge_rate),
-	til.insurance_rate_sel = mcam.insurance_rate;
+	til.seller_flat_charge_rate = IFNULL(IFNULL(mco.seller_flat_charge_rate, mcam.seller_flat_charge_rate), til.seller_flat_charge_rate),
+	til.seller_charge_rate = IFNULL(IFNULL(mco.seller_charge_rate, mcam.seller_charge_rate), til.seller_charge_rate),
+	til.insurance_rate_sel = IFNULL(mcam.insurance_rate, til.insurance_rate_sel);
 
 SET SQL_SAFE_UPDATES = 1;
