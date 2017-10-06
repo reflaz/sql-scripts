@@ -23,6 +23,7 @@ Set data update timestamp
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 SET @updated_at = NOW();
+SELECT @updated_at;
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Initialize ANON DB extract temporary data
@@ -30,28 +31,39 @@ Initialize ANON DB extract temporary data
 
 UPDATE tmp_item_level 
 SET 
+    payment_flat_cost_rate = NULL,
+    payment_cost_mdr_rate = NULL,
+    payment_cost_ipp_rate = NULL,
+    customer_charge_pct = NULL,
+    payment_flat_cost = NULL,
+    payment_cost_mdr = NULL,
+    payment_cost_ipp = NULL,
     api_type = 0,
     shipment_scheme = NULL,
-    rate_card_scheme = NULL,
     campaign = NULL,
+    weight = IFNULL(config_weight, 0),
+    volumetric_weight = IFNULL(config_length * config_width * config_height / 6000,
+            0),
+    item_weight_seller = GREATEST(IFNULL(config_weight, 0),
+            IFNULL(config_length * config_width * config_height / 6000,
+                    0)),
+    item_weight_seller_flag = 0,
     rounding_seller = NULL,
-    rounding_3pl = NULL,
-    item_weight_flag = 0,
-    package_weight_source = NULL,
-    weight = NULL,
-    volumetric_weight = NULL,
-    package_weight = NULL,
     formula_weight_seller = NULL,
     chargeable_weight_seller = NULL,
-    formula_weight_3pl = NULL,
-    chargeable_weight_3pl = NULL,
-    order_flat_rate = NULL,
-    mdr_rate = NULL,
-    ipp_rate = NULL,
     seller_flat_charge_rate = NULL,
     seller_charge_rate = NULL,
     insurance_rate_sel = NULL,
     insurance_vat_rate_sel = NULL,
+    weight_seller_pct = NULL,
+    seller_flat_charge = NULL,
+    seller_charge = NULL,
+    insurance_seller = NULL,
+    insurance_vat_seller = NULL,
+    rate_card_scheme = NULL,
+    rounding_3pl = NULL,
+    formula_weight_3pl = NULL,
+    chargeable_weight_3pl = NULL,
     pickup_cost_rate = NULL,
     pickup_cost_discount_rate = NULL,
     pickup_cost_vat_rate = NULL,
@@ -61,17 +73,7 @@ SET
     delivery_cost_vat_rate = NULL,
     insurance_rate_3pl = NULL,
     insurance_vat_rate_3pl = NULL,
-    unit_price_pct = NULL,
-    customer_charge_pct = NULL,
-    weight_seller_pct = NULL,
     weight_3pl_pct = NULL,
-    order_flat = NULL,
-    mdr = NULL,
-    ipp = NULL,
-    seller_flat_charge = NULL,
-    seller_charge = NULL,
-    insurance_seller = NULL,
-    insurance_vat_seller = NULL,
     pickup_cost = NULL,
     pickup_cost_discount = NULL,
     pickup_cost_vat = NULL,
@@ -81,6 +83,11 @@ SET
     delivery_cost_vat = NULL,
     insurance_3pl = NULL,
     insurance_vat_3pl = NULL,
+    total_customer_charge = NULL,
+    total_seller_charge = NULL,
+    total_pickup_cost = NULL,
+    total_delivery_cost = NULL,
+    total_failed_delivery_cost = NULL,
     created_at = IFNULL(created_at, @updated_at),
     updated_at = @updated_at;
 
@@ -210,44 +217,70 @@ WHERE
 Complete missing API fields from ANON DB data extract
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-UPDATE api_data_direct_billing addb
+UPDATE tmp_item_level til
         JOIN
-    tmp_item_level til ON addb.package_number = til.package_number
-        AND addb.short_code = til.short_code 
+    api_data_direct_billing addb ON til.package_number = addb.package_number
+        AND til.short_code = addb.short_code 
 SET 
-    til.api_type = 1,
-    til.package_weight_source = 'API_DIRECT_BILLING',
+    til.api_type = CASE
+        WHEN
+            til.id_package_dispatching IS NOT NULL
+                AND til.bob_id_supplier IS NOT NULL
+                AND (til.delivered_date IS NOT NULL
+                OR til.failed_delivery_date IS NOT NULL)
+        THEN
+            1
+        ELSE 0
+    END,
     addb.id_package_dispatching = til.id_package_dispatching,
     addb.bob_id_supplier = til.bob_id_supplier,
     addb.weight_source = 'Direct Billing API',
-    addb.delivered_date = til.delivered_date,
+    addb.dfd_date = IFNULL(til.delivered_date,
+            til.failed_delivery_date),
     addb.status = CASE
         WHEN til.id_package_dispatching IS NULL THEN 'INCOMPLETE'
         WHEN til.bob_id_supplier IS NULL THEN 'INCOMPLETE'
-        WHEN til.delivered_date IS NULL THEN 'INCOMPLETE'
+        WHEN
+            til.delivered_date IS NULL
+                AND til.failed_delivery_date IS NULL
+        THEN
+            'INCOMPLETE'
         ELSE 'COMPLETE'
     END
 WHERE
-    addb.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE', 'COMPLETE');
+    addb.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE', 'COMPLETE', 'ACTIVE');
     
-UPDATE api_data_master_account adma
+UPDATE tmp_item_level til
         JOIN
-    tmp_item_level til ON adma.package_number = til.package_number
-        AND adma.short_code = til.short_code 
+    api_data_master_account adma ON til.package_number = adma.package_number
+        AND til.short_code = adma.short_code 
 SET 
-    til.api_type = 2,
-    til.package_weight_source = 'API_MASTER_ACCOUNT',
+    til.api_type = CASE
+        WHEN
+            til.id_package_dispatching IS NOT NULL
+                AND til.bob_id_supplier IS NOT NULL
+                AND (til.delivered_date IS NOT NULL
+                OR til.failed_delivery_date IS NOT NULL)
+        THEN
+            2
+        ELSE 0
+    END,
     adma.id_package_dispatching = til.id_package_dispatching,
     adma.bob_id_supplier = til.bob_id_supplier,
-    adma.delivered_date = til.delivered_date,
+    adma.dfd_date = IFNULL(til.delivered_date,
+            til.failed_delivery_date),
     adma.status = CASE
         WHEN til.id_package_dispatching IS NULL THEN 'INCOMPLETE'
         WHEN til.bob_id_supplier IS NULL THEN 'INCOMPLETE'
-        WHEN til.delivered_date IS NULL THEN 'INCOMPLETE'
+        WHEN
+            til.delivered_date IS NULL
+                AND til.failed_delivery_date IS NULL
+        THEN
+            'INCOMPLETE'
         ELSE 'COMPLETE'
     END
 WHERE
-    adma.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE', 'COMPLETE');
+    adma.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE', 'COMPLETE', 'ACTIVE');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Set status to NA for all API data not found in ANON DB extract
