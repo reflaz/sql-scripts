@@ -25,20 +25,20 @@ Map shipment scheme and default shipping charge components
 UPDATE tmp_item_level til
     JOIN map_shipment_scheme mss ON til.payment_method <> IFNULL(mss.exclude_payment_method, '')
         AND IFNULL(til.tax_class, 'tax_class') = IFNULL(mss.tax_class, IFNULL(til.tax_class, 'tax_class'))
-        AND IFNULL(til.is_marketplace, 0) = IFNULL(mss.is_marketplace, IFNULL(til.is_marketplace, 0))
-        AND IFNULL(til.first_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', IFNULL(mss.first_shipment_provider, IFNULL(til.first_shipment_provider, 'first_shipment_provider')), '%')
-        AND IFNULL(til.last_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', IFNULL(mss.last_shipment_provider, IFNULL(til.last_shipment_provider, 'first_shipment_provider')), '%')
+        AND IFNULL(til.is_marketplace, 0) = COALESCE(mss.is_marketplace, til.is_marketplace, 0)
+        AND IFNULL(til.first_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', COALESCE(mss.first_shipment_provider, til.first_shipment_provider, 'first_shipment_provider'), '%')
+        AND IFNULL(til.last_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', COALESCE(mss.last_shipment_provider, til.last_shipment_provider, 'first_shipment_provider'), '%')
         AND IFNULL(til.first_shipment_provider, 1) NOT LIKE CONCAT('%', IFNULL(mss.exclude_shipment_provider, 'exclude_shipment_provider'), '%')
         AND IFNULL(til.last_shipment_provider, 1) NOT LIKE CONCAT('%', IFNULL(mss.exclude_shipment_provider, 'exclude_shipment_provider'), '%')
-        AND IFNULL(til.shipping_type, 'shipping_type') = IFNULL(mss.shipping_type, IFNULL(til.shipping_type, 'shipping_type'))
-        AND IFNULL(til.delivery_type, 'delivery_type') = IFNULL(mss.delivery_type, IFNULL(til.delivery_type, 'delivery_type'))
+        AND IFNULL(til.shipping_type, 'shipping_type') = COALESCE(mss.shipping_type, til.shipping_type, 'shipping_type')
+        AND IFNULL(til.delivery_type, 'delivery_type') = COALESCE(mss.delivery_type, til.delivery_type, 'delivery_type')
         AND IFNULL(til.auto_shipping_fee_credit, 0) < IFNULL(mss.auto_shipping_fee_credit, 1)
         AND IFNULL(til.api_type, 0) = IFNULL(mss.api_type, IFNULL(til.api_type, 0))
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mss.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mss.end_date
     JOIN map_default_charges mdc ON mss.shipment_scheme = mdc.shipment_scheme
         AND til.is_marketplace = IFNULL(mdc.is_marketplace, til.is_marketplace)
-        AND IFNULL(til.first_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', IFNULL(mdc.first_shipment_provider, IFNULL(til.first_shipment_provider, 'first_shipment_provider')), '%')
+        AND IFNULL(til.first_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', COALESCE(mdc.first_shipment_provider, til.first_shipment_provider, 'first_shipment_provider'), '%')
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mdc.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mdc.end_date
     JOIN map_weight_threshold_seller mwts ON GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mwts.start_date
@@ -71,21 +71,26 @@ SET
 				WHEN mwts.item_weight_no_bulky = 1 THEN 0
                 WHEN mwts.item_weight_offset = 1 THEN item_weight_seller - item_weight_threshold
                 WHEN mwts.item_weight_max = 1 THEN item_weight_threshold
+                ELSE 0
             END
 		END,
-	til.rounding_seller = mdc.rounding_seller,
-	til.seller_flat_charge_rate = mdc.seller_flat_charge_rate,
-	til.seller_charge_rate = mdc.seller_charge_rate,
-    til.insurance_rate_sel = mdisel.insurance_rate,
-	til.insurance_vat_rate_sel = mdisel.insurance_vat_rate,
-	til.rate_card_scheme = mdc.rate_card_scheme,
-	til.rounding_3pl = mdc.rounding_3pl,
-	til.pickup_cost_rate = mdc.pickup_cost_rate,
-	til.pickup_cost_discount_rate = mdc.pickup_cost_discount_rate,
-	til.pickup_cost_vat_rate = mdc.pickup_cost_vat_rate,
-	til.delivery_cost_vat_rate = mdc.delivery_cost_vat_rate,
-    til.insurance_rate_3pl = mdi3pl.insurance_rate,
-	til.insurance_vat_rate_3pl = mdi3pl.insurance_vat_rate;
+	til.item_weight_seller_flag = CASE
+			WHEN mwts.item_weight_threshold IS NOT NULL THEN 3
+            ELSE 0
+		END,
+	til.rounding_seller = IFNULL(mdc.rounding_seller, 0),
+	til.seller_flat_charge_rate = IFNULL(mdc.seller_flat_charge_rate, 0),
+	til.seller_charge_rate = IFNULL(mdc.seller_charge_rate, 0),
+    til.insurance_rate_sel = IFNULL(mdisel.insurance_rate, 0),
+	til.insurance_vat_rate_sel = IFNULL(mdisel.insurance_vat_rate, 0),
+	til.rate_card_scheme = IFNULL(mdc.rate_card_scheme, 0),
+	til.rounding_3pl = IFNULL(mdc.rounding_3pl, 0),
+	til.pickup_cost_rate = IFNULL(mdc.pickup_cost_rate, 0),
+	til.pickup_cost_discount_rate = IFNULL(mdc.pickup_cost_discount_rate, 0),
+	til.pickup_cost_vat_rate = IFNULL(mdc.pickup_cost_vat_rate, 0),
+	til.delivery_cost_vat_rate = IFNULL(mdc.delivery_cost_vat_rate, 0),
+    til.insurance_rate_3pl = IFNULL(mdi3pl.insurance_rate, 0),
+	til.insurance_vat_rate_3pl = IFNULL(mdi3pl.insurance_vat_rate, 0);
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Map seller campaign and override seller charge components
@@ -98,7 +103,7 @@ UPDATE tmp_item_level til
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mct.end_date
         JOIN
 	map_campaign mcam ON mct.fk_campaign = mcam.id_campaign
-        AND IFNULL(til.pickup_provider_type, 'pickup_provider_type') = IFNULL(mcam.pickup_provider_type, IFNULL(til.pickup_provider_type, 'pickup_provider_type'))
+        AND IFNULL(til.pickup_provider_type, 'pickup_provider_type') = COALESCE(mcam.pickup_provider_type, til.pickup_provider_type, 'pickup_provider_type')
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mcam.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mcam.end_date
         JOIN
@@ -113,9 +118,9 @@ UPDATE tmp_item_level til
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mco.end_date
 SET
 	til.campaign = mcam.campaign,
-	til.seller_flat_charge_rate = IFNULL(IFNULL(mco.seller_flat_charge_rate, mcam.seller_flat_charge_rate), til.seller_flat_charge_rate),
-	til.seller_charge_rate = IFNULL(IFNULL(mco.seller_charge_rate, mcam.seller_charge_rate), til.seller_charge_rate),
-	til.insurance_rate_sel = IFNULL(mcam.insurance_rate, til.insurance_rate_sel);
+	til.seller_flat_charge_rate = COALESCE(mco.seller_flat_charge_rate, mcam.seller_flat_charge_rate, til.seller_flat_charge_rate, 0),
+	til.seller_charge_rate = COALESCE(mco.seller_charge_rate, mcam.seller_charge_rate, til.seller_charge_rate, 0),
+	til.insurance_rate_sel = COALESCE(mcam.insurance_rate, til.insurance_rate_sel, 0);
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Group data by order number, supplier ID, and dispatching ID
@@ -160,22 +165,10 @@ SELECT
     weight_tmp 'weight',
     volumetric_weight_tmp 'volumetric_weight',
     item_weight_seller_tmp 'item_weight_seller',
-    CASE
-		WHEN item_weight_threshold IS NOT NULL THEN 3
-        WHEN volumetric_weight_tmp > item_weight_seller_tmp THEN 2
-        ELSE 1
-    END 'item_weight_seller_flag',
+    item_weight_seller_flag_tmp 'item_weight_seller_flag',
     rounding_seller,
-    formula_weight_sel_tmp 'formula_weight_sel',
-    CASE
-        WHEN package_weight_threshold IS NULL THEN chargeable_weight_sel_tmp
-        WHEN chargeable_weight_sel_tmp <= package_weight_threshold THEN chargeable_weight_sel_tmp
-        ELSE CASE
-            WHEN package_weight_no_bulky = 1 THEN 0
-            WHEN package_weight_offset = 1 THEN chargeable_weight_sel_tmp - package_weight_threshold
-            WHEN package_weight_max = 1 THEN package_weight_threshold
-        END
-    END 'chargeable_weight_sel',
+    formula_weight_seller_tmp 'formula_weight_seller',
+    formula_weight_seller_tmp 'chargeable_weight_seller',
     seller_flat_charge_rate,
     seller_charge_rate,
     insurance_rate_sel,
@@ -188,7 +181,7 @@ SELECT
     rate_card_scheme,
     rounding_3pl,
     formula_weight_3pl_tmp 'formula_weight_3pl',
-    chargeable_weight_3pl_tmp 'chargeable_weight_3pl',
+    formula_weight_3pl_tmp 'chargeable_weight_3pl',
     pickup_cost_rate,
     pickup_cost_discount_rate,
     pickup_cost_vat_rate,
@@ -212,24 +205,9 @@ SELECT
     total_seller_charge,
     total_pickup_cost,
     total_delivery_cost,
-    total_falied_delivery_cost
+    total_failed_delivery_cost
 FROM
     (SELECT 
-        tpl.*,
-            CASE
-                WHEN formula_weight_sel_tmp = 0 THEN 0
-                WHEN formula_weight_sel_tmp < 1 THEN 1
-                WHEN MOD(formula_weight_sel_tmp, 1) <= rounding_seller THEN FLOOR(formula_weight_sel_tmp)
-                ELSE CEIL(formula_weight_sel_tmp)
-            END 'chargeable_weight_sel_tmp',
-            CASE
-                WHEN formula_weight_3pl_tmp = 0 THEN 0
-                WHEN formula_weight_3pl_tmp < 1 THEN 1
-                WHEN MOD(formula_weight_3pl_tmp, 1) <= rounding_3pl THEN FLOOR(formula_weight_3pl_tmp)
-                ELSE CEIL(formula_weight_3pl_tmp)
-            END 'chargeable_weight_3pl_tmp'
-    FROM
-        (SELECT 
         *,
             SUM(IFNULL(unit_price, 0)) 'unit_price_tmp',
             SUM(IFNULL(paid_price, 0)) 'paid_price_tmp',
@@ -241,14 +219,81 @@ FROM
             SUM(IFNULL(volumetric_weight, 0)) 'volumetric_weight_tmp',
             SUM(IFNULL(item_weight_seller, 0)) 'item_weight_seller_tmp',
             CASE
-                WHEN item_weight_threshold IS NOT NULL THEN SUM(IFNULL(item_weight_seller, 0))
-                WHEN package_weight_threshold IS NOT NULL THEN GREATEST(SUM(IFNULL(weight, 0)), SUM(IFNULL(volumetric_weight, 0)))
-            END 'formula_weight_sel_tmp',
+                WHEN item_weight_seller_flag = 3 THEN SUM(IFNULL(item_weight_seller, 0))
+                ELSE GREATEST(SUM(IFNULL(weight, 0)), SUM(IFNULL(volumetric_weight, 0)))
+            END 'formula_weight_seller_tmp',
+            CASE
+                WHEN item_weight_seller_flag = 3 THEN 3
+                WHEN SUM(IFNULL(volumetric_weight, 0)) > SUM(IFNULL(weight, 0)) THEN 2
+                ELSE 1
+            END 'item_weight_seller_flag_tmp',
             GREATEST(SUM(IFNULL(weight, 0)), SUM(IFNULL(volumetric_weight, 0))) 'formula_weight_3pl_tmp'
     FROM
         tmp_item_level til
-    JOIN map_weight_threshold_seller mwts ON GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mwts.start_date
-        AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mwts.end_date
-    GROUP BY order_nr , bob_id_supplier , id_package_dispatching) tpl) result;
+    GROUP BY order_nr , bob_id_supplier , id_package_dispatching) tpl;
+
+/*-----------------------------------------------------------------------------------------------------------------------------------
+Map 3pl charge components to API data
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+UPDATE tmp_package_level tpl
+        JOIN
+    api_data_direct_billing delv ON tpl.id_package_dispatching = delv.id_package_dispatching
+        AND tpl.bob_id_supplier = delv.bob_id_supplier
+        AND delv.posting_type = 'INCOMING'
+        AND delv.charge_type IN ('DELIVERY')
+        AND delv.status IN ('COMPLETE' , 'ACTIVE')
+SET
+    tpl.chargeable_weight_3pl = COALESCE(delv.rounded_weight, delv.formula_weight, 0),
+    tpl.delivery_cost = IFNULL(delv.amount, 0),
+    tpl.delivery_cost_vat = IFNULL(delv.tax_amount, 0),
+    tpl.total_delivery_cost = IFNULL(delv.total_amount, 0),
+    tpl.total_failed_delivery_cost = 0,
+    tpl.pickup_cost = 0,
+    tpl.pickup_cost_vat = 0,
+    tpl.total_pickup_cost = 0,
+    tpl.insurance_3pl = 0,
+    tpl.insurance_vat_3pl = 0
+WHERE
+	tpl.api_type = 1;
+
+UPDATE tmp_package_level tpl
+        LEFT JOIN
+    api_data_master_account delv ON tpl.id_package_dispatching = delv.id_package_dispatching
+        AND tpl.bob_id_supplier = delv.bob_id_supplier
+        AND delv.posting_type = 'INCOMING'
+        AND delv.charge_type IN ('DELIVERY')
+        AND delv.status IN ('COMPLETE' , 'ACTIVE')
+        LEFT JOIN
+    api_data_master_account fdel ON tpl.id_package_dispatching = fdel.id_package_dispatching
+        AND tpl.bob_id_supplier = fdel.bob_id_supplier
+        AND fdel.posting_type = 'INCOMING'
+        AND fdel.charge_type IN ('FAILED DELIVERY')
+        AND fdel.status IN ('COMPLETE' , 'ACTIVE')
+        LEFT JOIN
+    api_data_master_account pckc ON tpl.id_package_dispatching = pckc.id_package_dispatching
+        AND tpl.bob_id_supplier = pckc.bob_id_supplier
+        AND pckc.posting_type = 'INCOMING'
+        AND pckc.charge_type IN ('PICKUP')
+        AND pckc.status IN ('COMPLETE' , 'ACTIVE')
+        LEFT JOIN
+    api_data_master_account ins ON tpl.id_package_dispatching = ins.id_package_dispatching
+        AND tpl.bob_id_supplier = ins.bob_id_supplier
+        AND ins.posting_type = 'INCOMING'
+        AND ins.charge_type IN ('INSURANCE')
+        AND ins.status IN ('COMPLETE' , 'ACTIVE')
+SET
+    tpl.chargeable_weight_3pl = COALESCE(delv.rounded_weight, delv.formula_weight, fdel.rounded_weight, fdel.formula_weight),
+    tpl.delivery_cost = COALESCE(delv.amount, fdel.amount, 0),
+    tpl.delivery_cost_vat = COALESCE(delv.tax_amount, fdel.tax_amount, 0),
+    tpl.total_delivery_cost = IFNULL(delv.total_amount, 0) + IFNULL(ins.total_amount, 0),
+    tpl.total_failed_delivery_cost = IFNULL(fdel.total_amount, 0),
+    tpl.pickup_cost = IFNULL(pckc.amount, 0),
+    tpl.pickup_cost_vat = IFNULL(pckc.tax_amount, 0),
+    tpl.total_pickup_cost = IFNULL(pckc.total_amount, 0),
+    tpl.insurance_3pl = IFNULL(ins.amount, 0),
+    tpl.insurance_vat_3pl = IFNULL(ins.tax_amount, 0)
+WHERE
+	tpl.api_type = 2;
 
 SET SQL_SAFE_UPDATES = 1;

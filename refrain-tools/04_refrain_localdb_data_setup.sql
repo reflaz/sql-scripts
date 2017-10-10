@@ -110,21 +110,37 @@ SET
 Initialize temporary API data creation date and update date 
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-UPDATE api_data_direct_billing addb 
+UPDATE api_data_direct_billing 
 SET 
-    addb.created_at = DATE_FORMAT(SUBSTRING_INDEX(addb.api_date, '-', - 1),
+    amount = ABS(amount) * - 1,
+    tax_amount = ABS(tax_amount) * - 1,
+    total_amount = ABS(total_amount) * - 1,
+    status = CASE
+        WHEN IFNULL(formula_weight, 0) = 0 THEN 'INCOMPLETE'
+        WHEN IFNULL(total_amount, 0) = 0 THEN 'INCOMPLETE'
+        ELSE status
+    END,
+    created_at = DATE_FORMAT(SUBSTRING_INDEX(api_date, '-', - 1),
             '%Y-%m-%d %T'),
-    addb.updated_at = @updated_at
+    updated_at = @updated_at
 WHERE
-    addb.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
+    status IN ('TEMPORARY' , 'NA', 'INCOMPLETE', 'COMPLETE');
 
-UPDATE api_data_master_account adma 
+UPDATE api_data_master_account 
 SET 
-    adma.created_at = DATE_FORMAT(SUBSTRING_INDEX(adma.api_date, '-', - 1),
+    amount = ABS(amount) * - 1,
+    tax_amount = ABS(tax_amount) * - 1,
+    total_amount = ABS(total_amount) * - 1,
+    status = CASE
+        WHEN IFNULL(formula_weight, 0) = 0 THEN 'INCOMPLETE'
+        WHEN IFNULL(total_amount, 0) = 0 THEN 'INCOMPLETE'
+        ELSE status
+    END,
+    created_at = DATE_FORMAT(SUBSTRING_INDEX(api_date, '-', - 1),
             '%Y-%m-%d %T'),
-    adma.updated_at = @updated_at
+    updated_at = @updated_at
 WHERE
-    adma.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE');
+    status IN ('TEMPORARY' , 'NA', 'INCOMPLETE', 'COMPLETE');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check if temporary API data exists in different types of APIs
@@ -161,6 +177,19 @@ SET
 WHERE
     addb1.status IN ('TEMPORARY' , 'DUPLICATE');
     
+UPDATE api_data_master_account adma1
+        JOIN
+    api_data_master_account adma2 ON adma1.package_number = adma2.package_number
+        AND adma1.short_code = adma2.short_code
+        AND adma1.posting_type = adma2.posting_type
+        AND adma1.charge_type = adma2.charge_type
+        AND adma1.id_api_master_account <> adma2.id_api_master_account
+        AND adma2.status <> 'DELETED' 
+SET 
+    adma1.status = 'DUPLICATE'
+WHERE
+    adma1.status IN ('TEMPORARY' , 'DUPLICATE');
+
 UPDATE api_data_master_account adma1
         JOIN
     api_data_master_account adma2 ON adma1.package_number = adma2.package_number
@@ -228,6 +257,8 @@ SET
                 AND til.bob_id_supplier IS NOT NULL
                 AND (til.delivered_date IS NOT NULL
                 OR til.failed_delivery_date IS NOT NULL)
+                AND IFNULL(addb.formula_weight, 0) <> 0
+				AND IFNULL(addb.total_amount, 0) <> 0
         THEN
             1
         ELSE 0
@@ -245,6 +276,8 @@ SET
                 AND til.failed_delivery_date IS NULL
         THEN
             'INCOMPLETE'
+        WHEN IFNULL(addb.formula_weight, 0) = 0 THEN 'INCOMPLETE'
+        WHEN IFNULL(addb.total_amount, 0) = 0 THEN 'INCOMPLETE'
         ELSE 'COMPLETE'
     END
 WHERE
@@ -261,6 +294,8 @@ SET
                 AND til.bob_id_supplier IS NOT NULL
                 AND (til.delivered_date IS NOT NULL
                 OR til.failed_delivery_date IS NOT NULL)
+                AND IFNULL(adma.formula_weight, 0) <> 0
+				AND IFNULL(adma.total_amount, 0) <> 0
         THEN
             2
         ELSE 0
@@ -277,6 +312,8 @@ SET
                 AND til.failed_delivery_date IS NULL
         THEN
             'INCOMPLETE'
+        WHEN IFNULL(adma.formula_weight, 0) = 0 THEN 'INCOMPLETE'
+        WHEN IFNULL(adma.total_amount, 0) = 0 THEN 'INCOMPLETE'
         ELSE 'COMPLETE'
     END
 WHERE
@@ -286,17 +323,17 @@ WHERE
 Set status to NA for all API data not found in ANON DB extract
 -----------------------------------------------------------------------------------------------------------------------------------*/
     
-UPDATE api_data_direct_billing addb 
+UPDATE api_data_direct_billing 
 SET 
-    addb.status = 'NA'
+    status = 'NA'
 WHERE
-    addb.status = 'TEMPORARY';
+    status = 'TEMPORARY';
 
-UPDATE api_data_master_account adma 
+UPDATE api_data_master_account 
 SET 
-    adma.status = 'NA'
+    status = 'NA'
 WHERE
-    adma.status = 'TEMPORARY';
+    status = 'TEMPORARY';
     
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Data setup completed

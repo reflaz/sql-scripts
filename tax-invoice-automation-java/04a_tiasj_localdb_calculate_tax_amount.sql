@@ -1,5 +1,5 @@
-SET @extractstart = '2017-08-01';
-SET @extractend = '2017-09-01';
+SET @extractstart = '2017-09-01';
+SET @extractend = '2017-10-01';
 
 SELECT 
     *
@@ -20,7 +20,7 @@ FROM
             SUM(IF(tr.transaction_type IN ('Seller Credit'), value, 0)) / 1.1 'seller_credit',
             SUM(IF(tr.transaction_type IN ('Seller Credit Item'), value, 0)) / 1.1 'seller_credit_item',
             SUM(IF(tr.transaction_type IN ('Seller Debit Item' , 'Other Debit - Non Taxable', 'Other Debits (Returns)'), value, 0)) / 1.1 'seller_debit_item',
-            SUM(IF(tr.transaction_type IN ('Other Fee' , 'Sponsored Product Fee'), value, 0)) / 1.1 'other_fee',
+            SUM(IF(tr.transaction_type IN ('Other Fee' , 'Sponsored Product Fee', 'Photoshoot Content Service', 'Other Services Fee'), value, 0)) / 1.1 'other_fee',
             - SUM(tr.value) 'amount_paid_to_seller',
             - SUM(tr.value) / 1.1 'amount_subjected_to_tax',
             - SUM(tr.value) + (SUM(value) / 1.1) 'tax_amount',
