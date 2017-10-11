@@ -28,7 +28,6 @@ UPDATE tmp_item_level til
         AND IFNULL(til.is_marketplace, 0) = COALESCE(mss.is_marketplace, til.is_marketplace, 0)
         AND IFNULL(til.first_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', COALESCE(mss.first_shipment_provider, til.first_shipment_provider, 'first_shipment_provider'), '%')
         AND IFNULL(til.last_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', COALESCE(mss.last_shipment_provider, til.last_shipment_provider, 'first_shipment_provider'), '%')
-        AND IFNULL(til.first_shipment_provider, 1) NOT LIKE CONCAT('%', IFNULL(mss.exclude_shipment_provider, 'exclude_shipment_provider'), '%')
         AND IFNULL(til.last_shipment_provider, 1) NOT LIKE CONCAT('%', IFNULL(mss.exclude_shipment_provider, 'exclude_shipment_provider'), '%')
         AND IFNULL(til.shipping_type, 'shipping_type') = COALESCE(mss.shipping_type, til.shipping_type, 'shipping_type')
         AND IFNULL(til.delivery_type, 'delivery_type') = COALESCE(mss.delivery_type, til.delivery_type, 'delivery_type')
@@ -63,6 +62,7 @@ UPDATE tmp_item_level til
         AND pckval.package_value > mdi3pl.min_package_value
         AND pckval.package_value <= IFNULL(mdi3pl.max_package_value, pckval.package_value)
 SET
+	til.package_seller_value = pckval.package_value,
 	til.shipment_scheme = mss.shipment_scheme,
     til.item_weight_seller = CASE
 			WHEN mwts.item_weight_threshold IS NULL THEN til.item_weight_seller
@@ -74,7 +74,7 @@ SET
                 ELSE 0
             END
 		END,
-	til.item_weight_seller_flag = CASE
+	til.item_weight_flag_seller = CASE
 			WHEN mwts.item_weight_threshold IS NOT NULL THEN 3
             ELSE 0
 		END,
@@ -165,13 +165,20 @@ SELECT
     delivery_type,
     auto_shipping_fee_credit_tmp 'auto_shipping_fee_credit',
     manual_shipping_fee_tmp 'manual_shipping_fee',
+    package_seller_value,
+    payment_flat_cost_rate,
+    payment_mdr_cost_rate,
+    payment_ipp_cost_rate,
+    payment_flat_cost,
+    payment_mdr_cost,
+    payment_ipp_cost,
     api_type,
     shipment_scheme,
     campaign,
     weight_tmp 'weight',
     volumetric_weight_tmp 'volumetric_weight',
     item_weight_seller_tmp 'item_weight_seller',
-    item_weight_seller_flag_tmp 'item_weight_seller_flag',
+    item_weight_flag_seller_tmp 'item_weight_seller_flag',
     rounding_seller,
     formula_weight_seller_tmp 'formula_weight_seller',
     CASE
@@ -190,6 +197,7 @@ SELECT
     insurance_seller_tmp 'insurance_seller',
     insurance_vat_seller_tmp 'insurance_vat_seller',
     rate_card_scheme,
+    item_weight_flag_3pl_tmp 'item_weight_flag_3pl',
     rounding_3pl,
     formula_weight_3pl_tmp 'formula_weight_3pl',
     CASE
@@ -235,17 +243,21 @@ FROM
             SUM(IFNULL(volumetric_weight, 0)) 'volumetric_weight_tmp',
             SUM(IFNULL(item_weight_seller, 0)) 'item_weight_seller_tmp',
             CASE
-                WHEN item_weight_seller_flag = 3 THEN SUM(IFNULL(item_weight_seller, 0))
+                WHEN item_weight_flag_seller = 3 THEN SUM(IFNULL(item_weight_seller, 0))
                 ELSE GREATEST(SUM(IFNULL(weight, 0)), SUM(IFNULL(volumetric_weight, 0)))
             END 'formula_weight_seller_tmp',
             CASE
-                WHEN item_weight_seller_flag = 3 THEN 3
+                WHEN item_weight_flag_seller = 3 THEN 3
                 WHEN SUM(IFNULL(volumetric_weight, 0)) > SUM(IFNULL(weight, 0)) THEN 2
                 ELSE 1
-            END 'item_weight_seller_flag_tmp',
+            END 'item_weight_flag_seller_tmp',
             SUM(IFNULL(insurance_seller, 0)) 'insurance_seller_tmp',
             SUM(IFNULL(insurance_vat_seller, 0)) 'insurance_vat_seller_tmp',
             GREATEST(SUM(IFNULL(weight, 0)), SUM(IFNULL(volumetric_weight, 0))) 'formula_weight_3pl_tmp',
+            CASE
+                WHEN SUM(IFNULL(volumetric_weight, 0)) > SUM(IFNULL(weight, 0)) THEN 2
+                ELSE 1
+            END 'item_weight_flag_3pl_tmp',
             SUM(IFNULL(insurance_3pl, 0)) 'insurance_3pl_tmp',
             SUM(IFNULL(insurance_vat_3pl, 0)) 'insurance_vat_3pl_tmp'
     FROM
@@ -253,7 +265,7 @@ FROM
     GROUP BY order_nr , bob_id_supplier , id_package_dispatching) tpl;
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
-Map 3pl charge components to API data
+Map 3pl charge components to API data and calculate shipping charge components
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE tmp_package_level tpl
@@ -263,18 +275,43 @@ UPDATE tmp_package_level tpl
         AND delv.posting_type = 'INCOMING'
         AND delv.charge_type IN ('DELIVERY')
         AND delv.status IN ('COMPLETE' , 'ACTIVE')
+        LEFT JOIN
+	map_weight_threshold_seller mwts ON GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) >= mwts.start_date
+        AND GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) <= mwts.end_date
 SET
     tpl.chargeable_weight_seller = COALESCE(delv.rounded_weight, delv.formula_weight, 0),
+    tpl.chargeable_weight_seller = CASE
+			WHEN tpl.chargeable_weight_seller = 0 THEN 0
+			WHEN tpl.chargeable_weight_seller < 1 THEN 1
+			WHEN tpl.chargeable_weight_seller <= tpl.rounding_seller THEN FLOOR(tpl.chargeable_weight_seller)
+			ELSE CEIL(tpl.chargeable_weight_seller)
+		END,
+	tpl.weight_seller_pct = tpl.chargeable_weight_seller,
+	tpl.chargeable_weight_seller = CASE
+			WHEN mwts.package_weight_threshold IS NULL THEN tpl.chargeable_weight_seller
+			WHEN tpl.chargeable_weight_seller <= mwts.package_weight_threshold THEN tpl.chargeable_weight_seller
+			ELSE CASE
+				WHEN mwts.package_weight_no_bulky = 1 THEN 0
+				WHEN mwts.package_weight_offset = 1 THEN tpl.chargeable_weight_seller - mwts.package_weight_threshold
+				WHEN mwts.package_weight_max = 1 THEN mwts.package_weight_threshold
+				ELSE 0
+			END
+		END,
+	tpl.seller_flat_charge = IFNULL(tpl.seller_flat_charge_rate, 0),
+	tpl.seller_charge = IFNULL(tpl.chargeable_weight_seller, 0) * IFNULL(tpl.seller_charge_rate, 0),
+    tpl.insurance_seller = 0,
+    tpl.insurance_vat_seller = 0,
     tpl.chargeable_weight_3pl = COALESCE(delv.rounded_weight, delv.formula_weight, 0),
-    tpl.delivery_cost = IFNULL(delv.amount, 0),
-    tpl.delivery_cost_vat = IFNULL(delv.tax_amount, 0),
-    tpl.total_delivery_cost = IFNULL(delv.total_amount, 0),
-    tpl.total_failed_delivery_cost = 0,
     tpl.pickup_cost = 0,
     tpl.pickup_cost_vat = 0,
-    tpl.total_pickup_cost = 0,
+    tpl.delivery_cost = IFNULL(delv.amount, 0),
+    tpl.delivery_cost_vat = IFNULL(delv.tax_amount, 0),
     tpl.insurance_3pl = 0,
-    tpl.insurance_vat_3pl = 0
+    tpl.insurance_vat_3pl = 0,
+    tpl.total_seller_charge = IFNULL(tpl.seller_flat_charge, 0) + IFNULL(tpl.seller_charge, 0) + IFNULL(tpl.insurance_seller, 0) + IFNULL(tpl.insurance_vat_seller, 0),
+    tpl.total_pickup_cost = 0,
+    tpl.total_delivery_cost = IFNULL(delv.total_amount, 0),
+    tpl.total_failed_delivery_cost = 0
 WHERE
 	tpl.api_type = 1;
 
@@ -298,6 +335,12 @@ UPDATE tmp_package_level tpl
         AND pckc.charge_type IN ('PICKUP')
         AND pckc.status IN ('COMPLETE' , 'ACTIVE')
         LEFT JOIN
+    api_data_master_account cod ON tpl.id_package_dispatching = cod.id_package_dispatching
+        AND tpl.bob_id_supplier = cod.bob_id_supplier
+        AND cod.posting_type = 'INCOMING'
+        AND cod.charge_type IN ('COD')
+        AND cod.status IN ('COMPLETE' , 'ACTIVE')
+        LEFT JOIN
     api_data_master_account ins ON tpl.id_package_dispatching = ins.id_package_dispatching
         AND tpl.bob_id_supplier = ins.bob_id_supplier
         AND ins.posting_type = 'INCOMING'
@@ -307,11 +350,13 @@ UPDATE tmp_package_level tpl
 	map_weight_threshold_seller mwts ON GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) >= mwts.start_date
         AND GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) <= mwts.end_date
 SET
+	tpl.payment_mdr_cost = cod.total_amount,
+	tpl.chargeable_weight_seller = COALESCE(delv.rounded_weight, delv.formula_weight, fdel.rounded_weight, fdel.formula_weight),
 	tpl.chargeable_weight_seller = CASE
-			WHEN COALESCE(delv.rounded_weight, delv.formula_weight, fdel.rounded_weight, fdel.formula_weight) = 0 THEN 0
-			WHEN COALESCE(delv.rounded_weight, delv.formula_weight, fdel.rounded_weight, fdel.formula_weight) < 1 THEN 1
-			WHEN MOD(COALESCE(delv.rounded_weight, delv.formula_weight, fdel.rounded_weight, fdel.formula_weight), 1) <= rounding_seller THEN FLOOR(COALESCE(delv.rounded_weight, delv.formula_weight, fdel.rounded_weight, fdel.formula_weight))
-			ELSE CEIL(COALESCE(delv.rounded_weight, delv.formula_weight, fdel.rounded_weight, fdel.formula_weight))
+			WHEN tpl.chargeable_weight_seller = 0 THEN 0
+			WHEN tpl.chargeable_weight_seller < 1 THEN 1
+			WHEN tpl.chargeable_weight_seller <= tpl.rounding_seller THEN FLOOR(tpl.chargeable_weight_seller)
+			ELSE CEIL(tpl.chargeable_weight_seller)
 		END,
 	tpl.weight_seller_pct = tpl.chargeable_weight_seller,
 	tpl.chargeable_weight_seller = CASE
@@ -324,8 +369,8 @@ SET
 				ELSE 0
 			END
 		END,
-	tpl.seller_flat_charge = tpl.seller_flat_charge_rate,
-	tpl.seller_charge = tpl.chargeable_weight_seller * tpl.seller_charge_rate,
+	tpl.seller_flat_charge = IFNULL(tpl.seller_flat_charge_rate, 0),
+	tpl.seller_charge = IFNULL(tpl.chargeable_weight_seller, 0) * IFNULL(tpl.seller_charge_rate, 0),
     tpl.insurance_seller = CASE
 			WHEN tpl.insurance_rate_seller = 0 THEN 0
 			ELSE IFNULL(ins.amount, 0)
@@ -341,6 +386,7 @@ SET
     tpl.delivery_cost_vat = COALESCE(delv.tax_amount, fdel.tax_amount, 0),
     tpl.insurance_3pl = IFNULL(ins.amount, 0),
     tpl.insurance_vat_3pl = IFNULL(ins.tax_amount, 0),
+    tpl.total_seller_charge = IFNULL(tpl.seller_flat_charge, 0) + IFNULL(tpl.seller_charge, 0) + IFNULL(tpl.insurance_seller, 0) + IFNULL(tpl.insurance_vat_seller, 0),
     tpl.total_pickup_cost = IFNULL(pckc.total_amount, 0),
     tpl.total_delivery_cost = CASE
 			WHEN delv.id_api_master_account IS NOT NULL THEN IFNULL(delv.total_amount, 0) + IFNULL(ins.total_amount, 0)
@@ -379,24 +425,28 @@ SET
 				ELSE 0
 			END
 		END,
-	tpl.seller_flat_charge = tpl.seller_flat_charge_rate,
-	tpl.seller_charge = CASE
-			WHEN mwts.package_weight_threshold IS NULL THEN tpl.chargeable_weight_seller
-			WHEN tpl.chargeable_weight_seller <= mwts.package_weight_threshold THEN tpl.chargeable_weight_seller
-			ELSE CASE
-				WHEN mwts.package_weight_no_bulky = 1 THEN 0
-				WHEN mwts.package_weight_offset = 1 THEN tpl.chargeable_weight_seller - mwts.package_weight_threshold
-				WHEN mwts.package_weight_max = 1 THEN mwts.package_weight_threshold
-				ELSE 0
-			END
-		END * tpl.seller_charge_rate,
-	tpl.delivery_flat_cost_rate = mrc3.delivery_flat_cost_rate,
-	tpl.delivery_cost_rate = mrc3.delivery_cost_rate,
-	tpl.delivery_cost_discount_rate = mrc3.delivery_cost_discount_rate,
-	tpl.delivery_flat_cost = mrc3.delivery_flat_cost_rate,
-	tpl.delivery_cost = - tpl.chargeable_weight_3pl * mrc3.delivery_cost_rate,
-	tpl.delivery_cost_discount = tpl.chargeable_weight_3pl * mrc3.delivery_cost_rate * mrc3.delivery_cost_discount_rate,
-	tpl.delivery_cost_vat = - tpl.chargeable_weight_3pl * mrc3.delivery_cost_rate * (1 - mrc3.delivery_cost_discount_rate) * tpl.delivery_cost_vat_rate
+	tpl.seller_flat_charge = IFNULL(tpl.seller_flat_charge_rate, 0),
+	tpl.seller_charge = IFNULL(tpl.chargeable_weight_seller, 0) * IFNULL(tpl.seller_charge_rate, 0),
+	tpl.delivery_flat_cost_rate = IFNULL(mrc3.delivery_flat_cost_rate, 0),
+	tpl.delivery_cost_rate = IFNULL(mrc3.delivery_cost_rate, 0),
+	tpl.delivery_cost_discount_rate = IFNULL(mrc3.delivery_cost_discount_rate, 0),
+	tpl.pickup_cost = - IFNULL(tpl.chargeable_weight_seller, 0) * IFNULL(tpl.pickup_cost_rate, 0),
+    tpl.pickup_cost_discount = IFNULL(tpl.chargeable_weight_seller, 0) * IFNULL(tpl.pickup_cost_rate, 0) * IFNULL(tpl.pickup_cost_discount_rate, 0),
+    tpl.pickup_cost_vat = (IFNULL(tpl.pickup_cost, 0) + IFNULL(tpl.pickup_cost_discount, 0)) * IFNULL(tpl.pickup_cost_vat_rate, 0),
+    tpl.delivery_flat_cost = IFNULL(mrc3.delivery_flat_cost_rate, 0),
+	tpl.delivery_cost = - IFNULL(tpl.chargeable_weight_3pl, 0) * IFNULL(mrc3.delivery_cost_rate, 0),
+	tpl.delivery_cost_discount = IFNULL(tpl.chargeable_weight_3pl, 0) * IFNULL(mrc3.delivery_cost_rate, 0) * IFNULL(mrc3.delivery_cost_discount_rate, 0),
+	tpl.delivery_cost_vat = (IFNULL(tpl.delivery_cost, 0) + IFNULL(tpl.delivery_cost_discount, 0)) * IFNULL(tpl.delivery_cost_vat_rate, 0),
+    tpl.total_seller_charge = CASE
+			WHEN tpl.manual_shipping_fee > 0 THEN tpl.manual_shipping_fee
+			ELSE IFNULL(tpl.seller_flat_charge, 0) + IFNULL(tpl.seller_charge, 0) + IFNULL(tpl.insurance_seller, 0) + IFNULL(tpl.insurance_vat_seller, 0)
+		END,
+	tpl.total_pickup_cost = IFNULL(tpl.pickup_cost, 0) + IFNULL(tpl.pickup_cost_discount, 0) + IFNULL(tpl.pickup_cost_vat, 0),
+	tpl.total_delivery_cost = IFNULL(tpl.delivery_flat_cost, 0) + IFNULL(tpl.delivery_cost, 0) + IFNULL(tpl.delivery_cost_discount, 0) + IFNULL(tpl.delivery_cost_vat, 0) + IFNULL(tpl.insurance_3pl, 0) + IFNULL(tpl.insurance_vat_3pl, 0),
+	tpl.total_failed_delivery_cost = CASE
+			WHEN tpl.failed_delivery_date IS NOT NULL THEN IFNULL(tpl.delivery_cost, 0) + IFNULL(tpl.delivery_cost_discount, 0) + IFNULL(tpl.delivery_cost_vat, 0)
+            ELSE 0
+		END
 WHERE
 	tpl.api_type = 0;
 
