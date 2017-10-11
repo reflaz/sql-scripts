@@ -255,6 +255,40 @@ CREATE TABLE IF NOT EXISTS `map_default_insurance` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Default insurance scheme';
 
+CREATE TABLE IF NOT EXISTS `map_origin_mapping` (
+    `id_origin_mapping` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `origin` VARCHAR(64) DEFAULT NULL,
+    `origin_mapping` VARCHAR(64) DEFAULT NULL,
+    `start_date` DATETIME DEFAULT NULL,
+    `end_date` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id_origin_mapping`),
+    KEY (`origin`),
+    KEY (`start_date`),
+    KEY (`end_date`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Rate card 3PL';
+
+CREATE TABLE IF NOT EXISTS `map_rate_card_3pl` (
+    `id_rate_card` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `rate_card_scheme` VARCHAR(12) DEFAULT NULL,
+    `origin` VARCHAR(64) NOT NULL,
+    `id_district` INT(10) UNSIGNED NOT NULL,
+    `min_weight` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `max_weight` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `delivery_flat_cost_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `delivery_cost_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `delivery_cost_discount_rate` DECIMAL(6 , 4 ) DEFAULT NULL,
+    `start_date` DATETIME DEFAULT NULL,
+    `end_date` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id_rate_card`),
+    KEY (`rate_card_scheme`),
+    KEY (`origin`),
+    KEY (`id_district`),
+    KEY (`min_weight`),
+    KEY (`max_weight`),
+    KEY (`start_date`),
+    KEY (`end_date`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Rate card 3PL';
+
 CREATE TABLE IF NOT EXISTS `map_shipment_scheme` (
     `id_shipment_scheme` INT(10) UNSIGNED NOT NULL,
     `shipment_scheme` VARCHAR(50) DEFAULT NULL,
@@ -422,8 +456,8 @@ CREATE TABLE IF NOT EXISTS `tmp_item_level` (
     `chargeable_weight_seller` DECIMAL(20 , 4 ) DEFAULT NULL,
     `seller_flat_charge_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
     `seller_charge_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
-    `insurance_rate_sel` DECIMAL(20 , 4 ) DEFAULT NULL,
-    `insurance_vat_rate_sel` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `insurance_rate_seller` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `insurance_vat_rate_seller` DECIMAL(20 , 4 ) DEFAULT NULL,
     `weight_seller_pct` DECIMAL(20 , 4 ) DEFAULT NULL,
     `seller_flat_charge` DECIMAL(20 , 4 ) DEFAULT NULL,
     `seller_charge` DECIMAL(20 , 4 ) DEFAULT NULL,
@@ -539,8 +573,8 @@ CREATE TABLE IF NOT EXISTS `tmp_package_level` (
     `chargeable_weight_seller` DECIMAL(20 , 4 ) DEFAULT NULL,
     `seller_flat_charge_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
     `seller_charge_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
-    `insurance_rate_sel` DECIMAL(20 , 4 ) DEFAULT NULL,
-    `insurance_vat_rate_sel` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `insurance_rate_seller` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `insurance_vat_rate_seller` DECIMAL(20 , 4 ) DEFAULT NULL,
     `weight_seller_pct` DECIMAL(20 , 4 ) DEFAULT NULL,
     `seller_flat_charge` DECIMAL(20 , 4 ) DEFAULT NULL,
     `seller_charge` DECIMAL(20 , 4 ) DEFAULT NULL,
