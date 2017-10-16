@@ -83,8 +83,8 @@ SET
 	til.seller_charge_rate = IFNULL(mdc.seller_charge_rate, 0),
     til.insurance_rate_seller = IFNULL(mdisel.insurance_rate, 0),
 	til.insurance_vat_rate_seller = IFNULL(mdisel.insurance_vat_rate, 0),
-    til.insurance_seller = IFNULL(mdisel.insurance_rate, 0) * unit_price,
-    til.insurance_vat_seller = IFNULL(mdisel.insurance_rate, 0) * unit_price * IFNULL(mdisel.insurance_vat_rate, 0),
+    til.insurance_seller = IFNULL(mdisel.insurance_rate, 0) * IFNULL(unit_price, 0),
+    til.insurance_vat_seller = IFNULL(mdisel.insurance_rate, 0) * IFNULL(unit_price, 0) * IFNULL(mdisel.insurance_vat_rate, 0),
 	til.rate_card_scheme = IFNULL(mdc.rate_card_scheme, 0),
 	til.rounding_3pl = IFNULL(mdc.rounding_3pl, 0),
 	til.pickup_cost_rate = IFNULL(mdc.pickup_cost_rate, 0),
@@ -93,8 +93,8 @@ SET
 	til.delivery_cost_vat_rate = IFNULL(mdc.delivery_cost_vat_rate, 0),
     til.insurance_rate_3pl = IFNULL(mdi3pl.insurance_rate, 0),
 	til.insurance_vat_rate_3pl = IFNULL(mdi3pl.insurance_vat_rate, 0),
-    til.insurance_3pl = - IFNULL(mdi3pl.insurance_rate, 0) * unit_price,
-	til.insurance_vat_3pl = - IFNULL(mdi3pl.insurance_rate, 0) * unit_price * IFNULL(mdi3pl.insurance_vat_rate, 0);
+    til.insurance_3pl = - IFNULL(mdi3pl.insurance_rate, 0) * IFNULL(unit_price, 0),
+	til.insurance_vat_3pl = - IFNULL(mdi3pl.insurance_rate, 0) * IFNULL(unit_price, 0) * IFNULL(mdi3pl.insurance_vat_rate, 0);
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Map seller campaign and override seller charge components
@@ -125,11 +125,11 @@ SET
 	til.seller_flat_charge_rate = COALESCE(mco.seller_flat_charge_rate, mcam.seller_flat_charge_rate, til.seller_flat_charge_rate, 0),
 	til.seller_charge_rate = COALESCE(mco.seller_charge_rate, mcam.seller_charge_rate, til.seller_charge_rate, 0),
 	til.insurance_rate_seller = COALESCE(mcam.insurance_rate, til.insurance_rate_seller, 0),
-    til.insurance_seller = COALESCE(mcam.insurance_rate, til.insurance_rate_seller, 0) * unit_price,
-    til.insurance_vat_seller = COALESCE(mcam.insurance_rate, til.insurance_rate_seller, 0) * unit_price * IFNULL(til.insurance_vat_rate_seller, 0);
+    til.insurance_seller = COALESCE(mcam.insurance_rate, til.insurance_rate_seller, 0) * IFNULL(unit_price, 0),
+    til.insurance_vat_seller = COALESCE(mcam.insurance_rate, til.insurance_rate_seller, 0) * IFNULL(unit_price, 0) * IFNULL(til.insurance_vat_rate_seller, 0);
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
-Group data by order number, supplier ID, and dispatching ID
+Group data by order number, supplier ID, and dispatching ID to package-seller level
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 TRUNCATE tmp_package_level;
@@ -225,7 +225,7 @@ SELECT
     delivery_cost_vat,
     insurance_3pl_tmp 'insurance_3pl',
     insurance_vat_3pl_tmp 'insurance_vat_3pl',
-    (shipping_amount_tmp + shipping_surcharge_tmp) / IF(is_marketplace = 1, 1, 1.1) 'total_customer_charge',
+    total_customer_charge_tmp 'total_customer_charge',
     total_seller_charge,
     total_pickup_cost,
     total_delivery_cost,
@@ -259,13 +259,14 @@ FROM
                 ELSE 1
             END 'item_weight_flag_3pl_tmp',
             SUM(IFNULL(insurance_3pl, 0)) 'insurance_3pl_tmp',
-            SUM(IFNULL(insurance_vat_3pl, 0)) 'insurance_vat_3pl_tmp'
+            SUM(IFNULL(insurance_vat_3pl, 0)) 'insurance_vat_3pl_tmp',
+            SUM(IFNULL(total_customer_charge, 0)) 'total_customer_charge_tmp'
     FROM
         tmp_item_level til
     GROUP BY order_nr , bob_id_supplier , id_package_dispatching) tpl;
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
-Map 3pl charge components to API data and calculate shipping charge components
+Map 3pl charge components to API data and calculate shipping charge components on package-seller level
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE tmp_package_level tpl
@@ -351,7 +352,7 @@ UPDATE tmp_package_level tpl
         AND GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) <= mwts.end_date
 SET
 	tpl.payment_mdr_cost = cod.total_amount,
-	tpl.chargeable_weight_seller = COALESCE(delv.rounded_weight, delv.formula_weight, fdel.rounded_weight, fdel.formula_weight),
+	tpl.chargeable_weight_seller = COALESCE(delv.rounded_weight, delv.formula_weight, fdel.rounded_weight, fdel.formula_weight, 0),
 	tpl.chargeable_weight_seller = CASE
 			WHEN tpl.chargeable_weight_seller = 0 THEN 0
 			WHEN tpl.chargeable_weight_seller < 1 THEN 1
@@ -379,7 +380,7 @@ SET
 			WHEN tpl.insurance_rate_seller = 0 THEN 0
 			ELSE IFNULL(ins.tax_amount, 0)
 		END,
-    tpl.chargeable_weight_3pl = COALESCE(delv.rounded_weight, delv.formula_weight, fdel.rounded_weight, fdel.formula_weight),
+    tpl.chargeable_weight_3pl = COALESCE(delv.rounded_weight, delv.formula_weight, fdel.rounded_weight, fdel.formula_weight, 0),
     tpl.pickup_cost = IFNULL(pckc.amount, 0),
     tpl.pickup_cost_vat = IFNULL(pckc.tax_amount, 0),
     tpl.delivery_cost = COALESCE(delv.amount, fdel.amount, 0),
@@ -390,7 +391,7 @@ SET
     tpl.total_pickup_cost = IFNULL(pckc.total_amount, 0),
     tpl.total_delivery_cost = CASE
 			WHEN delv.id_api_master_account IS NOT NULL THEN IFNULL(delv.total_amount, 0) + IFNULL(ins.total_amount, 0)
-            WHEN fdel.id_api_master_account IS NOT NULL THEN IFNULL(fdel.total_amount, 0) / 2 + IFNULL(ins.total_amount, 0)
+            WHEN fdel.id_api_master_account IS NOT NULL THEN (IFNULL(fdel.total_amount, 0) / 2) + IFNULL(ins.total_amount, 0)
             ELSE 0
 		END,
     tpl.total_failed_delivery_cost = IFNULL(fdel.total_amount, 0) / 2
@@ -398,7 +399,7 @@ WHERE
 	tpl.api_type = 2;
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
-Calculate 3pl charge from 3pl rate card for Non-API data
+Calculate shipping charge for Non-API data on package-seller data
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE tmp_package_level tpl
@@ -449,5 +450,61 @@ SET
 		END
 WHERE
 	tpl.api_type = 0;
+
+/*-----------------------------------------------------------------------------------------------------------------------------------
+Calculate shipping charges on item level
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+UPDATE tmp_item_level til
+		LEFT JOIN
+	tmp_package_level tpl ON til.order_nr = tpl.order_nr
+        AND til.bob_id_supplier = tpl.bob_id_supplier
+        AND IFNULL(til.id_package_dispatching, 1) = IFNULL(tpl.id_package_dispatching, 1)
+SET
+	til.package_seller_value = tpl.package_seller_value,
+    til.payment_mdr_cost = ROUND(IFNULL(til.unit_price, 0) / IFNULL(tpl.package_seller_value, 0) * IFNULL(tpl.payment_mdr_cost, 0), 4),
+	til.item_weight_flag_seller = tpl.item_weight_flag_seller,
+	til.weight_seller_pct = CASE
+			WHEN tpl.formula_weight_3pl = 0 OR tpl.formula_weight_3pl IS NULL THEN ROUND(IFNULL(til.unit_price, 0) / IFNULL(tpl.package_seller_value, 0), 4)
+			WHEN tpl.item_weight_flag_3pl = 1 THEN ROUND(IFNULL(til.weight, 0) / IFNULL(tpl.weight, 0), 4)
+			WHEN tpl.item_weight_flag_3pl = 2 THEN ROUND(IFNULL(til.volumetric_weight, 0) / IFNULL(tpl.volumetric_weight, 0), 4)
+            ELSE 0
+		END,
+	til.formula_weight_seller = CASE
+			WHEN tpl.item_weight_flag_seller = 1 THEN IFNULL(til.weight, 0)
+			WHEN tpl.item_weight_flag_seller = 2 THEN IFNULL(til.volumetric_weight, 0)
+			WHEN tpl.item_weight_flag_seller = 3 THEN IFNULL(til.item_weight_seller, 0)
+            ELSE 0
+		END,
+	til.chargeable_weight_seller = ROUND(IFNULL(til.weight_seller_pct, 0) * IFNULL(tpl.chargeable_weight_seller, 0), 4),
+    til.seller_flat_charge = ROUND(IFNULL(til.weight_seller_pct, 0) * IFNULL(tpl.seller_flat_charge, 0), 4),
+    til.seller_charge = ROUND(IFNULL(til.weight_seller_pct, 0) * IFNULL(tpl.seller_charge, 0), 4),
+    til.insurance_seller = ROUND(IFNULL(til.unit_price, 0) / IFNULL(tpl.package_seller_value, 0) * IFNULL(tpl.insurance_seller, 0), 4),
+    til.insurance_vat_seller = ROUND(IFNULL(til.unit_price, 0) / IFNULL(tpl.package_seller_value, 0) * IFNULL(tpl.insurance_vat_seller, 0), 4),
+    til.weight_3pl_pct = CASE
+			WHEN tpl.formula_weight_3pl = 0 OR tpl.formula_weight_3pl IS NULL THEN ROUND(IFNULL(til.unit_price, 0) / IFNULL(tpl.package_seller_value, 0), 4)
+			WHEN tpl.item_weight_flag_3pl = 1 THEN ROUND(IFNULL(til.weight, 0) / IFNULL(tpl.weight, 0), 4)
+			WHEN tpl.item_weight_flag_3pl = 2 THEN ROUND(IFNULL(til.volumetric_weight, 0) / IFNULL(tpl.volumetric_weight, 0), 4)
+            ELSE 0
+		END,
+	til.formula_weight_3pl = CASE
+			WHEN tpl.item_weight_flag_3pl = 1 THEN IFNULL(til.weight, 0)
+			WHEN tpl.item_weight_flag_3pl = 2 THEN IFNULL(til.volumetric_weight, 0)
+            ELSE 0
+		END,
+	til.chargeable_weight_3pl = ROUND(IFNULL(til.weight_3pl_pct, 0) * IFNULL(tpl.chargeable_weight_3pl, 0), 4),
+    til.pickup_cost = ROUND(IFNULL(til.weight_3pl_pct, 0) * IFNULL(tpl.pickup_cost, 0), 4),
+    til.pickup_cost_discount = ROUND(IFNULL(til.weight_3pl_pct, 0) * IFNULL(tpl.pickup_cost_discount, 0), 4),
+    til.pickup_cost_vat = ROUND(IFNULL(til.weight_3pl_pct, 0) * IFNULL(tpl.pickup_cost_vat, 0), 4),
+    til.delivery_flat_cost = ROUND(IFNULL(til.weight_3pl_pct, 0) * IFNULL(tpl.delivery_flat_cost, 0), 4),
+    til.delivery_cost = ROUND(IFNULL(til.weight_3pl_pct, 0) * IFNULL(tpl.delivery_cost, 0), 4),
+    til.delivery_cost_discount = ROUND(IFNULL(til.weight_3pl_pct, 0) * IFNULL(tpl.delivery_cost_discount, 0), 4),
+    til.delivery_cost_vat = ROUND(IFNULL(til.weight_3pl_pct, 0) * IFNULL(tpl.delivery_cost_vat, 0), 4),
+    til.insurance_3pl = ROUND(IFNULL(til.unit_price, 0) / IFNULL(tpl.package_seller_value, 0) * IFNULL(tpl.insurance_3pl, 0), 4),
+    til.insurance_vat_3pl = ROUND(IFNULL(til.unit_price, 0) / IFNULL(tpl.package_seller_value, 0) * IFNULL(tpl.insurance_vat_3pl, 0), 4),
+    til.total_seller_charge = ROUND(IFNULL(til.weight_seller_pct, 0) * IFNULL(tpl.total_seller_charge, 0), 4),
+    til.total_pickup_cost = ROUND(IFNULL(til.weight_3pl_pct, 0) * IFNULL(tpl.total_pickup_cost, 0), 4),
+    til.total_delivery_cost = ROUND(IFNULL(til.weight_3pl_pct, 0) * IFNULL(tpl.total_delivery_cost, 0), 4),
+    til.total_failed_delivery_cost = ROUND(IFNULL(til.weight_3pl_pct, 0) * IFNULL(tpl.total_failed_delivery_cost, 0), 4);
 
 SET SQL_SAFE_UPDATES = 1;

@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Shipping Charges and Gain/Loss AnonDB Population Extract by Tracking Number
+Refrain Tools Population Extract by Tracking Number
 
 Prepared by		: R Maliangkay
 Modified by		: RM

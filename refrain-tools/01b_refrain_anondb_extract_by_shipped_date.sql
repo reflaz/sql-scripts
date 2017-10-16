@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Shipping Charges and Gain/Loss AnonDB Population Extract by First Shipped Date
+Refrain Tools Population Extract by First Shipped Date
 
 Prepared by		: R Maliangkay
 Modified by		: RM

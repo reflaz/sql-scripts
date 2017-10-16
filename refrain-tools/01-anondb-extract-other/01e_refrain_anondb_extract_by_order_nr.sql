@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Shipping Charges and Gain/Loss AnonDB Population Extract by Order Number
+Refrain Tools Population Extract by Order Number
 
 Prepared by		: R Maliangkay
 Modified by		: RM

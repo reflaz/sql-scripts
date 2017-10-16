@@ -31,7 +31,7 @@ Initialize ANON DB extract temporary data
 
 UPDATE tmp_item_level 
 SET 
-	package_seller_value = NULL,
+    package_seller_value = NULL,
     payment_flat_cost_rate = NULL,
     payment_mdr_cost_rate = NULL,
     payment_ipp_cost_rate = NULL,
@@ -84,7 +84,7 @@ SET
     delivery_cost_vat = NULL,
     insurance_3pl = NULL,
     insurance_vat_3pl = NULL,
-    total_customer_charge = NULL,
+    total_customer_charge = (IFNULL(shipping_amount, 0) + IFNULL(shipping_surcharge, 0)) / IF(is_marketplace = 1, 1, 1.1),
     total_seller_charge = NULL,
     total_pickup_cost = NULL,
     total_delivery_cost = NULL,
@@ -113,14 +113,9 @@ Initialize temporary API data creation date and update date
 
 UPDATE api_data_direct_billing 
 SET 
-    amount = ABS(amount) * - 1,
-    tax_amount = ABS(tax_amount) * - 1,
-    total_amount = ABS(total_amount) * - 1,
-    status = CASE
-        WHEN IFNULL(formula_weight, 0) = 0 THEN 'INCOMPLETE'
-        WHEN IFNULL(total_amount, 0) = 0 THEN 'INCOMPLETE'
-        ELSE status
-    END,
+    amount = ABS(IFNULL(amount, 0)) * - 1,
+    tax_amount = ABS(IFNULL(tax_amount, 0)) * - 1,
+    total_amount = ABS(IFNULL(total_amount, 0)) * - 1,
     created_at = DATE_FORMAT(SUBSTRING_INDEX(api_date, '-', - 1),
             '%Y-%m-%d %T'),
     updated_at = @updated_at
@@ -129,14 +124,9 @@ WHERE
 
 UPDATE api_data_master_account 
 SET 
-    amount = ABS(amount) * - 1,
-    tax_amount = ABS(tax_amount) * - 1,
-    total_amount = ABS(total_amount) * - 1,
-    status = CASE
-        WHEN IFNULL(formula_weight, 0) = 0 THEN 'INCOMPLETE'
-        WHEN IFNULL(total_amount, 0) = 0 THEN 'INCOMPLETE'
-        ELSE status
-    END,
+    amount = ABS(IFNULL(amount, 0)) * - 1,
+    tax_amount = ABS(IFNULL(tax_amount, 0)) * - 1,
+    total_amount = ABS(IFNULL(total_amount, 0)) * - 1,
     created_at = DATE_FORMAT(SUBSTRING_INDEX(api_date, '-', - 1),
             '%Y-%m-%d %T'),
     updated_at = @updated_at
@@ -191,19 +181,44 @@ SET
 WHERE
     adma1.status IN ('TEMPORARY' , 'DUPLICATE');
 
+/*-----------------------------------------------------------------------------------------------------------------------------------
+Check delivery referrence
+Comparing data status is not 'DELETED'
+-----------------------------------------------------------------------------------------------------------------------------------*/
+UPDATE api_data_direct_billing addb1
+        LEFT JOIN
+    api_data_direct_billing addb2 ON addb1.package_number = addb2.package_number
+        AND addb1.short_code = addb2.short_code
+        AND addb1.id_api_direct_billing <> addb2.id_api_direct_billing
+        AND addb2.posting_type = 'INCOMING'
+        AND addb2.charge_type IN ('DELIVERY' , 'FAILED DELIVERY')
+        AND addb2.status <> 'DELETED' 
+SET 
+    addb1.status = CASE
+        WHEN addb2.id_api_direct_billing IS NOT NULL THEN addb1.status
+        ELSE 'NO_DELIVERY_DETAILS'
+    END
+WHERE
+    addb1.status IN ('TEMPORARY' , 'INCOMPLETE')
+        AND addb1.charge_type IN ('PICKUP' , 'COD', 'INSURANCE');
+
 UPDATE api_data_master_account adma1
-        JOIN
+        LEFT JOIN
     api_data_master_account adma2 ON adma1.package_number = adma2.package_number
         AND adma1.short_code = adma2.short_code
-        AND adma1.posting_type = adma2.posting_type
-        AND adma1.charge_type = adma2.charge_type
         AND adma1.id_api_master_account <> adma2.id_api_master_account
+        AND adma2.posting_type = 'INCOMING'
+        AND adma2.charge_type IN ('DELIVERY' , 'FAILED DELIVERY')
         AND adma2.status <> 'DELETED' 
 SET 
-    adma1.status = 'DUPLICATE'
+    adma1.status = CASE
+        WHEN adma2.id_api_master_account IS NOT NULL THEN adma1.status
+        ELSE 'NO_DELIVERY_DETAILS'
+    END
 WHERE
-    adma1.status IN ('TEMPORARY' , 'DUPLICATE');
-    
+    adma1.status IN ('TEMPORARY' , 'INCOMPLETE')
+        AND adma1.charge_type IN ('PICKUP' , 'COD', 'INSURANCE');
+
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check reference for temporary reversal and adjustment API data
 Comparing data status is not 'DELETED'
@@ -213,8 +228,9 @@ UPDATE api_data_direct_billing addb1
         LEFT JOIN
     api_data_direct_billing addb2 ON addb1.package_number = addb2.package_number
         AND addb1.short_code = addb2.short_code
+        AND addb1.charge_type = addb2.charge_type
         AND addb1.id_api_direct_billing <> addb2.id_api_direct_billing
-        AND addb2.charge_type = 'INCOMING'
+        AND addb2.posting_type = 'INCOMING'
         AND addb2.status <> 'DELETED' 
 SET 
     addb1.id_api_direct_billing_reference = addb2.id_api_direct_billing,
@@ -230,8 +246,9 @@ UPDATE api_data_master_account adma1
         LEFT JOIN
     api_data_master_account adma2 ON adma1.package_number = adma2.package_number
         AND adma1.short_code = adma2.short_code
+        AND adma1.charge_type = adma2.charge_type
         AND adma1.id_api_master_account <> adma2.id_api_master_account
-        AND adma2.charge_type = 'INCOMING'
+        AND adma2.posting_type = 'INCOMING'
         AND adma2.status <> 'DELETED' 
 SET 
     adma1.id_api_master_account_reference = adma2.id_api_master_account,
@@ -258,7 +275,7 @@ SET
                 AND til.bob_id_supplier IS NOT NULL
                 AND (til.delivered_date IS NOT NULL
                 OR til.failed_delivery_date IS NOT NULL)
-				AND IFNULL(addb.total_amount, 0) <> 0
+                AND IFNULL(addb.total_amount, 0) <> 0
         THEN
             1
         ELSE 0
@@ -293,7 +310,7 @@ SET
                 AND til.bob_id_supplier IS NOT NULL
                 AND (til.delivered_date IS NOT NULL
                 OR til.failed_delivery_date IS NOT NULL)
-				AND IFNULL(adma.total_amount, 0) <> 0
+                AND IFNULL(adma.total_amount, 0) <> 0
         THEN
             2
         ELSE 0

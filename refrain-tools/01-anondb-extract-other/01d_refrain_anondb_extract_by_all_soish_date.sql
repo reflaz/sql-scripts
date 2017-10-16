@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Shipping Charges and Gain/Loss AnonDB Population Extract by All SOISH Date
+Refrain Tools Population Extract by All SOISH Date
 
 Prepared by		: R Maliangkay
 Modified by		: RM
