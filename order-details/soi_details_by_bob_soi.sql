@@ -21,6 +21,7 @@ SELECT
     result.bob_id_sales_order_item,
     result.sc_sales_order_item,
     result.sap_item_id,
+    result.uid,
     result.order_nr,
     result.payment_method,
     result.item_name,
@@ -74,6 +75,7 @@ FROM
         (SELECT 
         soi.bob_id_sales_order_item,
             soi.id_sales_order_item 'sap_item_id',
+            inv.uid,
             so.order_nr,
             so.payment_method,
             soi.name 'item_name',
@@ -152,6 +154,8 @@ FROM
     LEFT JOIN oms_live.oms_flag flag ON so.fk_flag = flag.id_flag
     LEFT JOIN oms_live.ims_sales_order_address soa ON so.fk_sales_order_address_shipping = soa.id_sales_order_address
     LEFT JOIN oms_live.ims_customer_address_region dst ON soa.fk_customer_address_region = dst.id_customer_address_region
+    LEFT JOIN oms_live.ims_purchase_order_item poi ON soi.id_sales_order_item = poi.fk_sales_order_item
+    LEFT JOIN oms_live.wms_inventory inv ON poi.id_purchase_order_item = inv.fk_purchase_order_item
     LEFT JOIN bob_live.catalog_simple cs ON soi.sku = cs.sku
     LEFT JOIN bob_live.catalog_config cc ON cc.id_catalog_config = cs.fk_catalog_config
     LEFT JOIN bob_live.supplier sup ON soi.bob_id_supplier = sup.id_supplier
