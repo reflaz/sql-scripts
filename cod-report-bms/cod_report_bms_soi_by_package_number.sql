@@ -26,8 +26,8 @@ FROM
             soi.created_at 'SOI_created_at',
             so.payment_method 'payment_method',
             soi.is_marketplace 'marketplace',
-            soish.created_at 'posting_date',
-            soish.created_at 'doc_date',
+            psh.created_at 'posting_date',
+            psh.created_at 'doc_date',
             so.order_nr 'order_nr',
             soi.bob_id_sales_order_item 'bob_id_sales_order_item',
             IFNULL(soi.unit_price, 0) 'unit_price',
@@ -51,19 +51,24 @@ FROM
             soi.loyalty_point_discount_on_item 'loyalty_point_discount_on_item',
             IF(so.gst_free_shipping_address = 0, NULL, so.gst_free_shipping_address) 'is_gst_free',
             '' AS 'id_sales_order_item_status_history',
-            so.coupon_code 'coupon_code'
+            so.coupon_code 'coupon_code',
+            psh.created_at 'delivery_update_date',
+            usr.username 'delivery_creator',
+            sois.name 'last_status'
     FROM
         oms_live.oms_package pck
     LEFT JOIN oms_live.oms_package_dispatching pd ON pck.id_package = pd.fk_package
+    LEFT JOIN oms_live.oms_package_status_history psh ON pck.id_package = psh.fk_package
+        AND psh.fk_package_status = 6
     LEFT JOIN oms_live.oms_shipment_provider sp ON pd.fk_shipment_provider = sp.id_shipment_provider
     LEFT JOIN oms_live.oms_package_item pi ON pck.id_package = pi.fk_package
     LEFT JOIN oms_live.ims_sales_order_item soi ON pi.fk_sales_order_item = soi.id_sales_order_item
+    LEFT JOIN oms_live.ims_sales_order_item_status sois ON soi.fk_sales_order_item_status = sois.id_sales_order_item_status
     LEFT JOIN oms_live.ims_sales_order_item_bundle soib ON soi.id_sales_order_item = soib.fk_sales_order_item
     LEFT JOIN oms_live.ims_product prod ON soi.fk_product = prod.id_product
     LEFT JOIN oms_live.ims_catalog_category cc ON prod.fk_catalog_category = cc.id_catalog_category
     LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
-    LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
-        AND soish.fk_sales_order_item_status = 27
+    LEFT JOIN oms_live.ims_user usr ON psh.fk_ims_user = usr.id_user
     LEFT JOIN bob_live.supplier sup ON soi.bob_id_supplier = sup.id_supplier
     WHERE
         pck.package_number IN ()

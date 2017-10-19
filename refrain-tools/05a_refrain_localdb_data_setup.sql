@@ -113,10 +113,10 @@ Initialize temporary API data creation date and update date
 
 UPDATE api_data_direct_billing 
 SET 
-    amount = ABS(IFNULL(amount, 0)) * - 1,
-    discount = ABS(IFNULL(discount, 0)),
-    tax_amount = ABS(IFNULL(tax_amount, 0)) * - 1,
-    total_amount = ABS(IFNULL(total_amount, 0)) * - 1,
+    amount = IFNULL(amount, 0) * - 1,
+    discount = IFNULL(discount, 0) * - 1,
+    tax_amount = IFNULL(tax_amount, 0) * - 1,
+    total_amount = IFNULL(total_amount, 0) * - 1,
     created_at = DATE_FORMAT(SUBSTRING_INDEX(api_date, '-', - 1),
             '%Y-%m-%d %T'),
     updated_at = @updated_at
@@ -125,10 +125,10 @@ WHERE
 
 UPDATE api_data_master_account 
 SET 
-    amount = ABS(IFNULL(amount, 0)) * - 1,
-    discount = ABS(IFNULL(discount, 0)),
-    tax_amount = ABS(IFNULL(tax_amount, 0)) * - 1,
-    total_amount = ABS(IFNULL(total_amount, 0)) * - 1,
+    amount = IFNULL(amount, 0) * - 1,
+    discount = IFNULL(discount, 0) * - 1,
+    tax_amount = IFNULL(tax_amount, 0) * - 1,
+    total_amount = IFNULL(total_amount, 0) * - 1,
     created_at = DATE_FORMAT(SUBSTRING_INDEX(api_date, '-', - 1),
             '%Y-%m-%d %T'),
     updated_at = @updated_at
