@@ -1,7 +1,7 @@
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2015-01-01';
-SET @extractend = '2017-04-01';-- This MUST be D + 1
+SET @extractend = '2017-10-01';-- This MUST be D + 1
 
 SELECT 
     *
@@ -25,6 +25,7 @@ FROM
             inv.cost 'inventory_cost',
             ip.price 'product_price',
             cs.price 'simple_price',
+            cs.special_price 'special_price',
             soi.cost 'soi_cost',
             so.order_nr,
             soi.bob_id_sales_order_item

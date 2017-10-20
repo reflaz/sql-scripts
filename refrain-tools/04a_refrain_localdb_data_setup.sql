@@ -113,10 +113,10 @@ Initialize temporary API data creation date and update date
 
 UPDATE api_data_direct_billing 
 SET 
-    amount = IFNULL(amount, 0) * - 1,
-    discount = IFNULL(discount, 0) * - 1,
-    tax_amount = IFNULL(tax_amount, 0) * - 1,
-    total_amount = IFNULL(total_amount, 0) * - 1,
+    amount = ABS(IFNULL(amount, 0)) * - 1,
+    discount = ABS(IFNULL(discount, 0)),
+    tax_amount = ABS(IFNULL(tax_amount, 0)) * - 1,
+    total_amount = ABS(IFNULL(total_amount, 0)) * - 1,
     created_at = DATE_FORMAT(SUBSTRING_INDEX(api_date, '-', - 1),
             '%Y-%m-%d %T'),
     updated_at = @updated_at
@@ -125,10 +125,10 @@ WHERE
 
 UPDATE api_data_master_account 
 SET 
-    amount = IFNULL(amount, 0) * - 1,
-    discount = IFNULL(discount, 0) * - 1,
-    tax_amount = IFNULL(tax_amount, 0) * - 1,
-    total_amount = IFNULL(total_amount, 0) * - 1,
+    amount = ABS(IFNULL(amount, 0)) * - 1,
+    discount = ABS(IFNULL(discount, 0)),
+    tax_amount = ABS(IFNULL(tax_amount, 0)) * - 1,
+    total_amount = ABS(IFNULL(total_amount, 0)) * - 1,
     created_at = DATE_FORMAT(SUBSTRING_INDEX(api_date, '-', - 1),
             '%Y-%m-%d %T'),
     updated_at = @updated_at
@@ -275,8 +275,8 @@ SET
         WHEN
             til.id_package_dispatching IS NOT NULL
                 AND til.bob_id_supplier IS NOT NULL
-                AND (til.delivered_date IS NOT NULL
-                OR til.failed_delivery_date IS NOT NULL)
+                /*AND (til.delivered_date IS NOT NULL
+                OR til.failed_delivery_date IS NOT NULL)*/
                 AND IFNULL(addb.total_amount, 0) <> 0
         THEN
             1
@@ -288,18 +288,24 @@ SET
     addb.dfd_date = IFNULL(til.delivered_date,
             til.failed_delivery_date),
     addb.status = CASE
-        WHEN til.id_package_dispatching IS NULL THEN 'INCOMPLETE'
-        WHEN til.bob_id_supplier IS NULL THEN 'INCOMPLETE'
+        WHEN til.id_package_dispatching IS NULL THEN 'PACKAGE_NOT_FOUND'
+        WHEN til.bob_id_supplier IS NULL THEN 'SELLER_NOT_FOUND'
         WHEN
             til.delivered_date IS NULL
                 AND til.failed_delivery_date IS NULL
         THEN
-            'INCOMPLETE'
+            'NO_DFD_DATE'
         WHEN IFNULL(addb.total_amount, 0) = 0 THEN 'INCOMPLETE'
         ELSE 'COMPLETE'
     END
 WHERE
-    addb.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE', 'COMPLETE', 'ACTIVE');
+    addb.status IN ('TEMPORARY' , 'NA',
+        'INCOMPLETE',
+        'COMPLETE',
+        'ACTIVE',
+        'PACKAGE_NOT_FOUND',
+        'SELLER_NOT_FOUND',
+        'NO_DFD_DATE');
     
 UPDATE tmp_item_level til
         JOIN
@@ -310,8 +316,8 @@ SET
         WHEN
             til.id_package_dispatching IS NOT NULL
                 AND til.bob_id_supplier IS NOT NULL
-                AND (til.delivered_date IS NOT NULL
-                OR til.failed_delivery_date IS NOT NULL)
+                /*AND (til.delivered_date IS NOT NULL
+                OR til.failed_delivery_date IS NOT NULL)*/
                 AND IFNULL(adma.total_amount, 0) <> 0
         THEN
             2
@@ -322,18 +328,24 @@ SET
     adma.dfd_date = IFNULL(til.delivered_date,
             til.failed_delivery_date),
     adma.status = CASE
-        WHEN til.id_package_dispatching IS NULL THEN 'INCOMPLETE'
-        WHEN til.bob_id_supplier IS NULL THEN 'INCOMPLETE'
+        WHEN til.id_package_dispatching IS NULL THEN 'PACKAGE_NOT_FOUND'
+        WHEN til.bob_id_supplier IS NULL THEN 'SELLER_NOT_FOUND'
         WHEN
             til.delivered_date IS NULL
                 AND til.failed_delivery_date IS NULL
         THEN
-            'INCOMPLETE'
+            'NO_DFD_DATE'
         WHEN IFNULL(adma.total_amount, 0) = 0 THEN 'INCOMPLETE'
         ELSE 'COMPLETE'
     END
 WHERE
-    adma.status IN ('TEMPORARY' , 'NA', 'INCOMPLETE', 'COMPLETE', 'ACTIVE');
+    adma.status IN ('TEMPORARY' , 'NA',
+        'INCOMPLETE',
+        'COMPLETE',
+        'ACTIVE',
+        'PACKAGE_NOT_FOUND',
+        'SELLER_NOT_FOUND',
+        'NO_DFD_DATE');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Set status to NA for all API data not found in ANON DB extract
