@@ -1,7 +1,7 @@
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2015-01-01';
-SET @extractend = '2017-10-01';-- This MUST be D + 1
+SET @extractend = '2017-04-01';-- This MUST be D + 1
 
 SELECT 
     *
@@ -24,8 +24,9 @@ FROM
             hlastuser.username 'last_status_updater',
             inv.cost 'inventory_cost',
             ip.price 'product_price',
-            cs.price 'simple_price',
-            cs.special_price 'special_price',
+            cs.price 'retail_price',
+            cs.special_price 'sale_price',
+            IF(ISNULL(cs.special_price), cs.special_price, cs.special_price) 'final_price',
             soi.cost 'soi_cost',
             so.order_nr,
             soi.bob_id_sales_order_item
@@ -61,4 +62,7 @@ FROM
     LEFT JOIN bob_live.catalog_simple cs ON ip.sku = cs.sku
     LEFT JOIN asc_live.seller ascsel ON sup.id_supplier = ascsel.src_id
     WHERE
-        sup.type = 'merchant') result
+        sup.type = 'merchant'
+            AND so.order_nr IS NULL
+            AND ascsel.tax_class = 0
+            AND wis.name IN ('sold offline' , 'written off', 'lost')) result
