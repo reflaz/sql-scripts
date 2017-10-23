@@ -26,7 +26,8 @@ FROM
             ip.price 'product_price',
             cs.price 'retail_price',
             cs.special_price 'sale_price',
-            IF(ISNULL(cs.special_price), cs.special_price, cs.special_price) 'final_price',
+            poi.cost 'cogp',
+            IF(ISNULL(cs.special_price), IF(ISNULL(cs.price), poi.cost, cs.price), cs.special_price) 'final_price',
             soi.cost 'soi_cost',
             so.order_nr,
             soi.bob_id_sales_order_item
