@@ -59,8 +59,6 @@ FROM
             END) 'missing_short_code'
     FROM
         api_data_direct_billing
-    WHERE
-        status NOT IN ('ACTIVE')
     GROUP BY api_date , posting_type , charge_type , is_actual , status UNION ALL SELECT 
         'api_data_master_account',
             api_date,
@@ -101,8 +99,6 @@ FROM
             END) 'missing_short_code'
     FROM
         api_data_master_account
-    WHERE
-        status NOT IN ('ACTIVE')
     GROUP BY api_date , posting_type , charge_type , is_actual , status) statistics;
 
 SELECT 
