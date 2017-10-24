@@ -28,6 +28,7 @@ SELECT
     soi.paid_price,
     soi.shipping_amount,
     soi.shipping_surcharge,
+    IFNULL(soi.paid_price / 1.1, 0) + IFNULL(soi.shipping_surcharge / 1.1, 0) + IFNULL(soi.shipping_amount / 1.1, 0) + IF(sovt.name <> 'coupon', IFNULL(soi.coupon_money_value / 1.1, 0), 0) 'nmv',
     so.created_at 'order_date',
     MIN(IF(soish.fk_sales_order_item_status = 67,
         soish.created_at,
@@ -49,7 +50,9 @@ SELECT
     sup.id_supplier,
     sup.name 'seller_name',
     sup.type 'seller_type',
-    ascsel.tax_class
+    ascsel.tax_class,
+    soi.coupon_money_value,
+    sovt.name 'coupon_type'
 FROM
     oms_live.ims_sales_order so
         LEFT JOIN
@@ -77,6 +80,7 @@ FROM
         LEFT JOIN
     oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
     AND soish.fk_sales_order_item_status IN (5 , 27, 67)
+    LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON so.fk_voucher_type = sovt.id_sales_order_voucher_type
         LEFT JOIN
     bob_live.catalog_simple cs ON soi.sku = cs.sku
         LEFT JOIN

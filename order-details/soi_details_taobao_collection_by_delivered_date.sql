@@ -31,6 +31,7 @@ FROM
             soi.paid_price,
             soi.shipping_amount,
             soi.shipping_surcharge,
+            IFNULL(soi.paid_price / 1.1, 0) + IFNULL(soi.shipping_surcharge / 1.1, 0) + IFNULL(soi.shipping_amount / 1.1, 0) + IF(sovt.name <> 'coupon', IFNULL(soi.coupon_money_value / 1.1, 0), 0) 'nmv',
             so.created_at 'order_date',
             MIN(IF(soish.fk_sales_order_item_status = 67, soish.created_at, NULL)) 'verified_date',
             MIN(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'shipped_date',
@@ -44,7 +45,9 @@ FROM
             sup.id_supplier,
             sup.name 'seller_name',
             sup.type 'seller_type',
-            sel.tax_class
+            sel.tax_class,
+			soi.coupon_money_value,
+			sovt.name 'coupon_type'
     FROM
         (SELECT 
         pck.id_package,
@@ -82,6 +85,7 @@ FROM
     LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
     LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
         AND soish.fk_sales_order_item_status IN (5 , 27, 67)
+	LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON so.fk_voucher_type = sovt.id_sales_order_voucher_type
     LEFT JOIN bob_live.catalog_simple cs ON soi.sku = cs.sku
     LEFT JOIN bob_live.catalog_config cc ON cc.id_catalog_config = cs.fk_catalog_config
     LEFT JOIN bob_live.catalog_category cca ON cc.primary_category = cca.id_catalog_category
