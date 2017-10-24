@@ -149,10 +149,34 @@ FROM
             sois.name 'last_status',
             so.created_at 'order_date',
             MIN(IF(soish.fk_sales_order_item_status = 67, soish.created_at, NULL)) 'finance_verified_date',
-            MIN(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'first_shipped_date',
-            MAX(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'last_shipped_date',
-            MIN(IF(soish.fk_sales_order_item_status = 27, soish.created_at, NULL)) 'delivered_date',
-            MIN(IF(soish.fk_sales_order_item_status = 44, soish.created_at, NULL)) 'not_delivered_date',
+            (SELECT 
+                    MIN(created_at)
+                FROM
+                    oms_live.oms_package_status_history
+                WHERE
+                    fk_package = pck.id_package
+                        AND fk_package_status = 4) 'first_shipped_date',
+            (SELECT 
+                    MAX(created_at)
+                FROM
+                    oms_live.oms_package_status_history
+                WHERE
+                    fk_package = pck.id_package
+                        AND fk_package_status = 4) 'last_shipped_date',
+            (SELECT 
+                    MIN(created_at)
+                FROM
+                    oms_live.oms_package_status_history
+                WHERE
+                    fk_package = pck.id_package
+                        AND fk_package_status = 6) 'delivered_date',
+            (SELECT 
+                    MIN(created_at)
+                FROM
+                    oms_live.oms_package_status_history
+                WHERE
+                    fk_package = pck.id_package
+                        AND fk_package_status = 5) 'not_delivered_date',
             CASE
                 WHEN
                     sup.type = 'supplier'
@@ -196,7 +220,7 @@ FROM
     WHERE
         updated_at >= @extractstart
             AND updated_at < @extractend
-    HAVING fk_sales_order_item_status IN (5 , 67, 69, 27, 44)) soish
+    HAVING fk_sales_order_item_status IN (67 , 69)) soish
     LEFT JOIN oms_live.ims_sales_order_item soi ON soish.fk_sales_order_item = soi.id_sales_order_item
     LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
     LEFT JOIN oms_live.ims_sales_order_item_status sois ON soi.fk_sales_order_item_status = sois.id_sales_order_item_status

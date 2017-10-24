@@ -1,14 +1,13 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Refrain Tools Population Extract by First Shipped Date
+Refrain Tools Population Extract by All SOISH Date
 
 Prepared by		: R Maliangkay
 Modified by		: RM
 Version			: 1.0
 Changes made	: 
 
-Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
-                  - Run the query by pressing the execute button
+Instructions	: - Run the query by pressing the execute button
                   - Wait until the query finished, then export the result
                   - Close the query WITHOUT SAVING ANY CHANGES
 -------------------------------------------------------------------------------------------------------------------------------------
@@ -16,8 +15,8 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2016-05-01';
-SET @extractend = '2016-05-02';-- This MUST be D + 1
+SET @extractstart = DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL 1 DAY);
+SET @extractend = DATE_FORMAT(NOW(), '%Y-%m-%d');-- This MUST be D + 1
 
 SELECT 
     result.*,
@@ -236,7 +235,7 @@ FROM
     WHERE
         created_at >= @extractstart
             AND created_at < @extractend
-            AND fk_package_status = 4
+            AND fk_package_status IN (4 , 5, 6)
     GROUP BY fk_package) result
     LEFT JOIN oms_live.oms_package pck ON result.fk_package = pck.id_package
     LEFT JOIN oms_live.oms_package_dispatching pd ON pck.id_package = pd.fk_package
@@ -303,6 +302,4 @@ FROM
                 AND IFNULL(fk_country_region, sa.fk_country_region) = sa.fk_country_region
                 AND is_live = 1)
     LEFT JOIN asc_live.seller ascsel ON sup.id_supplier = ascsel.src_id
-    GROUP BY soi.bob_id_sales_order_item
-    HAVING first_shipped_date >= @extractstart
-        AND first_shipped_date < @extractend) result
+    GROUP BY soi.bob_id_sales_order_item) result

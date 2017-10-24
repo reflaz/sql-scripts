@@ -159,31 +159,31 @@ FROM
             (SELECT 
                     MIN(created_at)
                 FROM
-                    oms_live.ims_sales_order_item_status_history
+                    oms_live.oms_package_status_history
                 WHERE
-                    fk_sales_order_item = soi.id_sales_order_item
-                        AND fk_sales_order_item_status = 5) 'first_shipped_date',
+                    fk_package = pck.id_package
+                        AND fk_package_status = 4) 'first_shipped_date',
             (SELECT 
                     MAX(created_at)
                 FROM
-                    oms_live.ims_sales_order_item_status_history
+                    oms_live.oms_package_status_history
                 WHERE
-                    fk_sales_order_item = soi.id_sales_order_item
-                        AND fk_sales_order_item_status = 5) 'last_shipped_date',
+                    fk_package = pck.id_package
+                        AND fk_package_status = 4) 'last_shipped_date',
             (SELECT 
                     MIN(created_at)
                 FROM
-                    oms_live.ims_sales_order_item_status_history
+                    oms_live.oms_package_status_history
                 WHERE
-                    fk_sales_order_item = soi.id_sales_order_item
-                        AND fk_sales_order_item_status = 27) 'delivered_date',
+                    fk_package = pck.id_package
+                        AND fk_package_status = 6) 'delivered_date',
             (SELECT 
                     MIN(created_at)
                 FROM
-                    oms_live.ims_sales_order_item_status_history
+                    oms_live.oms_package_status_history
                 WHERE
-                    fk_sales_order_item = soi.id_sales_order_item
-                        AND fk_sales_order_item_status = 44) 'not_delivered_date',
+                    fk_package = pck.id_package
+                        AND fk_package_status = 5) 'not_delivered_date',
             CASE
                 WHEN
                     sup.type = 'supplier'
