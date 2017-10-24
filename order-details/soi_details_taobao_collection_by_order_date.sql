@@ -28,6 +28,7 @@ SELECT
     soi.paid_price,
     soi.shipping_amount,
     soi.shipping_surcharge,
+    so.created_at 'order_date',
     MIN(IF(soish.fk_sales_order_item_status = 67,
         soish.created_at,
         NULL)) 'verified_date',
