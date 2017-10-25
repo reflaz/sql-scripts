@@ -52,14 +52,17 @@ SELECT
     0 'delivery_flat_cost',
     SUM(CASE
         WHEN charge_type IN ('DELIVERY') THEN IFNULL(amount, 0)
+        WHEN charge_type IN ('FAILED DELIVERY') THEN IFNULL(amount, 0)
         ELSE 0
     END) 'delivery_cost',
     SUM(CASE
         WHEN charge_type IN ('DELIVERY') THEN IFNULL(discount, 0)
+        WHEN charge_type IN ('FAILED DELIVERY') THEN IFNULL(discount, 0)
         ELSE 0
     END) 'delivery_cost_discount',
     SUM(CASE
         WHEN charge_type IN ('DELIVERY') THEN IFNULL(tax_amount, 0)
+        WHEN charge_type IN ('FAILED DELIVERY') THEN IFNULL(tax_amount, 0)
         ELSE 0
     END) 'delivery_cost_vat',
     SUM(CASE
@@ -86,7 +89,7 @@ SELECT
 FROM
     api_data_direct_billing
 WHERE
-    status IN ('COMPLETE' , 'ACTIVE');
+    status IN ('COMPLETE' , 'ACTIVE', 'NO_DFD_DATE');
 
 SELECT 
     'date',
@@ -124,14 +127,17 @@ SELECT
     0 'delivery_flat_cost',
     SUM(CASE
         WHEN charge_type IN ('DELIVERY') THEN IFNULL(amount, 0)
+        WHEN charge_type IN ('FAILED DELIVERY') THEN IFNULL(amount, 0)
         ELSE 0
     END) 'delivery_cost',
     SUM(CASE
         WHEN charge_type IN ('DELIVERY') THEN IFNULL(discount, 0)
+        WHEN charge_type IN ('FAILED DELIVERY') THEN IFNULL(discount, 0)
         ELSE 0
     END) 'delivery_cost_discount',
     SUM(CASE
         WHEN charge_type IN ('DELIVERY') THEN IFNULL(tax_amount, 0)
+        WHEN charge_type IN ('FAILED DELIVERY') THEN IFNULL(tax_amount, 0)
         ELSE 0
     END) 'delivery_cost_vat',
     SUM(CASE
@@ -158,7 +164,7 @@ SELECT
 FROM
     api_data_master_account
 WHERE
-    status IN ('COMPLETE' , 'ACTIVE');
+    status IN ('COMPLETE' , 'ACTIVE', 'NO_DFD_DATE');
 
 SELECT 
     CASE
