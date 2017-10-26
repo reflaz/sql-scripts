@@ -104,7 +104,8 @@ FROM
             pck.package_number,
             pd.id_package_dispatching,
             ins.tenor,
-            SUBSTRING_INDEX(SUBSTRING_INDEX(pdr.raw_response, '</BANK>', 1), '<BANK>', - 1) AS 'bank',
+            -- SUBSTRING_INDEX(SUBSTRING_INDEX(pdr.raw_response, '</BANK>', 1), '<BANK>', - 1) AS 'bank',
+            'bank',
             pdh.tracking_number 'first_tracking_number',
             sp1.shipment_provider_name 'first_shipment_provider',
             pd.tracking_number 'last_tracking_number',
@@ -215,9 +216,9 @@ FROM
     LEFT JOIN oms_live.ims_supplier osup ON soi.bob_id_supplier = osup.bob_id_supplier
     LEFT JOIN oms_live.oms_pickup_provider_type ppt ON osup.fk_pickup_provider_type = ppt.id_pickup_provider_type
     LEFT JOIN oms_live.oms_shipping_type st ON soi.fk_shipping_type = st.id_shipping_type
-    LEFT JOIN bob_live.sales_order_item bsoi ON soi.bob_id_sales_order_item = bsoi.id_sales_order_item
+    -- LEFT JOIN bob_live.sales_order_item bsoi ON soi.bob_id_sales_order_item = bsoi.id_sales_order_item
     LEFT JOIN bob_live.sales_order_instalment ins ON so.order_nr = ins.order_nr
-    LEFT JOIN bob_live.payment_dokuinstallment_response pdr ON bsoi.fk_sales_order = pdr.fk_sales_order
+    -- LEFT JOIN bob_live.payment_dokuinstallment_response pdr ON bsoi.fk_sales_order = pdr.fk_sales_order
     LEFT JOIN bob_live.catalog_simple cs ON soi.sku = cs.sku
     LEFT JOIN bob_live.catalog_config cc ON cc.id_catalog_config = cs.fk_catalog_config
     LEFT JOIN bob_live.catalog_simple_package_unit cspu ON cs.id_catalog_simple = cspu.fk_catalog_simple
