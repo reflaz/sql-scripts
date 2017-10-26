@@ -16,7 +16,7 @@ Instructions	: - Change @extractstart and @extractstart for a specific weekly/mo
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-05-13';
+SET @extractstart = '2017-05-12';
 SET @extractend = '2017-05-14';-- This MUST be D + 1
 
 SELECT 
@@ -59,20 +59,19 @@ FROM
             sp.id_shipment_provider AS id_shipment_provider,
             sp.shipment_provider_name AS shipment_provider,
             so.created_at AS order_date,
-            pash.created_at 'delivered_date',
+            soish2.created_at AS delivered_date,
             user.username 'delivery_updater',
             sois.name AS last_status,
             soish.created_at AS last_status_date
     FROM
         (SELECT 
-        fk_package, MIN(created_at) 'created_at', fk_ims_user
+        fk_package, created_at
     FROM
         oms_live.oms_package_status_history
     WHERE
         created_at >= @extractstart
             AND created_at < @extractend
-            AND fk_package_status = 6
-            GROUP BY fk_package) pash
+            AND fk_package_status = 6) pash
     LEFT JOIN oms_live.oms_package pa ON pash.fk_package = pa.id_package
     LEFT JOIN oms_live.oms_package_item pai ON pa.id_package = pai.fk_package
     LEFT JOIN oms_live.ims_sales_order_item soi ON pai.fk_sales_order_item = soi.id_sales_order_item
@@ -87,8 +86,10 @@ FROM
             oms_live.ims_sales_order_item_status_history
         WHERE
             fk_sales_order_item = soi.id_sales_order_item)
+    LEFT JOIN oms_live.ims_sales_order_item_status_history soish2 ON soi.id_sales_order_item = soish2.fk_sales_order_item
+        AND soish2.fk_sales_order_item_status = 27
     LEFT JOIN oms_live.ims_sales_order_item_status sois ON soi.fk_sales_order_item_status = sois.id_sales_order_item_status
-    LEFT JOIN oms_live.ims_user user ON pash.fk_ims_user = user.id_user
+    LEFT JOIN oms_live.ims_user user ON soish2.fk_user = user.id_user
     GROUP BY bob_id_sales_order_item) fin
 HAVING payment_method = 'CashOnDelivery'
     AND delivered_date IS NOT NULL

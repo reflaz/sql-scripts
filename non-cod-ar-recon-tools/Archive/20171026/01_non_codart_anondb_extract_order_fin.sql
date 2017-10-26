@@ -17,7 +17,7 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2017-06-05';
-SET @extractend = '2017-06-06';-- This MUST be D + 1
+SET @extractend = '2017-06-07';-- This MUST be D + 1
 
 SELECT 
     bob_id_sales_order_item,
@@ -61,48 +61,36 @@ FROM
             soi.shipping_amount 'shipping_amount',
             soi.shipping_surcharge 'shipping_surcharge',
             (IFNULL(soi.paid_price, 0) + IFNULL(soi.shipping_amount, 0) + IFNULL(soi.shipping_surcharge, 0)) 'total_paid_by_customer',
-            sois.name 'last_status', -- max status
+            sois.name 'last_status',
             so.created_at 'order_date',
-            soish.created_at 'ovip_date',
-            user.username 'ovip_by',
-            user_del.username 'delivery_updater',
+            soish2.created_at 'ovip_date',
+            user_ovip.username 'ovip_by',
+            user.username 'delivery_updater', 
             pck.package_number 'package_number'
     FROM
-        (SELECT 
-        fk_sales_order_item, fk_user, min(created_at) 'created_at'
-    FROM
-        oms_live.ims_sales_order_item_status_history
-    WHERE
-			updated_at >= @extractstart
-            AND updated_at < @extractend
-            AND fk_sales_order_item_status IN (69)
-	group by fk_sales_order_item
-    HAVING created_at >= @extractstart
-        AND created_at < @extractend) soish
-    LEFT JOIN oms_live.ims_sales_order_item soi ON soi.id_sales_order_item = soish.fk_sales_order_item
-    LEFT JOIN oms_live.ims_sales_order so ON so.id_sales_order = soi.fk_sales_order
+        oms_live.ims_sales_order so
+    LEFT JOIN oms_live.ims_sales_order_item soi ON so.id_sales_order = soi.fk_sales_order
     LEFT JOIN oms_live.oms_package_item pi ON soi.id_sales_order_item = pi.fk_sales_order_item
     LEFT JOIN oms_live.oms_package pck ON pi.fk_package = pck.id_package
-    LEFT JOIN oms_live.ims_sales_order_item_status_history soish2 on soi.id_sales_order_item = soish2.fk_sales_order_item
-    AND soish2.id_sales_order_item_status_history = (SELECT 
+    LEFT JOIN oms_live.ims_sales_order_item_status sois ON soi.fk_sales_order_item_status = sois.id_sales_order_item_status
+    LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
+        AND soish.id_sales_order_item_status_history = (SELECT 
             MAX(id_sales_order_item_status_history)
         FROM
             oms_live.ims_sales_order_item_status_history
         WHERE
             fk_sales_order_item = soi.id_sales_order_item)
-    LEFT JOIN oms_live.ims_sales_order_item_status sois ON soish2.fk_sales_order_item_status = sois.id_sales_order_item_status
     LEFT JOIN oms_live.ims_user user ON soish.fk_user = user.id_user
-    LEFT JOIN oms_live.oms_package_status_history psh ON psh.fk_package = pck.id_package
-        AND psh.id_package_status_history = (SELECT 
-            MIN(id_package_status_history)
-        FROM
-            oms_live.oms_package_status_history
-        WHERE
-            fk_package = pck.id_package
-                AND fk_package_status = 6)
-    LEFT JOIN oms_live.ims_user user_del ON psh.fk_ims_user = user_del.id_user
+    LEFT JOIN oms_live.ims_sales_order_item_status_history soish2 ON soi.id_sales_order_item = soish2.fk_sales_order_item
+        AND soish2.fk_sales_order_item_status IN (69)
+	LEFT JOIN oms_live.ims_user user_ovip ON soish2.fk_user = user_ovip.id_user
     LEFT JOIN bob_live.supplier sup ON soi.bob_id_supplier = sup.id_supplier
     LEFT JOIN asc_live.seller ascsel ON sup.id_supplier = ascsel.src_id
     WHERE
-        so.payment_method NOT LIKE 'CashOnDelivery'
+        so.created_at >= DATE_SUB(@extractstart, INTERVAL 1 DAY)
+            AND so.created_at < @extractend
+            and so.payment_method not like 'CashOnDelivery' 
+            -- and so.payment_method in ()
     GROUP BY soi.id_sales_order_item) result
+HAVING ovip_date >= @extractstart
+    AND ovip_date < @extractend

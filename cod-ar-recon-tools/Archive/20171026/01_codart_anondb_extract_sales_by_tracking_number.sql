@@ -1,23 +1,21 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-COD AR Recon by Delivered Date 
+COD AR Recon by Tracking Number 
  
 Prepared by		: Michael Julius
 Modified by		: MJ
 Version			: 1.0
 Changes made	: 
 
-Instructions	: - Change @extractstart and @extractstart for a specific weekly/monthly time frame before generating the report
+Instructions	: - Go to your excel file
+				  - Format the parameters in excel using this formula: ="'"&Column&"'," --> change Column accordingly
+				  - Insert formatted parameters
+                  - Delete the last comma (,)
                   - Run the query by pressing the execute button
                   - Wait until the query finished, then export the result
                   - Close the query WITHOUT SAVING ANY CHANGES
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
-
--- Change this before running the script
--- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-05-13';
-SET @extractend = '2017-05-14';-- This MUST be D + 1
 
 SELECT 
     soi_created_at,
@@ -50,36 +48,32 @@ FROM
             soi.bob_id_sales_order_item AS bob_id_sales_order_item,
             soi.sku,
             soi.name AS item_name,
-            soi.unit_price,
-            soi.paid_price,
-            soi.shipping_amount,
-            soi.shipping_surcharge,
+            SUM(soi.unit_price) AS unit_price,
+            SUM(soi.paid_price) AS paid_price,
+            SUM(soi.shipping_amount) AS shipping_amount,
+            SUM(soi.shipping_surcharge) AS shipping_surcharge,
             pad.tracking_number AS tracking_number,
             pa.package_number AS package_number,
             sp.id_shipment_provider AS id_shipment_provider,
             sp.shipment_provider_name AS shipment_provider,
             so.created_at AS order_date,
-            pash.created_at 'delivered_date',
+            pash.created_at AS delivered_date,
             user.username 'delivery_updater',
             sois.name AS last_status,
             soish.created_at AS last_status_date
     FROM
         (SELECT 
-        fk_package, MIN(created_at) 'created_at', fk_ims_user
+        fk_package, created_at
     FROM
         oms_live.oms_package_status_history
     WHERE
-        created_at >= @extractstart
-            AND created_at < @extractend
-            AND fk_package_status = 6
-            GROUP BY fk_package) pash
+        fk_package_status = 6) pash
     LEFT JOIN oms_live.oms_package pa ON pash.fk_package = pa.id_package
     LEFT JOIN oms_live.oms_package_item pai ON pa.id_package = pai.fk_package
     LEFT JOIN oms_live.ims_sales_order_item soi ON pai.fk_sales_order_item = soi.id_sales_order_item
     LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
-    LEFT JOIN oms_live.oms_package_dispatching pad ON pai.fk_package = pad.fk_package
+    LEFT JOIN oms_live.oms_package_dispatching pad ON pa.id_package = pad.fk_package
     LEFT JOIN oms_live.oms_shipment_provider sp ON pad.fk_shipment_provider = sp.id_shipment_provider
-    LEFT JOIN oms_live.oms_package_status pas ON pa.fk_package_status = pas.id_package_status
     LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
         AND soish.id_sales_order_item_status_history = (SELECT 
             MAX(id_sales_order_item_status_history)
@@ -87,8 +81,8 @@ FROM
             oms_live.ims_sales_order_item_status_history
         WHERE
             fk_sales_order_item = soi.id_sales_order_item)
+	left join oms_live.ims_user user on soish.fk_user=user.id_user
     LEFT JOIN oms_live.ims_sales_order_item_status sois ON soi.fk_sales_order_item_status = sois.id_sales_order_item_status
-    LEFT JOIN oms_live.ims_user user ON pash.fk_ims_user = user.id_user
-    GROUP BY bob_id_sales_order_item) fin
-HAVING payment_method = 'CashOnDelivery'
-    AND delivered_date IS NOT NULL
+    WHERE
+        pad.tracking_number IN ()
+    GROUP BY tracking_number) fin

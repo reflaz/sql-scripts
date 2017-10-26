@@ -85,7 +85,13 @@ FROM
     LEFT JOIN oms_live.oms_package_dispatching pad ON pai.fk_package = pad.fk_package
     LEFT JOIN oms_live.oms_package pa ON pai.fk_package = pa.id_package
     LEFT JOIN oms_live.oms_package_status_history pash ON pa.id_package = pash.fk_package
-        AND pash.fk_package_status = 6
+     AND pash.id_package_status_history = (SELECT 
+            MIN(id_package_status_history)
+        FROM
+            oms_live.oms_package_status_history
+        WHERE
+            fk_package = pa.id_package
+                AND fk_package_status = 6)
     LEFT JOIN oms_live.oms_shipment_provider sp ON pad.fk_shipment_provider = sp.id_shipment_provider
     LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
         AND soish.id_sales_order_item_status_history = (SELECT 
@@ -94,5 +100,5 @@ FROM
             oms_live.ims_sales_order_item_status_history
         WHERE
             fk_sales_order_item = soi.id_sales_order_item)
-    left join oms_live.ims_user user on soish.fk_user=user.id_user
+    LEFT JOIN oms_live.ims_user user on pash.fk_ims_user=user.id_user
     LEFT JOIN oms_live.ims_sales_order_item_status sois ON soi.fk_sales_order_item_status = sois.id_sales_order_item_status) fin
