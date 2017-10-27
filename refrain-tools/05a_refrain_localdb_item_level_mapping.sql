@@ -113,7 +113,7 @@ UPDATE tmp_item_level til
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mct.end_date
         JOIN
     map_campaign mcam ON mct.fk_campaign = mcam.id_campaign
-        AND IFNULL(til.first_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', COALESCE(mss.first_shipment_provider, til.first_shipment_provider, 'first_shipment_provider'), '%')
+        AND IFNULL(til.first_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', COALESCE(mcam.first_shipment_provider, til.first_shipment_provider, 'first_shipment_provider'), '%')
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mcam.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mcam.end_date
         JOIN
