@@ -27,6 +27,7 @@ FROM
     LEFT JOIN bob_live.catalog_source cso ON cs.id_catalog_simple = cso.fk_catalog_simple
     JOIN bob_live.supplier sup ON cso.fk_supplier = sup.id_supplier
         AND sup.type = 'supplier'
+    LEFT JOIN asc_live.seller sel ON sup.id_supplier = sel.src_id
     WHERE
         inv.uid IN ()
     GROUP BY uid) result

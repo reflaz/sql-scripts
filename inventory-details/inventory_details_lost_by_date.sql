@@ -8,6 +8,7 @@ SELECT
 FROM
     (SELECT 
         sup.id_supplier,
+			ascsel.short_code,
             sup.name 'seller_name',
             sup.type 'seller_type',
             CASE
