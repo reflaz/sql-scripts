@@ -31,66 +31,17 @@ Initialize ANON DB extract temporary data
 
 UPDATE tmp_item_level 
 SET 
-    package_seller_value = NULL,
-    payment_flat_cost_rate = NULL,
-    payment_mdr_cost_rate = NULL,
-    payment_ipp_cost_rate = NULL,
-    payment_flat_cost = NULL,
-    payment_mdr_cost = NULL,
-    payment_ipp_cost = NULL,
-    api_type = 0,
-    shipment_scheme = NULL,
-    campaign = NULL,
     weight = IFNULL(config_weight, 0),
     volumetric_weight = IFNULL(config_length * config_width * config_height / 6000,
             0),
     item_weight_seller = GREATEST(IFNULL(config_weight, 0),
             IFNULL(config_length * config_width * config_height / 6000,
                     0)),
-    item_weight_flag_seller = 0,
-    rounding_seller = NULL,
-    formula_weight_seller = NULL,
-    chargeable_weight_seller = NULL,
-    seller_flat_charge_rate = NULL,
-    seller_charge_rate = NULL,
-    insurance_rate_seller = NULL,
-    insurance_vat_rate_seller = NULL,
-    weight_seller_pct = NULL,
-    seller_flat_charge = NULL,
-    seller_charge = NULL,
-    insurance_seller = NULL,
-    insurance_vat_seller = NULL,
-    rate_card_scheme = NULL,
-    item_weight_flag_3pl = 0,
-    rounding_3pl = NULL,
-    formula_weight_3pl = NULL,
-    chargeable_weight_3pl = NULL,
-    pickup_cost_rate = NULL,
-    pickup_cost_discount_rate = NULL,
-    pickup_cost_vat_rate = NULL,
-    delivery_flat_cost_rate = NULL,
-    delivery_cost_rate = NULL,
-    delivery_cost_discount_rate = NULL,
-    delivery_cost_vat_rate = NULL,
-    insurance_rate_3pl = NULL,
-    insurance_vat_rate_3pl = NULL,
-    weight_3pl_pct = NULL,
-    pickup_cost = NULL,
-    pickup_cost_discount = NULL,
-    pickup_cost_vat = NULL,
-    delivery_flat_cost = NULL,
-    delivery_cost = NULL,
-    delivery_cost_discount = NULL,
-    delivery_cost_vat = NULL,
-    insurance_3pl = NULL,
-    insurance_vat_3pl = NULL,
     total_customer_charge = (IFNULL(shipping_amount, 0) + IFNULL(shipping_surcharge, 0)) / IF(is_marketplace = 1, 1, 1.1),
-    total_seller_charge = NULL,
-    total_pickup_cost = NULL,
-    total_delivery_cost = NULL,
-    total_failed_delivery_cost = NULL,
     created_at = IFNULL(created_at, @updated_at),
-    updated_at = @updated_at;
+    updated_at = @updated_at
+WHERE
+    created_at IS NULL;
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Update campaign tracker end date
@@ -275,8 +226,6 @@ SET
         WHEN
             til.id_package_dispatching IS NOT NULL
                 AND til.bob_id_supplier IS NOT NULL
-                /*AND (til.delivered_date IS NOT NULL
-                OR til.failed_delivery_date IS NOT NULL)*/
                 AND IFNULL(addb.total_amount, 0) <> 0
         THEN
             1
@@ -316,8 +265,6 @@ SET
         WHEN
             til.id_package_dispatching IS NOT NULL
                 AND til.bob_id_supplier IS NOT NULL
-                /*AND (til.delivered_date IS NOT NULL
-                OR til.failed_delivery_date IS NOT NULL)*/
                 AND IFNULL(adma.total_amount, 0) <> 0
         THEN
             2

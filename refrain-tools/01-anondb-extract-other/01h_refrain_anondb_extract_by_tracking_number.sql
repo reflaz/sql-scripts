@@ -26,16 +26,16 @@ SELECT
                         LEFT JOIN
                     asc_live.transaction_archive ta ON tr.number = ta.number
                 WHERE
-                    tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 16
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (15 , 16)
                         AND ta.id_transaction IS NULL),
             0) + IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
                     asc_live.transaction_archive tr
                 WHERE
-                    tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 16),
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (15 , 16)),
             0)) * - 1 'commission',
     (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
@@ -44,16 +44,34 @@ SELECT
                         LEFT JOIN
                     asc_live.transaction_archive ta ON tr.number = ta.number
                 WHERE
-                    tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 3
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (65 , 66, 123)
                         AND ta.id_transaction IS NULL),
             0) + IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
                     asc_live.transaction_archive tr
                 WHERE
-                    tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 3),
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (65 , 66, 123)),
+            0)) * - 1 'commission_adjustment',
+    (IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction tr
+                        LEFT JOIN
+                    asc_live.transaction_archive ta ON tr.number = ta.number
+                WHERE
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (3 , 4)
+                        AND ta.id_transaction IS NULL),
+            0) + IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction_archive tr
+                WHERE
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (3 , 4)),
             0)) * - 1 'payment_fee',
     (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
@@ -62,17 +80,17 @@ SELECT
                         LEFT JOIN
                     asc_live.transaction_archive ta ON tr.number = ta.number
                 WHERE
-                    tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 8
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (67 , 84)
                         AND ta.id_transaction IS NULL),
             0) + IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
                     asc_live.transaction_archive tr
                 WHERE
-                    tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 8),
-            0)) * - 1 'auto_shipping_fee_credit',
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (67 , 84)),
+            0)) * - 1 'payment_fee_adjustment',
     (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
@@ -80,17 +98,93 @@ SELECT
                         LEFT JOIN
                     asc_live.transaction_archive ta ON tr.number = ta.number
                 WHERE
-                    tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 7
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (8 , 142)
                         AND ta.id_transaction IS NULL),
             0) + IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
                     asc_live.transaction_archive tr
                 WHERE
-                    tr.ref = sc_sales_order_item
-                        AND tr.fk_transaction_type = 7),
-            0)) * - 1 'manual_shipping_fee'
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (8 , 142)),
+            0)) * - 1 'auto_shipping_fee',
+    (IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction tr
+                        LEFT JOIN
+                    asc_live.transaction_archive ta ON tr.number = ta.number
+                WHERE
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (7 , 143)
+                        AND ta.id_transaction IS NULL),
+            0) + IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction_archive tr
+                WHERE
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (7 , 143)),
+            0)) * - 1 'manual_shipping_fee_lzd',
+    (IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction tr
+                        LEFT JOIN
+                    asc_live.transaction_archive ta ON tr.number = ta.number
+                WHERE
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type = 21
+                        AND ta.id_transaction IS NULL),
+            0) + IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction_archive tr
+                WHERE
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type = 21),
+            0)) * - 1 'manual_shipping_fee_3p',
+    (IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction tr
+                        LEFT JOIN
+                    asc_live.transaction_archive ta ON tr.number = ta.number
+                WHERE
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (19 , 20,
+                        36,
+                        37,
+                        64,
+                        104,
+                        138,
+                        140,
+                        141,
+                        144,
+                        145)
+                        AND ta.id_transaction IS NULL
+                        AND (tr.description LIKE '%shipping%'
+                        OR tr.description LIKE '%flat fee%')),
+            0) + IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction_archive tr
+                WHERE
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (19 , 20,
+                        36,
+                        37,
+                        64,
+                        104,
+                        138,
+                        140,
+                        141,
+                        144,
+                        145)
+                        AND (tr.description LIKE '%shipping%'
+                        OR tr.description LIKE '%flat fee%')),
+            0)) * - 1 'shipping_fee_adjustment'
 FROM
     (SELECT 
         soi.bob_id_sales_order_item,
@@ -104,11 +198,12 @@ FROM
                 FROM
                     asc_live.sales_order_item_archive
                 WHERE
-                    src_id = soi.id_sales_order_item)) 'sc_sales_order_item',
+                    src_id = soi.id_sales_order_item)) 'sc_id_sales_order_item',
+            soi.id_sales_order_item 'oms_id_sales_order_item',
             so.order_nr,
             so.payment_method,
             ins.tenor,
-            SUBSTRING_INDEX(SUBSTRING_INDEX(pdr.raw_response, '</BANK>', 1), '<BANK>', - 1) AS 'bank',
+            'bank',
             soi.sku,
             cc.primary_category,
             soi.bob_id_supplier,
@@ -181,7 +276,7 @@ FROM
                     oms_live.oms_package_status_history
                 WHERE
                     fk_package = pck.id_package
-                        AND fk_package_status = 5) 'not_delivered_date',
+                        AND fk_package_status = 5) 'failed_delivery_date',
             CASE
                 WHEN
                     sup.type = 'supplier'
@@ -268,9 +363,7 @@ FROM
     LEFT JOIN oms_live.ims_customer_address_region dst ON soa.fk_customer_address_region = dst.id_customer_address_region
     LEFT JOIN oms_live.wms_inventory inv ON pi.fk_inventory = inv.id_inventory
     LEFT JOIN oms_live.ims_purchase_order_item poi ON inv.fk_purchase_order_item = poi.id_purchase_order_item
-    LEFT JOIN bob_live.sales_order_item bsoi ON soi.bob_id_sales_order_item = bsoi.id_sales_order_item
     LEFT JOIN bob_live.sales_order_instalment ins ON so.order_nr = ins.order_nr
-    LEFT JOIN bob_live.payment_dokuinstallment_response pdr ON bsoi.fk_sales_order = pdr.fk_sales_order
     LEFT JOIN bob_live.catalog_simple cs ON soi.sku = cs.sku
     LEFT JOIN bob_live.catalog_config cc ON cc.id_catalog_config = cs.fk_catalog_config
     LEFT JOIN bob_live.catalog_simple_package_unit cspu ON cs.id_catalog_simple = cspu.fk_catalog_simple
