@@ -29,6 +29,9 @@ del /q "C:\REFRAIN_TOOLS\_MAPPING\MAP_CAMPAIGN_OVERRIDE\*.csv" >nul
 echo deleting old MAP Campaign Tracker mapping...
 del /q "C:\REFRAIN_TOOLS\_MAPPING\MAP_CAMPAIGN_TRACKER\*.csv" >nul
 
+echo deleting old MAP Category Tree...
+del /q "C:\REFRAIN_TOOLS\_MAPPING\MAP_CATEGORY_TREE\*.csv" >nul
+
 echo deleting old MAP Default Charges mapping...
 del /q "C:\REFRAIN_TOOLS\_MAPPING\MAP_DEFAULT_CHARGES\*.csv" >nul
 
@@ -75,6 +78,9 @@ copy "C:\REFRAIN_TOOLS\_MAPPING\_UPDATE_ALL_MAPPING\map-campaign-override\*.csv"
 
 echo copying new MAP Campaign Tracker mapping...
 copy "C:\REFRAIN_TOOLS\_MAPPING\_UPDATE_ALL_MAPPING\map-campaign-tracker\*.csv" "C:\REFRAIN_TOOLS\_MAPPING\MAP_CAMPAIGN_TRACKER\" >nul
+
+echo copying new MAP Category Tree mapping...
+copy "C:\REFRAIN_TOOLS\_MAPPING\_UPDATE_ALL_MAPPING\map-category-tree\*.csv" "C:\REFRAIN_TOOLS\_MAPPING\MAP_CATEGORY_TREE\" >nul
 
 echo copying new MAP Default Charges mapping...
 copy "C:\REFRAIN_TOOLS\_MAPPING\_UPDATE_ALL_MAPPING\map-default-charges\*.csv" "C:\REFRAIN_TOOLS\_MAPPING\MAP_DEFAULT_CHARGES\" >nul
@@ -124,6 +130,9 @@ call AA_MAP_CAMPAIGN_OVERRIDE.bat
 
 cd "C:\REFRAIN_TOOLS\_MAPPING\MAP_CAMPAIGN_TRACKER\"
 call AA_MAP_CAMPAIGN_TRACKER.bat
+
+cd "C:\REFRAIN_TOOLS\_MAPPING\MAP_CATEGORY_TREE\"
+call AA_MAP_CATEGORY_TREE.bat
 
 cd "C:\REFRAIN_TOOLS\_MAPPING\MAP_DEFAULT_CHARGES\"
 call AA_MAP_DEFAULT_CHARGES.bat

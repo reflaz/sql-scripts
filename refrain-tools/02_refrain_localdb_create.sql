@@ -384,6 +384,35 @@ CREATE TABLE IF NOT EXISTS `map_campaign_tracker` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Campaign tracker';
 
+CREATE TABLE IF NOT EXISTS `map_category_tree` (
+    `id_catalog_category` INT(11) UNSIGNED NOT NULL,
+    `regional_key` VARCHAR(12) DEFAULT NULL,
+    `category_name` VARCHAR(255) DEFAULT NULL,
+    `category_status` ENUM('active', 'inactive', 'inherited_inactive', 'deleted') DEFAULT NULL,
+    `id_level0` INT(11) DEFAULT NULL,
+    `level0` VARCHAR(255) DEFAULT NULL,
+    `id_level1` INT(11) DEFAULT NULL,
+    `level1` VARCHAR(255) DEFAULT NULL,
+    `id_level2` INT(11) DEFAULT NULL,
+    `level2` VARCHAR(255) DEFAULT NULL,
+    `id_level3` INT(11) DEFAULT NULL,
+    `level3` VARCHAR(255) DEFAULT NULL,
+    `id_level4` INT(11) DEFAULT NULL,
+    `level4` VARCHAR(255) DEFAULT NULL,
+    `id_level5` INT(11) DEFAULT NULL,
+    `level5` VARCHAR(255) DEFAULT NULL,
+    `id_level6` INT(11) DEFAULT NULL,
+    `level6` VARCHAR(255) DEFAULT NULL,
+    `resulting_regional_key` VARCHAR(12) DEFAULT NULL,
+    `resulting_status` ENUM('active', 'inactive', 'inherited_inactive', 'deleted') DEFAULT NULL,
+    PRIMARY KEY (`id_catalog_category`),
+    KEY (`regional_key`),
+    KEY (`category_name`),
+    KEY (`category_status`),
+    KEY (`resulting_regional_key`),
+    KEY (`resulting_status`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='BOB Category Tree';
+
 CREATE TABLE IF NOT EXISTS `map_default_charges` (
     `id_default_charges` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `shipment_scheme` VARCHAR(50) DEFAULT NULL,

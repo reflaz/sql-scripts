@@ -71,7 +71,6 @@ FROM
             SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 0, orders, 0)) 'Order MA Non Campaign',
             SUM(IF(delivered_flag = 1 AND bu = 'DB', orders, 0)) 'Order DB',
             SUM(IF(delivered_flag = 1 AND bu = 'CB', orders, 0)) 'Order CB',
-            SUM(IF(delivered_flag = 1 AND bu = 'TBC', orders, 0)) 'Order TBC',
             SUM(IF(delivered_flag = 1 AND bu = 'Retail', orders, 0)) 'Order Retail',
             SUM(IF(delivered_flag = 1 AND bu = 'Digital', orders, 0)) 'Order Digital',
             
@@ -84,7 +83,6 @@ FROM
             SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 0, item, 0)) 'Item MA Non Campaign',
             SUM(IF(delivered_flag = 1 AND bu = 'DB', item, 0)) 'Item DB',
             SUM(IF(delivered_flag = 1 AND bu = 'CB', item, 0)) 'Item CB',
-            SUM(IF(delivered_flag = 1 AND bu = 'TBC', item, 0)) 'Item TBC',
             SUM(IF(delivered_flag = 1 AND bu = 'Retail', item, 0)) 'Item Retail',
             SUM(IF(delivered_flag = 1 AND bu = 'Digital', item, 0)) 'Item Digital',
             
@@ -101,7 +99,6 @@ FROM
             SUM(IF(delivered_flag = 1 AND bu = 'MA', parcels, 0)) 'Parcel MA',
             SUM(IF(delivered_flag = 1 AND bu = 'DB', parcels, 0)) 'Parcel DB',
             SUM(IF(delivered_flag = 1 AND bu = 'CB', parcels, 0)) 'Parcel CB',
-            SUM(IF(delivered_flag = 1 AND bu = 'TBC', parcels, 0)) 'Parcel TBC',
             SUM(IF(delivered_flag = 1 AND bu = 'Retail', parcels, 0)) 'Parcel Retail',
             SUM(IF(delivered_flag = 1 AND bu = 'Digital', parcels, 0)) 'Parcel Digital',
             
@@ -113,7 +110,6 @@ FROM
             SUM(IF(shipped_flag = 1 AND bu = 'MA' AND vip_flag = 0, nmv, 0)) 'GMV MA Non Campaign',
             SUM(IF(shipped_flag = 1 AND bu = 'DB', nmv, 0)) 'GMV DB',
             SUM(IF(shipped_flag = 1 AND bu = 'CB', nmv, 0)) 'GMV CB',
-            SUM(IF(shipped_flag = 1 AND bu = 'TBC', nmv, 0)) 'GMV TBC',
             SUM(IF(shipped_flag = 1 AND bu = 'Retail', nmv, 0)) 'GMV Retail',
             SUM(IF(shipped_flag = 1 AND bu = 'Digital', nmv, 0)) 'GMV Digital',
             
@@ -125,7 +121,6 @@ FROM
             SUM(IF(ordered_flag = 1 AND bu = 'MA' AND vip_flag = 0, nmv, 0)) 'NMV MA Non Campaign Created',
             SUM(IF(ordered_flag = 1 AND bu = 'DB', nmv, 0)) 'NMV DB Created',
             SUM(IF(ordered_flag = 1 AND bu = 'CB', nmv, 0)) 'NMV CB Created',
-            SUM(IF(ordered_flag = 1 AND bu = 'TBC', nmv, 0)) 'NMV TBC Created',
             SUM(IF(ordered_flag = 1 AND bu = 'Retail', nmv, 0)) 'NMV Retail Created',
             SUM(IF(ordered_flag = 1 AND bu = 'Digital', nmv, 0)) 'NMV Digital Created',
             
@@ -137,7 +132,6 @@ FROM
             SUM(IF(delivered_flag = 1 AND bu = 'MA' AND vip_flag = 0, nmv, 0)) 'NMV MA Non Campaign Delivered',
             SUM(IF(delivered_flag = 1 AND bu = 'DB', nmv, 0)) 'NMV DB Delivered',
             SUM(IF(delivered_flag = 1 AND bu = 'CB', nmv, 0)) 'NMV CB Delivered',
-            SUM(IF(delivered_flag = 1 AND bu = 'TBC', nmv, 0)) 'NMV TBC Delivered',
             SUM(IF(delivered_flag = 1 AND bu = 'Retail', nmv, 0)) 'NMV Retail Delivered',
             SUM(IF(delivered_flag = 1 AND bu = 'Digital', nmv, 0)) 'NMV Digital Delivered',
             
@@ -220,39 +214,6 @@ FROM
 				SUM(IF(delivered_flag = 1 AND category = 'motors' AND bu = 'CB', nmv, 0)) '% CB Commission Motors',
             SUM(IF(delivered_flag = 1 AND category = 'others' AND bu = 'CB', commission, 0)) / 
 				SUM(IF(delivered_flag = 1 AND category = 'others' AND bu = 'CB', nmv, 0)) '% CB Commission Others',
-            
-            
-            
-            SUM(IF(delivered_flag = 1 AND category = 'electronic' AND bu = 'TBC', commission, 0)) 'TBC Commission EL',
-            SUM(IF(delivered_flag = 1 AND category = 'fashion' AND bu = 'TBC', commission, 0)) 'TBC Commission Fashion',
-            SUM(IF(delivered_flag = 1 AND category = 'fmcg' AND bu = 'TBC', commission, 0)) 'TBC Commission FMCG',
-            SUM(IF(delivered_flag = 1 AND category = 'home' AND bu = 'TBC', commission, 0)) 'TBC Commission Home',
-            SUM(IF(delivered_flag = 1 AND category = 'motors' AND bu = 'TBC', commission, 0)) 'TBC Commission Motors',
-            SUM(IF(delivered_flag = 1 AND category = 'others' AND bu = 'TBC', commission, 0)) 'TBC Commission Others',
-                
-                
-                
-            SUM(IF(delivered_flag = 1 AND category = 'electronic' AND bu = 'TBC', nmv, 0)) 'TBC NMV EL',
-            SUM(IF(delivered_flag = 1 AND category = 'fashion' AND bu = 'TBC', nmv, 0)) 'TBC NMV Fashion',
-            SUM(IF(delivered_flag = 1 AND category = 'fmcg' AND bu = 'TBC', nmv, 0)) 'TBC NMV FMCG',
-            SUM(IF(delivered_flag = 1 AND category = 'home' AND bu = 'TBC', nmv, 0)) 'TBC NMV Home',
-            SUM(IF(delivered_flag = 1 AND category = 'motors' AND bu = 'TBC', nmv, 0)) 'TBC NMV Motors',
-            SUM(IF(delivered_flag = 1 AND category = 'others' AND bu = 'TBC', nmv, 0)) 'TBC NMV Others',
-                
-                
-			
-            SUM(IF(delivered_flag = 1 AND category = 'electronic' AND bu = 'TBC', commission, 0)) / 
-				SUM(IF(delivered_flag = 1 AND category = 'electronic' AND bu = 'TBC', nmv, 0)) '% TBC Commission EL',
-            SUM(IF(delivered_flag = 1 AND category = 'fashion' AND bu = 'TBC', commission, 0)) / 
-				SUM(IF(delivered_flag = 1 AND category = 'fashion' AND bu = 'TBC', nmv, 0)) '% TBC Commission Fashion',
-            SUM(IF(delivered_flag = 1 AND category = 'fmcg' AND bu = 'TBC', commission, 0)) / 
-				SUM(IF(delivered_flag = 1 AND category = 'fmcg' AND bu = 'TBC', nmv, 0)) '% TBC Commission FMCG',
-            SUM(IF(delivered_flag = 1 AND category = 'home' AND bu = 'TBC', commission, 0)) / 
-				SUM(IF(delivered_flag = 1 AND category = 'home' AND bu = 'TBC', nmv, 0)) '% TBC Commission Home',
-            SUM(IF(delivered_flag = 1 AND category = 'motors' AND bu = 'TBC', commission, 0)) / 
-				SUM(IF(delivered_flag = 1 AND category = 'motors' AND bu = 'TBC', nmv, 0)) '% TBC Commission Motors',
-            SUM(IF(delivered_flag = 1 AND category = 'others' AND bu = 'TBC', commission, 0)) / 
-				SUM(IF(delivered_flag = 1 AND category = 'others' AND bu = 'TBC', nmv, 0)) '% TBC Commission Others',
                 
                 
                 
@@ -307,7 +268,6 @@ FROM
             SUM(IF(delivered_flag = 1 AND bu = 'DB', commission, 0)) 'DB Commission',
             SUM(IF(delivered_flag = 1 AND bu = 'Digital', commission, 0)) 'Digital Commission',
             SUM(IF(delivered_flag = 1 AND bu = 'CB', commission, 0)) 'CB Commission',
-            SUM(IF(delivered_flag = 1 AND bu = 'TBC', commission, 0)) 'TBC Commission',
             
             
             
@@ -367,8 +327,6 @@ FROM
             0 'Payment Charges Retail',
             SUM(IF(bu = 'CB' AND delivered_flag = 1, payment_fee, 0)) 'CB Payment Charges',
             SUM(IF(bu = 'CB' AND (delivered_flag = 1 OR failed_flag = 1), cb_charges, 0)) 'CB Delivery Charges',
-            SUM(IF(bu = 'TBC' AND delivered_flag = 1, payment_fee, 0)) 'TBC Payment Charges',
-            SUM(IF(bu = 'TBC' AND (delivered_flag = 1 OR failed_flag = 1), cb_charges, 0)) 'TBC Delivery Charges',
                 
                 
                 
@@ -378,7 +336,6 @@ FROM
             SUM(IF(bu = 'DB' AND delivered_flag = 1, other_charges, 0)) 'Other Charges DB',
             SUM(IF(bu = 'Digital' AND delivered_flag = 1, other_charges, 0)) 'Other Charges Digital',
             SUM(IF(bu = 'CB' AND delivered_flag = 1, other_charges, 0)) 'Other Charges CB',
-            SUM(IF(bu = 'TBC' AND delivered_flag = 1, other_charges, 0)) 'Other Charges TBC',
             
             
             
@@ -407,8 +364,6 @@ FROM
                 
             - GREATEST(SUM(IF(bu = 'CB' AND (delivered_flag = 1 OR failed_flag = 1), delivery_cost_invoice, 0)), 
 				SUM(IF(bu = 'CB' AND (delivered_flag = 1 OR failed_flag = 1), delivery_cost, 0))) 'CB Delivery Cost',
-			- GREATEST(SUM(IF(bu = 'TBC' AND (delivered_flag = 1 OR failed_flag = 1), delivery_cost_invoice, 0)), 
-				SUM(IF(bu = 'TBC' AND (delivered_flag = 1 OR failed_flag = 1), delivery_cost, 0))) 'TBC Delivery Cost',
             - SUM(IF(delivered_flag = 1 AND bu = 'CB', return_cost, 0)) 'CB Return Cost',
             - GREATEST(SUM(IF(bu = 'Retail' AND (delivered_flag = 1 OR failed_flag = 1), delivery_cost_invoice, 0)), 
 				SUM(IF(bu = 'Retail' AND (delivered_flag = 1 OR failed_flag = 1), delivery_cost, 0))) 'Retail Delivery Cost',
@@ -424,7 +379,6 @@ FROM
             SUM(IF(BU = 'MA' AND payment_method = 'cod' AND vip_flag = 0, IFNULL(payment_cost, 0), 0)) 'Payment Cost COD - MA Non Campaign',
             SUM(IF(BU = 'DB' AND payment_method = 'cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost COD - DB',
             SUM(IF(BU = 'CB' AND payment_method = 'cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost COD - CB',
-            SUM(IF(BU = 'TBC' AND payment_method = 'cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost COD - TBC',
             SUM(IF(BU = 'Digital' AND payment_method = 'cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost COD - Digital',
             SUM(IF(BU = 'Retail' AND payment_method = 'cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost COD - Retail',
             
@@ -435,7 +389,6 @@ FROM
             SUM(IF(BU = 'MA' AND payment_method = 'non_cod' AND vip_flag = 0, IFNULL(payment_cost, 0), 0)) 'Payment Cost Non COD - MA Non Campaign',
             SUM(IF(BU = 'DB' AND payment_method = 'non_cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost Non COD - DB',
             SUM(IF(BU = 'CB' AND payment_method = 'non_cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost Non COD - CB',
-            SUM(IF(BU = 'TBC' AND payment_method = 'non_cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost Non COD - TBC',
             SUM(IF(BU = 'Digital' AND payment_method = 'non_cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost Non COD - Digital',
             SUM(IF(BU = 'Retail' AND payment_method = 'non_cod', IFNULL(payment_cost, 0), 0)) 'Payment Cost Non COD - Retail',
             
@@ -447,7 +400,6 @@ FROM
             - SUM(IF(bu = 'DB' AND delivered_flag = 1, bad_debt, 0)) 'Bad Debt DB',
             - SUM(IF(bu = 'Digital' AND delivered_flag = 1, bad_debt, 0)) 'Bad Debt Digital',
             - SUM(IF(bu = 'CB' AND delivered_flag = 1, bad_debt, 0)) 'Bad Debt CB',
-            - SUM(IF(bu = 'TBC' AND delivered_flag = 1, bad_debt, 0)) 'Bad Debt TBC',
             
             
             
@@ -459,7 +411,6 @@ FROM
             - SUM(IF(bu = 'DB' AND delivered_flag = 1, discount, 0)) 'Voucher & Cart Rule DB',
             - SUM(IF(bu = 'Digital' AND delivered_flag = 1, discount, 0)) 'Voucher & Cart Rule Digital',
             - SUM(IF(bu = 'CB' AND delivered_flag = 1, discount, 0)) 'Voucher & Cart Rule CB',
-            - SUM(IF(bu = 'TBC' AND delivered_flag = 1, discount, 0)) 'Voucher & Cart Rule TBC',
             
             
             
@@ -612,9 +563,6 @@ FROM
             - @cb_delivery_cost 'Delivery Cost per Item CB',
             - @cb_delivery_charge 'Delivery Charges per Item CB',
             - @return_cost_per_item_cb 'Return Cost per Item CB',
-            - @cb_delivery_cost 'Delivery Cost per Item TBC',
-            - @cb_delivery_charge 'Delivery Charges per Item TBC',
-            - @return_cost_per_item_cb 'Return Cost per Item TBC',
             - @wh_handling_retail 'WH Handling Cost per Item Retail',
             - @wh_handling_fbl 'WH Handling Cost per Item FBL',
             - @cs_rate 'CS Cost per Order',
@@ -622,12 +570,7 @@ FROM
             SUM(IF(bu = 'CB' AND ordered_flag = 1, item, 0)) '_Item Ordered CB',
             SUM(IF(bu = 'CB' AND shipped_flag = 1, item, 0)) '_Item Shipped CB',
             SUM(IF(bu = 'CB' AND delivered_flag = 1, item, 0)) '_Item Delivered CB',
-            SUM(IF(bu = 'CB' AND failed_flag = 1, item, 0)) '_Item Failed CB',
-            
-            SUM(IF(bu = 'TBC' AND ordered_flag = 1, item, 0)) '_Item Ordered TBC',
-            SUM(IF(bu = 'TBC' AND shipped_flag = 1, item, 0)) '_Item Shipped TBC',
-            SUM(IF(bu = 'TBC' AND delivered_flag = 1, item, 0)) '_Item Delivered TBC',
-            SUM(IF(bu = 'TBC' AND failed_flag = 1, item, 0)) '_Item Failed TBC'
+            SUM(IF(bu = 'CB' AND failed_flag = 1, item, 0)) '_Item Failed CB'
     FROM
         (SELECT 
         bu,
@@ -650,12 +593,12 @@ FROM
             SUM(IFNULL(payment_fee, 0)) 'payment_fee',
             SUM(IFNULL(order_flat_item, 0) + IFNULL(mdr_item, 0) + IFNULL(ipp_item, 0)) 'payment_cost',
             CASE
-                WHEN bu IN ('CB', 'TBC') THEN @cb_delivery_cost * COUNT(bob_id_sales_order_item)
+                WHEN bu = 'CB' THEN @cb_delivery_cost * COUNT(bob_id_sales_order_item)
                 WHEN bu = 'MA' THEN SUM(IFNULL(delivery_cost_item, 0) + IFNULL(delivery_cost_discount_item, 0) + IFNULL(delivery_cost_vat_item, 0) + IFNULL(insurance_3pl_item, 0) + IFNULL(insurance_vat_3pl_item, 0))
                 ELSE SUM(IFNULL(total_delivery_cost_item, 0))
             END 'delivery_cost',
             CASE
-                WHEN bu IN ('CB', 'TBC') THEN @cb_delivery_cost * COUNT(bob_id_sales_order_item)
+                WHEN bu = 'CB' THEN @cb_delivery_cost * COUNT(bob_id_sales_order_item)
                 WHEN bu = 'MA' THEN @delivery_cost_per_item_ma * COUNT(bob_id_sales_order_item)
                 WHEN bu = 'Retail' THEN @delivery_cost_per_item_retail * COUNT(bob_id_sales_order_item)
                 ELSE SUM(IFNULL(total_delivery_cost_item, 0))
@@ -668,7 +611,7 @@ FROM
                 ELSE SUM(IFNULL(delivery_cost_item, 0) + IFNULL(delivery_cost_discount_item, 0) + IFNULL(delivery_cost_vat_item, 0))
             END 'shipment_cost_invoice',
             CASE
-                WHEN bu IN ('CB', 'TBC') THEN @return_cost_per_item_cb * COUNT(bob_id_sales_order_item)
+                WHEN bu = 'CB' THEN @return_cost_per_item_cb * COUNT(bob_id_sales_order_item)
                 WHEN bu = 'MA' THEN @return_cost_per_item_ma * COUNT(bob_id_sales_order_item)
                 WHEN bu = 'DB' THEN @return_cost_per_item_db * COUNT(bob_id_sales_order_item)
                 WHEN bu = 'Retail' THEN @return_cost_per_item_retail * COUNT(bob_id_sales_order_item)
@@ -683,7 +626,7 @@ FROM
                 ELSE 0
             END 'pickup_cost_invoice',
             CASE
-                WHEN bu IN ('CB', 'TBC') THEN @cb_delivery_charge * COUNT(bob_id_sales_order_item)
+                WHEN bu = 'CB' THEN @cb_delivery_charge * COUNT(bob_id_sales_order_item)
                 ELSE 0
             END 'cb_charges',
             SUM(IFNULL(shipment_fee_mp_seller_item, 0) + IFNULL(insurance_seller_item, 0) + IFNULL(insurance_vat_seller_item, 0)) 'seller_charges',
@@ -705,7 +648,6 @@ FROM
                 ELSE 1
             END 'pass',
             CASE
-				WHEN bob_id_supplier IN (18358 , 74322, 118514, 121939, 127131) THEN 'TBC'
                 WHEN shipment_scheme LIKE ('%DIGITAL%') THEN 'Digital'
                 WHEN shipment_scheme LIKE ('%DIRECT BILLING%') THEN 'DB'
                 WHEN shipment_scheme LIKE ('%MASTER ACCOUNT%') THEN 'MA'
@@ -724,10 +666,6 @@ FROM
             END 'bu',
             CASE
 				WHEN campaign LIKE '%Prioritas%' THEN 2
-                WHEN campaign LIKE '%Juragan%' THEN 2
-                WHEN campaign LIKE '%Jagoan%' THEN 2
-                WHEN campaign LIKE '%Jawara%' THEN 2
-                WHEN campaign LIKE '%Maestro%' THEN 2
                 WHEN campaign LIKE '%VIP%' THEN 1
                 ELSE 0
             END 'vip_flag',
