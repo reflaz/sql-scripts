@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-SOI Details by Delivered Date
+SOI Details by Order Date
  
 Prepared by		: R Maliangkay
 Modified by		: 
@@ -16,11 +16,11 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-10-01';
-SET @extractend = '2017-10-02';-- This MUST be D + 1
+SET @extractstart = '2017-09-01';
+SET @extractend = '2017-10-01';-- This MUST be D + 1
 
 SELECT 
-    *
+    result.*
 FROM
     (SELECT 
         so.order_nr,
@@ -33,25 +33,33 @@ FROM
             soi.shipping_surcharge,
             IFNULL(soi.paid_price / 1.1, 0) + IFNULL(soi.shipping_surcharge / 1.1, 0) + IFNULL(soi.shipping_amount / 1.1, 0) + IF(sovt.name <> 'coupon', IFNULL(soi.coupon_money_value / 1.1, 0), 0) 'nmv',
             so.created_at 'order_date',
-            soish.created_at 'verified_date',
-            pash.created_at 'shipped_date',
-            IF(result.fk_package_status = 6, result.created_at, NULL) 'delivered_date',
-            IF(result.fk_package_status = 5, result.created_at, NULL) 'failed_delivery_date',
-            pck.package_number,
+            MIN(IF(soish.fk_sales_order_item_status = 67, soish.created_at, NULL)) 'verified_date',
+            MIN(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'shipped_date',
+            MIN(IF(soish.fk_sales_order_item_status = 27, soish.created_at, NULL)) 'delivered_date',
+            MIN(IF(soish.fk_sales_order_item_status = 27, soish.real_action_date, NULL)) 'real_delivered_date',
+            result.package_number,
             soi.sku,
             cc.primary_category,
             cca.regional_key,
             cca.name_en 'primary_category_name',
             sup.id_supplier,
-            sel.short_code,
             sup.name 'seller_name',
             sup.type 'seller_type',
             sel.tax_class,
-            soi.coupon_money_value,
-            sovt.name 'coupon_type'
+			soi.coupon_money_value,
+			sovt.name 'coupon_type'
     FROM
         (SELECT 
-        fk_package, fk_package_status, MIN(created_at) 'created_at'
+        pck.id_package,
+            pck.package_number,
+            pd.id_package_dispatching,
+            pdh.tracking_number 'first_tracking_number',
+            sp1.shipment_provider_name 'first_shipment_provider',
+            pd.tracking_number 'last_tracking_number',
+            sp2.shipment_provider_name 'last_shipment_provider'
+    FROM
+        (SELECT 
+        fk_package
     FROM
         oms_live.oms_package_status_history
     WHERE
@@ -61,20 +69,23 @@ FROM
     GROUP BY fk_package) result
     LEFT JOIN oms_live.oms_package pck ON result.fk_package = pck.id_package
     LEFT JOIN oms_live.oms_package_dispatching pd ON pck.id_package = pd.fk_package
-    LEFT JOIN oms_live.oms_package_status_history pash ON pash.fk_package = pck.id_package
-        AND pash.id_package_status_history = (SELECT 
-            MIN(id_package_status_history)
+    LEFT JOIN oms_live.oms_package_dispatching_history pdh ON pd.id_package_dispatching = pdh.fk_package_dispatching
+        AND pdh.id_package_dispatching_history = (SELECT 
+            MIN(id_package_dispatching_history)
         FROM
-            oms_live.oms_package_status_history
+            oms_live.oms_package_dispatching_history
         WHERE
-            fk_package = pck.id_package
-                AND fk_package_status = 4)
-    LEFT JOIN oms_live.oms_package_item pi ON pck.id_package = pi.fk_package
+            fk_package_dispatching = pd.id_package_dispatching
+                AND tracking_number IS NOT NULL)
+    LEFT JOIN oms_live.oms_shipment_provider sp1 ON pdh.fk_shipment_provider = sp1.id_shipment_provider
+    LEFT JOIN oms_live.oms_shipment_provider sp2 ON pd.fk_shipment_provider = sp2.id_shipment_provider
+    HAVING first_shipment_provider IS NOT NULL) result
+    LEFT JOIN oms_live.oms_package_item pi ON result.id_package = pi.fk_package
     LEFT JOIN oms_live.ims_sales_order_item soi ON pi.fk_sales_order_item = soi.id_sales_order_item
     LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
     LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
-        AND soish.fk_sales_order_item_status = 67
-    LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON so.fk_voucher_type = sovt.id_sales_order_voucher_type
+        AND soish.fk_sales_order_item_status IN (5 , 27, 67)
+	LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON so.fk_voucher_type = sovt.id_sales_order_voucher_type
     LEFT JOIN bob_live.catalog_simple cs ON soi.sku = cs.sku
     LEFT JOIN bob_live.catalog_config cc ON cc.id_catalog_config = cs.fk_catalog_config
     LEFT JOIN bob_live.catalog_category cca ON cc.primary_category = cca.id_catalog_category
