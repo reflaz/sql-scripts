@@ -1,0 +1,2 @@
+id_api_master_account,api_date,posting_type,charge_type,is_actual,id_package_dispatching,package_number,bob_id_supplier,short_code,formula_weight,rounded_weight,weight_source,amount,discount,tax_amount,total_amount,id_api_master_account_reverse,commentary,status,dfd_date,created_at,updated_at,active
+NULL,20170921-20170930,INCOMING,PICKUP,1,NULL,MPDS-3111116652-5269,NULL,ID107V2,0.8,NULL,Weight Doctor,1200,0,12,1212,NULL,NULL,TEMPORARY,NULL,NULL,NULL,1

@@ -28,7 +28,7 @@ UPDATE tmp_item_level til
         AND IFNULL(til.tax_class, 'tax_class') = IFNULL(mss.tax_class, IFNULL(til.tax_class, 'tax_class'))
         AND IFNULL(til.is_marketplace, 0) = COALESCE(mss.is_marketplace, til.is_marketplace, 0)
         AND IFNULL(til.first_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', COALESCE(mss.first_shipment_provider, til.first_shipment_provider, 'first_shipment_provider'), '%')
-        AND IFNULL(til.last_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', COALESCE(mss.last_shipment_provider, til.last_shipment_provider, 'first_shipment_provider'), '%')
+        AND IFNULL(til.last_shipment_provider, 'last_shipment_provider') LIKE CONCAT('%', COALESCE(mss.last_shipment_provider, til.last_shipment_provider, 'last_shipment_provider'), '%')
         AND IFNULL(til.last_shipment_provider, 1) NOT LIKE CONCAT('%', IFNULL(mss.exclude_shipment_provider, 'exclude_shipment_provider'), '%')
         AND IFNULL(til.shipping_type, 'shipping_type') = COALESCE(mss.shipping_type, til.shipping_type, 'shipping_type')
         AND IFNULL(til.delivery_type, 'delivery_type') = COALESCE(mss.delivery_type, til.delivery_type, 'delivery_type')
