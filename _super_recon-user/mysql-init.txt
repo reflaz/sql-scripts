@@ -1,0 +1,4 @@
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'Akm3aidFas7vy';
+
+cd "C:\Program Files\MySQL\MySQL Server 5.7\bin";
+mysqld --defaults-file="C:\\ProgramData\\MySQL\\MySQL Server 5.7\\my.ini" --init-file=C:\\mysql-init.txt --console;
