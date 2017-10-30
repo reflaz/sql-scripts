@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 echo.
 
-"C:\Program Files\MySQL\MySQL Server 5.7\bin\mysql" -e "truncate table lel_invoice_tracker.lel_invoice_history ;" -u Recon 
+"C:\Program Files\MySQL\MySQL Server 5.7\bin\mysql" -e "truncate table lel_invoice_tracker.lel_invoice_history ;" -u update_recon
 echo TRUNCATE lel_invoice_tracker.lel_invoice_history DONE
 echo.
 
@@ -11,7 +11,7 @@ FOR %%f IN ("*.csv") DO (
   set old=%%~dpnxf
   set new=!old:\=\\!
 
-  "C:\Program Files\MySQL\MySQL Server 5.7\bin\mysql" -e "load data local infile '"!new!"' IGNORE into table lel_invoice_tracker.lel_invoice_history COLUMNS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"""' IGNORE 1 ROWS" -u Recon 
+  "C:\Program Files\MySQL\MySQL Server 5.7\bin\mysql" -e "load data local infile '"!new!"' IGNORE into table lel_invoice_tracker.lel_invoice_history COLUMNS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"""' IGNORE 1 ROWS" -u update_recon
   echo IMPORT %%~nxf DONE
 )
 

@@ -1,6 +1,11 @@
 1. Go to Mysql Command Line Client
-2. Enter username and password. Default is root
-3. Copy and paste these command and press enter:
+2. Enter root username and password
+3. Copy and paste create user scripts:
 
 CREATE USER 'Recon'@'%';
-GRANT ALL ON *.* TO 'Recon'@'%';
+
+GRANT SELECT, CREATE TEMPORARY TABLES, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EXECUTE, PROCESS, REPLICATION CLIENT ON *.* TO 'Recon'@'%';
+
+CREATE USER 'update_recon'@'localhost';
+
+GRANT INSERT, UPDATE, DROP, FILE ON *.* TO 'update_recon'@'localhost';
