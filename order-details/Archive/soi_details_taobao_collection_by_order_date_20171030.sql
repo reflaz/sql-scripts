@@ -1,0 +1,102 @@
+/*-----------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------
+SOI Details by Order Date
+ 
+Prepared by		: R Maliangkay
+Modified by		: 
+Version			: 1.0
+Changes made	: 
+
+Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
+                  - Run the query by pressing the execute button
+                  - Wait until the query finished, then export the result
+                  - Close the query WITHOUT SAVING ANY CHANGES
+-------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+-- Change this before running the script
+-- The format must be in 'YYYY-MM-DD'
+SET @extractstart = '2017-10-01';
+SET @extractend = '2017-10-02';-- This MUST be D + 1
+
+SELECT 
+    so.order_nr,
+    soi.bob_id_sales_order_item,
+    ascsoi.id_sales_order_item 'sc_sales_order_item',
+    soi.id_sales_order_item 'sap_item_id',
+    soi.unit_price,
+    soi.paid_price,
+    soi.shipping_amount,
+    soi.shipping_surcharge,
+    IFNULL(soi.paid_price / 1.1, 0) + IFNULL(soi.shipping_surcharge / 1.1, 0) + IFNULL(soi.shipping_amount / 1.1, 0) + IF(sovt.name <> 'coupon', IFNULL(soi.coupon_money_value / 1.1, 0), 0) 'nmv',
+    so.created_at 'order_date',
+    MIN(IF(soish.fk_sales_order_item_status = 67,
+        soish.created_at,
+        NULL)) 'verified_date',
+    MIN(IF(soish.fk_sales_order_item_status = 5,
+        soish.created_at,
+        NULL)) 'shipped_date',
+    MIN(IF(soish.fk_sales_order_item_status = 27,
+        soish.created_at,
+        NULL)) 'delivered_date',
+    MIN(IF(soish.fk_sales_order_item_status = 27,
+        soish.real_action_date,
+        NULL)) 'real_delivered_date',
+    pck.package_number,
+    soi.sku,
+    cc.primary_category,
+    cca.regional_key,
+    cca.name_en 'primary_category_name',
+    sup.id_supplier,
+    sup.name 'seller_name',
+    sup.type 'seller_type',
+    ascsel.tax_class,
+    soi.coupon_money_value,
+    sovt.name 'coupon_type'
+FROM
+    oms_live.ims_sales_order so
+        LEFT JOIN
+    oms_live.ims_sales_order_item soi ON so.id_sales_order = soi.fk_sales_order
+        JOIN
+    oms_live.ims_sales_order_item_status_history verified ON soi.id_sales_order_item = verified.fk_sales_order_item
+        AND verified.fk_sales_order_item_status = 67
+        LEFT JOIN
+    oms_live.oms_package_item pi ON soi.id_sales_order_item = pi.fk_sales_order_item
+        LEFT JOIN
+    oms_live.oms_package pck ON pi.fk_package = pck.id_package
+        LEFT JOIN
+    oms_live.oms_package_dispatching pd ON pck.id_package = pd.fk_package
+        LEFT JOIN
+    oms_live.oms_package_dispatching_history pdh ON pck.id_package = pdh.fk_package
+        AND pdh.id_package_dispatching_history = (SELECT 
+            MIN(id_package_dispatching_history)
+        FROM
+            oms_live.oms_package_dispatching_history
+        WHERE
+            fk_package_dispatching = pd.id_package_dispatching
+                AND tracking_number IS NOT NULL)
+        LEFT JOIN
+    oms_live.ims_sales_order_item_status sois ON soi.fk_sales_order_item_status = sois.id_sales_order_item_status
+        LEFT JOIN
+    oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
+    AND soish.fk_sales_order_item_status IN (5 , 27, 67)
+    LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON so.fk_voucher_type = sovt.id_sales_order_voucher_type
+        LEFT JOIN
+    bob_live.catalog_simple cs ON soi.sku = cs.sku
+        LEFT JOIN
+    bob_live.catalog_config cc ON cc.id_catalog_config = cs.fk_catalog_config
+        LEFT JOIN
+    bob_live.catalog_category cca ON cc.primary_category = cca.id_catalog_category
+        LEFT JOIN
+    bob_live.catalog_simple_package_unit cspu ON cs.id_catalog_simple = cspu.fk_catalog_simple
+        LEFT JOIN
+    bob_live.supplier sup ON soi.bob_id_supplier = sup.id_supplier
+        LEFT JOIN
+    asc_live.seller ascsel ON sup.id_supplier = ascsel.src_id
+        LEFT JOIN
+    asc_live.sales_order_item ascsoi ON soi.id_sales_order_item = ascsoi.src_id
+WHERE
+    so.created_at >= @extractstart
+        AND so.created_at < @extractend
+        AND soi.bob_id_supplier IN (18358 , 74322, 118514, 121939, 127131)
+GROUP BY soi.id_sales_order_item
