@@ -27,8 +27,8 @@ FROM
             IFNULL(soi.bob_id_sales_order_item, '') 'bob_id_sales_order_item',
             IFNULL(soi.id_sales_order_item, '') 'sap_item_id',
             IFNULL(asoi.id_sales_order_item, '') 'sc_sales_order_item',
-            IFNULL(psh.real_action_date, '') 'real_delivered_date',
-            IFNULL(psh.created_at, '') 'oms_delivered_date',
+            IFNULL(soish.real_action_date, '') 'real_delivered_date',
+            IFNULL(soish.created_at, '') 'oms_delivered_date',
             tt.description 'transaction_type',
             IFNULL(tr.value, 0) 'value',
             IFNULL(tr.taxes_vat, 0) 'vat',
@@ -60,20 +60,12 @@ FROM
         asc_live.transaction tr
     LEFT JOIN asc_live.transaction_type tt ON tr.fk_transaction_type = tt.id_transaction_type
     LEFT JOIN asc_live.transaction_statement ts ON ts.id_transaction_statement = tr.fk_transaction_statement
-		LEFT JOIN asc_live.seller sel ON tr.fk_seller = sel.id_seller
-		LEFT JOIN asc_live.sales_order_item asoi ON tr.ref = asoi.id_sales_order_item
+    LEFT JOIN asc_live.seller sel ON tr.fk_seller = sel.id_seller
+    LEFT JOIN asc_live.sales_order_item asoi ON tr.ref = asoi.id_sales_order_item
     LEFT JOIN oms_live.ims_sales_order_item soi ON asoi.src_id = soi.id_sales_order_item
     LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
-	LEFT JOIN oms_live.oms_package_item pi ON soi.id_sales_order_item = pi.fk_sales_order_item
-    LEFT JOIN oms_live.oms_package pa ON pa.id_package = pi.fk_package
-    LEFT JOIN oms_live.oms_package_status_history psh ON psh.fk_package = pa.id_package
-        AND psh.id_package_status_history = (SELECT 
-            MIN(id_package_status_history)
-        FROM
-            oms_live.oms_package_status_history
-        WHERE
-            fk_package = pa.id_package
-                AND fk_package_status = 6)
+    LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
+        AND soish.fk_sales_order_item_status = 27
     WHERE
         tr.created_at >= STR_TO_DATE(@extractstart, '%Y-%m-%d')
             AND tr.created_at < STR_TO_DATE(@extractend, '%Y-%m-%d')
