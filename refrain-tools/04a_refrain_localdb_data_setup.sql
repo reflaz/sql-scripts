@@ -72,7 +72,7 @@ SET
             '%Y-%m-%d %T'),
     updated_at = @updated_at
 WHERE
-    status IN ('TEMPORARY' , 'NA', 'INCOMPLETE', 'COMPLETE');
+    status NOT IN ('ACTIVE', 'DELETED');
 
 UPDATE api_data_master_account 
 SET 
@@ -84,7 +84,7 @@ SET
             '%Y-%m-%d %T'),
     updated_at = @updated_at
 WHERE
-    status IN ('TEMPORARY' , 'NA', 'INCOMPLETE', 'COMPLETE');
+    status NOT IN ('ACTIVE', 'DELETED');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check if temporary API data exists in different types of APIs
@@ -226,7 +226,6 @@ SET
         WHEN
             til.id_package_dispatching IS NOT NULL
                 AND til.bob_id_supplier IS NOT NULL
-                AND IFNULL(addb.total_amount, 0) <> 0
         THEN
             1
         ELSE 0
@@ -265,7 +264,6 @@ SET
         WHEN
             til.id_package_dispatching IS NOT NULL
                 AND til.bob_id_supplier IS NOT NULL
-                AND IFNULL(adma.total_amount, 0) <> 0
         THEN
             2
         ELSE 0

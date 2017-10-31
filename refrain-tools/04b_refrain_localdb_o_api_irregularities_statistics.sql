@@ -105,24 +105,6 @@ SELECT
     *
 FROM
     (SELECT 
-        addb.package_number 'missing_package_number_reference'
-    FROM
-        api_data_direct_billing addb
-    LEFT JOIN tmp_item_level til ON addb.package_number = til.package_number
-    WHERE
-        status NOT IN ('COMPLETE' , 'DUPLICATE', 'ACTIVE', 'DELETED', 'API_TYPE_CONFLICT') UNION ALL SELECT 
-        adma.package_number 'missing_package_number_reference'
-    FROM
-        api_data_master_account adma
-    LEFT JOIN tmp_item_level til ON adma.package_number = til.package_number
-    WHERE
-        status NOT IN ('COMPLETE' , 'DUPLICATE', 'ACTIVE', 'DELETED', 'API_TYPE_CONFLICT')) mpn
-GROUP BY missing_package_number_reference;
-
-SELECT 
-    *
-FROM
-    (SELECT 
         'api_data_direct_billing' AS 'api_type', addb.*
     FROM
         api_data_direct_billing addb
@@ -134,4 +116,4 @@ FROM
         api_data_master_account adma
     LEFT JOIN tmp_item_level til ON adma.package_number = til.package_number
     WHERE
-        status NOT IN ('COMPLETE' , 'DUPLICATE', 'ACTIVE', 'DELETED', 'API_TYPE_CONFLICT')) mpn;
+        status NOT IN ('COMPLETE' , 'ACTIVE', 'DELETED')) mpn;
