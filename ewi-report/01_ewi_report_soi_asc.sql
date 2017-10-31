@@ -34,12 +34,9 @@ FROM
             sois.name 'item_status',
             so.created_at 'order_date',
             MIN(IF(soish.fk_sales_order_item_status = 67, soish.created_at, NULL)) 'verified_date',
-            -- MIN(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'shipped_date',
-            -- MIN(IF(soish.fk_sales_order_item_status = 27, soish.real_action_date, NULL)) 'delivered_date',
-            -- MIN(IF(soish.fk_sales_order_item_status = 27, soish.created_at, NULL)) 'delivered_date_input',
-            psh_ship.created_at 'shipped_date',
-            psh_delv.created_at 'delivered_date',
-            psh_delv.real_action_date 'delivered_date_input',
+            MIN(IF(soish.fk_sales_order_item_status = 5, soish.created_at, psh_ship.created_at)) 'shipped_date',
+            MIN(IF(soish.fk_sales_order_item_status = 27, soish.real_action_date, psh_delv.real_action_date)) 'delivered_date',
+            MIN(IF(soish.fk_sales_order_item_status = 27, soish.created_at, psh_delv.created_at)) 'delivered_date_input',
             MIN(IF(soish.fk_sales_order_item_status = 68, soish.created_at, NULL)) 'returned_date',
             MIN(IF(soish.fk_sales_order_item_status = 78, soish.created_at, NULL)) 'replaced_date',
             MIN(IF(soish.fk_sales_order_item_status = 56, soish.created_at, NULL)) 'refunded_date',
@@ -114,7 +111,7 @@ FROM
     LEFT JOIN oms_live.ims_sales_order_address soa ON so.fk_sales_order_address_shipping = soa.id_sales_order_address
     LEFT JOIN oms_live.ims_sales_order_item_status sois ON soi.fk_sales_order_item_status = sois.id_sales_order_item_status
     LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
-        AND soish.fk_sales_order_item_status IN (56, 67, 68, 78)
+        AND soish.fk_sales_order_item_status IN (5, 27, 56, 67, 68, 78)
     LEFT JOIN oms_live.oms_package_item pi ON soi.id_sales_order_item = pi.fk_sales_order_item
     LEFT JOIN oms_live.oms_package pa ON pa.id_package = pi.fk_package
     LEFT JOIN oms_live.oms_package_status_history psh_ship ON psh_ship.fk_package = pa.id_package

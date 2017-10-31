@@ -466,12 +466,12 @@ UPDATE api_data_direct_billing
 SET
 	status = 'ACTIVE'
 WHERE
-	status = 'COMPLETE';
+	status IN ('COMPLETE', 'INCOMPLETE', 'NO_DFD_DATE');
 
 UPDATE api_data_master_account
 SET
 	status = 'ACTIVE'
 WHERE
-	status = 'COMPLETE';
+	status IN ('COMPLETE', 'INCOMPLETE', 'NO_DFD_DATE');
 
 SET SQL_SAFE_UPDATES = 1;

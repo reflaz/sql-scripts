@@ -17,8 +17,8 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-08-01';
-SET @extractend = '2017-08-02';-- This MUST be D + 1
+SET @extractstart = '2017-10-23';
+SET @extractend = '2017-10-30';-- This MUST be D + 1
 
 USE refrain;
 
@@ -27,7 +27,7 @@ SELECT
 FROM
     (SELECT 
         bob_id_sales_order_item,
-            sc_sales_order_item,
+            sc_id_sales_order_item,
             order_nr,
             payment_method,
             sku,
@@ -65,8 +65,8 @@ FROM
             delivery_type,
             SUM(IFNULL(commission, 0)) 'commission',
             SUM(IFNULL(payment_fee, 0)) 'payment_fee',
-            SUM(IFNULL(auto_shipping_fee_credit, 0)) 'auto_shipping_fee_credit',
-            SUM(IFNULL(manual_shipping_fee, 0)) 'manual_shipping_fee',
+            SUM(IFNULL(auto_shipping_fee, 0)) 'auto_shipping_fee',
+            SUM(IFNULL(manual_shipping_fee_lzd, 0)) 'manual_shipping_fee_lzd',
             api_type,
             shipment_scheme,
             campaign,

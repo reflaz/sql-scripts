@@ -27,8 +27,8 @@ FROM
             IFNULL(soi.bob_id_sales_order_item, '') 'bob_id_sales_order_item',
             IFNULL(soi.id_sales_order_item, '') 'sap_item_id',
             IFNULL(asoi.id_sales_order_item, '') 'sc_sales_order_item',
-            IFNULL(psh.real_action_date, '') 'real_delivered_date',
-            IFNULL(psh.created_at, '') 'oms_delivered_date',
+            COALESCE(soish.real_action_date, psh.real_action_date, '') 'real_delivered_date',
+            COALESCE(soish.created_at, psh.created_at, '') 'oms_delivered_date',
             tt.description 'transaction_type',
             IFNULL(tr.value, 0) 'value',
             IFNULL(tr.taxes_vat, 0) 'vat',
@@ -74,6 +74,14 @@ FROM
         WHERE
             fk_package = pa.id_package
                 AND fk_package_status = 6)
+	LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
+        AND soish.id_sales_order_item_status_history = (SELECT 
+            MIN(id_sales_order_item_status_history)
+        FROM
+            oms_live.ims_sales_order_item_status_history
+        WHERE
+            fk_sales_order_item = soi.id_sales_order_item
+                AND fk_sales_order_item_status =27)
     WHERE
         tr.created_at >= STR_TO_DATE(@extractstart, '%Y-%m-%d')
             AND tr.created_at < STR_TO_DATE(@extractend, '%Y-%m-%d')
