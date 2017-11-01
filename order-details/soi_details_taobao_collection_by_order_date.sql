@@ -25,18 +25,35 @@ FROM
     (SELECT 
         so.order_nr,
             soi.bob_id_sales_order_item,
-            ascsoi.id_sales_order_item 'sc_sales_order_item',
-            soi.id_sales_order_item 'sap_item_id',
+            ascsoi.id_sales_order_item 'sc_id_sales_order_item',
+            soi.id_sales_order_item 'oms_id_sales_order_item',
             soi.unit_price,
             soi.paid_price,
             soi.shipping_amount,
             soi.shipping_surcharge,
+            soi.coupon_money_value,
+            sovt.name 'coupon_type',
             IFNULL(soi.paid_price / 1.1, 0) + IFNULL(soi.shipping_surcharge / 1.1, 0) + IFNULL(soi.shipping_amount / 1.1, 0) + IF(sovt.name <> 'coupon', IFNULL(soi.coupon_money_value / 1.1, 0), 0) 'nmv',
+            (IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction tr
+                LEFT JOIN asc_live.transaction_archive ta ON tr.number = ta.number
+                WHERE
+                    tr.ref = ascsoi.id_sales_order_item
+                        AND tr.fk_transaction_type IN (8 , 142)
+                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction_archive tr
+                WHERE
+                    tr.ref = ascsoi.id_sales_order_item
+                        AND tr.fk_transaction_type IN (8 , 142)), 0)) 'auto_shipping_fee',
             so.created_at 'order_date',
             verified.created_at 'verified_date',
-            MIN(IF(psh.fk_package_status = 4, psh.created_at, NULL)) 'shipped_date',
-            MIN(IF(psh.fk_package_status = 6, psh.created_at, NULL)) 'delivered_date',
-            MIN(IF(psh.fk_package_status = 5, psh.created_at, NULL)) 'failed_delivery_date',
+            IF(psh.fk_package_status = 4, psh.created_at, NULL) 'shipped_date',
+            IF(psh.fk_package_status = 6, psh.created_at, NULL) 'delivered_date',
+            IF(psh.fk_package_status = 5, psh.created_at, NULL) 'failed_delivery_date',
             pck.package_number,
             soi.sku,
             cc.primary_category,
@@ -46,9 +63,7 @@ FROM
             ascsel.short_code,
             sup.name 'seller_name',
             sup.type 'seller_type',
-            ascsel.tax_class,
-            soi.coupon_money_value,
-            sovt.name 'coupon_type'
+            ascsel.tax_class
     FROM
         oms_live.ims_sales_order so
     LEFT JOIN oms_live.ims_sales_order_item soi ON so.id_sales_order = soi.fk_sales_order
@@ -57,7 +72,7 @@ FROM
     LEFT JOIN oms_live.oms_package_item pi ON soi.id_sales_order_item = pi.fk_sales_order_item
     LEFT JOIN oms_live.oms_package pck ON pi.fk_package = pck.id_package
     LEFT JOIN oms_live.oms_package_status_history psh ON psh.fk_package = pck.id_package
-        AND psh.fk_package_status IN (4, 5, 6)
+        AND psh.fk_package_status IN (4 , 5, 6)
     LEFT JOIN oms_live.oms_package_dispatching pd ON pck.id_package = pd.fk_package
     LEFT JOIN oms_live.ims_sales_order_item_status sois ON soi.fk_sales_order_item_status = sois.id_sales_order_item_status
     LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON so.fk_voucher_type = sovt.id_sales_order_voucher_type

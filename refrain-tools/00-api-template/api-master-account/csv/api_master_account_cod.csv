@@ -1,2 +1,0 @@
-id_api_master_account,api_date,posting_type,charge_type,is_actual,id_package_dispatching,package_number,bob_id_supplier,short_code,formula_weight,rounded_weight,weight_source,amount,discount,tax_amount,total_amount,id_api_master_account_reverse,commentary,status,delivered_date,created_at,updated_at,active
-NULL,20170921-20170930,INCOMING,COD,1,NULL,3111112252-4880,NULL,ID11CWD,NULL,NULL,NULL,539.1,NULL,53.91,593.01,NULL,NULL,TEMPORARY,NULL,NULL,NULL,1

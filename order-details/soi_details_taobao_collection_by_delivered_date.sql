@@ -25,13 +25,30 @@ FROM
     (SELECT 
         so.order_nr,
             soi.bob_id_sales_order_item,
-            asoi.id_sales_order_item 'sc_sales_order_item',
-            soi.id_sales_order_item 'sap_item_id',
+            asoi.id_sales_order_item 'sc_id_sales_order_item',
+            soi.id_sales_order_item 'oms_id_sales_order_item',
             soi.unit_price,
             soi.paid_price,
             soi.shipping_amount,
             soi.shipping_surcharge,
+            soi.coupon_money_value,
+            sovt.name 'coupon_type',
             IFNULL(soi.paid_price / 1.1, 0) + IFNULL(soi.shipping_surcharge / 1.1, 0) + IFNULL(soi.shipping_amount / 1.1, 0) + IF(sovt.name <> 'coupon', IFNULL(soi.coupon_money_value / 1.1, 0), 0) 'nmv',
+            (IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction tr
+                LEFT JOIN asc_live.transaction_archive ta ON tr.number = ta.number
+                WHERE
+                    tr.ref = asoi.id_sales_order_item
+                        AND tr.fk_transaction_type IN (8 , 142)
+                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction_archive tr
+                WHERE
+                    tr.ref = asoi.id_sales_order_item
+                        AND tr.fk_transaction_type IN (8 , 142)), 0)) 'auto_shipping_fee',
             so.created_at 'order_date',
             soish.created_at 'verified_date',
             pash.created_at 'shipped_date',
@@ -46,9 +63,7 @@ FROM
             sel.short_code,
             sup.name 'seller_name',
             sup.type 'seller_type',
-            sel.tax_class,
-            soi.coupon_money_value,
-            sovt.name 'coupon_type'
+            sel.tax_class
     FROM
         (SELECT 
         fk_package, fk_package_status, MIN(created_at) 'created_at'
