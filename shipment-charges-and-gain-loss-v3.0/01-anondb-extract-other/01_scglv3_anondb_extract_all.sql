@@ -16,7 +16,7 @@ Instructions	: - Run the query by pressing the execute button
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d'), INTERVAL 1 DAY);
-SET @extractend = DATE_FORMAT(NOW(), '%Y-%m-%d'); -- This MUST be D + 1
+SET @extractend = DATE_FORMAT(NOW(), '%Y-%m-%d');-- This MUST be D + 1
 
 SELECT 
     *,
@@ -94,17 +94,40 @@ FROM
             soi.cart_rule_display_names,
             sois.name 'last_status',
             so.created_at 'order_date',
-            MIN(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'first_shipped_date',
-            MAX(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)) 'last_shipped_date',
-            MIN(IF(soish.fk_sales_order_item_status = 27, soish.created_at, NULL)) 'delivered_date',
-            MIN(IF(soish.fk_sales_order_item_status = 44, soish.created_at, NULL)) 'not_delivered_date',
+            IFNULL(MIN(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)), (SELECT 
+                    MIN(created_at)
+                FROM
+                    oms_live.oms_package_status_history
+                WHERE
+                    fk_package = pck.id_package
+                        AND fk_package_status = 4)) 'first_shipped_date',
+            IFNULL(MAX(IF(soish.fk_sales_order_item_status = 5, soish.created_at, NULL)), (SELECT 
+                    MAX(created_at)
+                FROM
+                    oms_live.oms_package_status_history
+                WHERE
+                    fk_package = pck.id_package
+                        AND fk_package_status = 4)) 'last_shipped_date',
+            IFNULL(MIN(IF(soish.fk_sales_order_item_status = 27, soish.created_at, NULL)), (SELECT 
+                    MIN(created_at)
+                FROM
+                    oms_live.oms_package_status_history
+                WHERE
+                    fk_package = pck.id_package
+                        AND fk_package_status = 6)) 'delivered_date',
+            IFNULL(MIN(IF(soish.fk_sales_order_item_status = 44, soish.created_at, NULL)), (SELECT 
+                    MIN(created_at)
+                FROM
+                    oms_live.oms_package_status_history
+                WHERE
+                    fk_package = pck.id_package
+                        AND fk_package_status = 5)) 'failed_delivery_date',
             MIN(IF(soish.fk_sales_order_item_status = 6, soish.created_at, NULL)) 'closed_date',
             MIN(IF(soish.fk_sales_order_item_status = 56, soish.created_at, NULL)) 'refund_completed_date',
             ppt.name 'pickup_provider_type',
             pck.package_number,
             pd.id_package_dispatching,
             ins.tenor,
-            -- SUBSTRING_INDEX(SUBSTRING_INDEX(pdr.raw_response, '</BANK>', 1), '<BANK>', - 1) AS 'bank',
             'bank',
             pdh.tracking_number 'first_tracking_number',
             sp1.shipment_provider_name 'first_shipment_provider',
@@ -216,9 +239,7 @@ FROM
     LEFT JOIN oms_live.ims_supplier osup ON soi.bob_id_supplier = osup.bob_id_supplier
     LEFT JOIN oms_live.oms_pickup_provider_type ppt ON osup.fk_pickup_provider_type = ppt.id_pickup_provider_type
     LEFT JOIN oms_live.oms_shipping_type st ON soi.fk_shipping_type = st.id_shipping_type
-    -- LEFT JOIN bob_live.sales_order_item bsoi ON soi.bob_id_sales_order_item = bsoi.id_sales_order_item
     LEFT JOIN bob_live.sales_order_instalment ins ON so.order_nr = ins.order_nr
-    -- LEFT JOIN bob_live.payment_dokuinstallment_response pdr ON bsoi.fk_sales_order = pdr.fk_sales_order
     LEFT JOIN bob_live.catalog_simple cs ON soi.sku = cs.sku
     LEFT JOIN bob_live.catalog_config cc ON cc.id_catalog_config = cs.fk_catalog_config
     LEFT JOIN bob_live.catalog_simple_package_unit cspu ON cs.id_catalog_simple = cspu.fk_catalog_simple
