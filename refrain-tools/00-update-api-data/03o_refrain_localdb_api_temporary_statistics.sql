@@ -109,14 +109,16 @@ SELECT
     *
 FROM
     (SELECT 
-        addb.package_number 'missing_package_number_reference'
+        1 AS 'api_type',
+            addb.package_number 'missing_package_number_reference'
     FROM
         api_data_direct_billing addb
     LEFT JOIN tmp_item_level til ON addb.package_number = til.package_number
     WHERE
         addb.created_at IS NULL
             AND til.bob_id_sales_order_item IS NULL UNION ALL SELECT 
-        adma.package_number 'missing_package_number_reference'
+        2 AS 'api_type',
+            adma.package_number 'missing_package_number_reference'
     FROM
         api_data_master_account adma
     LEFT JOIN tmp_item_level til ON adma.package_number = til.package_number

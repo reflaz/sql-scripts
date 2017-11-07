@@ -48,5 +48,5 @@ FROM
     WHERE
         tr.created_at >= @extractstart
             AND tr.created_at < @extractend
-            AND tr.fk_transaction_type IN (16 , 3, 15)
+            AND tr.fk_transaction_type IN (3 , 4, 16, 15)
     GROUP BY transaction_number) sca;

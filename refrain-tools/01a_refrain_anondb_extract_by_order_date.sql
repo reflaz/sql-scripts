@@ -205,7 +205,7 @@ FROM
             so.order_nr,
             so.payment_method,
             ins.tenor,
-            'bank',
+            NULL AS 'bank',
             soi.sku,
             cc.primary_category,
             soi.bob_id_supplier,

@@ -28,7 +28,7 @@ UPDATE tmp_package_level tpl
         AND tpl.bob_id_supplier = delv.bob_id_supplier
         AND delv.posting_type = 'INCOMING'
         AND delv.charge_type = 'DELIVERY'
-        AND delv.status IN ('COMPLETE' , 'ACTIVE')
+        AND delv.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
 	map_weight_threshold_seller mwts ON GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) >= mwts.start_date
         AND GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) <= mwts.end_date
@@ -76,31 +76,31 @@ UPDATE tmp_package_level tpl
         AND tpl.bob_id_supplier = delv.bob_id_supplier
         AND delv.posting_type = 'INCOMING'
         AND delv.charge_type = 'DELIVERY'
-        AND delv.status IN ('COMPLETE' , 'ACTIVE')
+        AND delv.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
     api_data_master_account fdel ON tpl.id_package_dispatching = fdel.id_package_dispatching
         AND tpl.bob_id_supplier = fdel.bob_id_supplier
         AND fdel.posting_type = 'INCOMING'
         AND fdel.charge_type = 'FAILED DELIVERY'
-        AND fdel.status IN ('COMPLETE' , 'ACTIVE')
+        AND fdel.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
     api_data_master_account pckc ON tpl.id_package_dispatching = pckc.id_package_dispatching
         AND tpl.bob_id_supplier = pckc.bob_id_supplier
         AND pckc.posting_type = 'INCOMING'
         AND pckc.charge_type = 'PICKUP'
-        AND pckc.status IN ('COMPLETE' , 'ACTIVE')
+        AND pckc.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
     api_data_master_account cod ON tpl.id_package_dispatching = cod.id_package_dispatching
         AND tpl.bob_id_supplier = cod.bob_id_supplier
         AND cod.posting_type = 'INCOMING'
         AND cod.charge_type = 'COD'
-        AND cod.status IN ('COMPLETE' , 'ACTIVE')
+        AND cod.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
     api_data_master_account ins ON tpl.id_package_dispatching = ins.id_package_dispatching
         AND tpl.bob_id_supplier = ins.bob_id_supplier
         AND ins.posting_type = 'INCOMING'
         AND ins.charge_type = 'INSURANCE'
-        AND ins.status IN ('COMPLETE' , 'ACTIVE')
+        AND ins.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
 	map_weight_threshold_seller mwts ON GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) >= mwts.start_date
         AND GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) <= mwts.end_date

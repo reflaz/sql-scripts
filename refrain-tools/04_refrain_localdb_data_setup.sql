@@ -102,6 +102,16 @@ SET
     adma.status = 'API_TYPE_CONFLICT'
 WHERE
     adma.status IN ('TEMPORARY' , 'API_TYPE_CONFLICT');
+
+UPDATE api_data_direct_billing addb
+        JOIN
+    api_data_master_account adma ON addb.package_number = adma.package_number
+        AND addb.short_code = adma.short_code
+        AND adma.status <> 'DELETED' 
+SET 
+    adma.status = 'API_TYPE_CONFLICT'
+WHERE
+    addb.status IN ('TEMPORARY');
     
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check for duplicate API data entries

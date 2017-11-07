@@ -16,8 +16,8 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-01-01';
-SET @extractend = '2017-02-01';-- This MUST be H + 1
+SET @extractstart = '2017-10-01';
+SET @extractend = '2017-11-01';-- This MUST be H + 1
 
 SELECT 
     *
@@ -48,9 +48,13 @@ FROM
     WHERE
         tr.created_at >= @extractstart
             AND tr.created_at < @extractend
-            AND (tr.description LIKE '%[Marketing Package VIP Seller]%'
+            AND (tr.fk_transaction_type IN (67 , 84, 65, 66, 123)
+            OR tr.description LIKE '%[Marketing Package VIP Seller]%'
             OR tr.description LIKE '%[Customer Flat Fee]%'
             OR tr.description LIKE '%[Service Photoshoot]%'
             OR tr.description LIKE '%[Reimbursement Commission]%'
-            OR tr.description LIKE '%[Reimbursement Payment Fee]%')
+            OR tr.description LIKE '%[Reimbursement Payment Fee]%'
+            OR tr.description LIKE '%[Adjustments Commission]%'
+            OR tr.description LIKE '%[Adjustments Payment Fee]%'
+            OR tr.description LIKE '%[Taxable]%')
     GROUP BY transaction_number) sca;
