@@ -106,7 +106,7 @@ FROM
             result.id_package_dispatching,
             ins.tenor,
             -- SUBSTRING_INDEX(SUBSTRING_INDEX(pdr.raw_response, '</BANK>', 1), '<BANK>', - 1) AS 'bank',
-            'bank',
+            NULL AS 'bank',
             result.first_tracking_number,
             result.first_shipment_provider,
             result.last_tracking_number,

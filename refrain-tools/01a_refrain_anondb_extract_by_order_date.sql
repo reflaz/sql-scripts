@@ -251,34 +251,58 @@ FROM
                 WHERE
                     fk_sales_order_item = soi.id_sales_order_item
                         AND fk_sales_order_item_status = 67) 'finance_verified_date',
-            (SELECT 
+            IFNULL((SELECT 
+                    MIN(created_at)
+                FROM
+                    oms_live.ims_sales_order_item_status_history
+                WHERE
+                    fk_sales_order_item = soi.id_sales_order_item
+                        AND fk_sales_order_item_status = 5), (SELECT 
                     MIN(created_at)
                 FROM
                     oms_live.oms_package_status_history
                 WHERE
                     fk_package = pck.id_package
-                        AND fk_package_status = 4) 'first_shipped_date',
-            (SELECT 
+                        AND fk_package_status = 4)) 'first_shipped_date',
+            IFNULL((SELECT 
+                    MAX(created_at)
+                FROM
+                    oms_live.ims_sales_order_item_status_history
+                WHERE
+                    fk_sales_order_item = soi.id_sales_order_item
+                        AND fk_sales_order_item_status = 5), (SELECT 
                     MAX(created_at)
                 FROM
                     oms_live.oms_package_status_history
                 WHERE
                     fk_package = pck.id_package
-                        AND fk_package_status = 4) 'last_shipped_date',
-            (SELECT 
+                        AND fk_package_status = 4)) 'last_shipped_date',
+            IFNULL((SELECT 
+                    MIN(created_at)
+                FROM
+                    oms_live.ims_sales_order_item_status_history
+                WHERE
+                    fk_sales_order_item = soi.id_sales_order_item
+                        AND fk_sales_order_item_status = 27), (SELECT 
                     MIN(created_at)
                 FROM
                     oms_live.oms_package_status_history
                 WHERE
                     fk_package = pck.id_package
-                        AND fk_package_status = 6) 'delivered_date',
-            (SELECT 
+                        AND fk_package_status = 6)) 'delivered_date',
+            IFNULL((SELECT 
+                    MIN(created_at)
+                FROM
+                    oms_live.ims_sales_order_item_status_history
+                WHERE
+                    fk_sales_order_item = soi.id_sales_order_item
+                        AND fk_sales_order_item_status = 44), (SELECT 
                     MIN(created_at)
                 FROM
                     oms_live.oms_package_status_history
                 WHERE
                     fk_package = pck.id_package
-                        AND fk_package_status = 5) 'failed_delivery_date',
+                        AND fk_package_status = 5)) 'failed_delivery_date',
             CASE
                 WHEN
                     sup.type = 'supplier'

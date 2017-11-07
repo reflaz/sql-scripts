@@ -128,7 +128,7 @@ FROM
             pck.package_number,
             pd.id_package_dispatching,
             ins.tenor,
-            'bank',
+            NULL AS 'bank',
             pdh.tracking_number 'first_tracking_number',
             sp1.shipment_provider_name 'first_shipment_provider',
             pd.tracking_number 'last_tracking_number',
