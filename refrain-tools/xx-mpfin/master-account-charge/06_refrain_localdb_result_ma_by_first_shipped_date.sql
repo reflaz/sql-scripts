@@ -17,10 +17,10 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-10-23';
-SET @extractend = '2017-10-30';-- This MUST be D + 1
+SET @extractstart = '2017-10-30';
+SET @extractend = '2017-11-06';-- This MUST be D + 1
 
-USE refrain;
+USE refrain_live;
 
 SELECT 
     *
@@ -57,9 +57,7 @@ FROM
             pickup_provider_type,
             id_package_dispatching,
             package_number,
-            first_tracking_number,
             first_shipment_provider,
-            last_tracking_number,
             last_shipment_provider,
             shipping_type,
             delivery_type,
@@ -80,9 +78,7 @@ FROM
             SUM(IFNULL(seller_charge, 0)) 'seller_charge',
             SUM(IFNULL(insurance_seller, 0)) 'insurance_seller',
             SUM(IFNULL(insurance_vat_seller, 0)) 'insurance_vat_seller',
-            SUM(IFNULL(total_seller_charge, 0)) 'total_seller_charge',
-            created_at,
-            updated_at
+            SUM(IFNULL(total_seller_charge, 0)) 'total_seller_charge'
     FROM
         fms_sales_order_item
     WHERE

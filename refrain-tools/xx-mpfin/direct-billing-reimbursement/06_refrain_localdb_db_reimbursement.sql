@@ -17,7 +17,7 @@ Instructions	: - Change @api_date accordingly
 
 SET @api_date = '20171030-20171105';
 
-USE refrain;
+USE refrain_live;
 
 SELECT 
     *,
@@ -105,7 +105,7 @@ FROM
             SUM(IF(charge_type = 'DELIVERY', total_amount, 0)) 'delivery_total_amount',
             MAX(IF(charge_type = 'DELIVERY', status, '')) 'delivery_status'
     FROM
-        refrain.api_data_direct_billing
+        api_data_direct_billing
     WHERE
         api_date = @api_date
     GROUP BY package_number , short_code) adma

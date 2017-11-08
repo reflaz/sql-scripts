@@ -15,7 +15,7 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE refrain;
+USE refrain_live;
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'

@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Refrain Tools
+refrain_live Tools
 LocalDB Creation
 
 Prepared by		: R Maliangkay
@@ -14,9 +14,9 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-DROP DATABASE IF EXISTS  `refrain`;
-CREATE DATABASE IF NOT EXISTS `refrain` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `refrain`;
+DROP DATABASE IF EXISTS  `refrain_live`;
+CREATE DATABASE IF NOT EXISTS `refrain_live` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `refrain_live`;
 
 CREATE TABLE IF NOT EXISTS `api_cons_charge_type` (
     `id_api_charge_type` INT(10) NOT NULL AUTO_INCREMENT,
