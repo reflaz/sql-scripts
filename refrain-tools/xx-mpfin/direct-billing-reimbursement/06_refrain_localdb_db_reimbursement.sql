@@ -22,19 +22,36 @@ USE refrain_live;
 SELECT 
     *,
     '' AS 'File Line Id',
-    'Order_LazadaFees' AS 'Transaction Type Level 1-2',
-    'Adjustments Shipping Fee' AS 'Transaction Type',
+    CASE
+        WHEN reimbursement >= 0 THEN 'Order_LazadaFees'
+        ELSE 'Order_OtherDebit'
+    END 'Transaction Type Level 1-2',
+    CASE
+        WHEN reimbursement >= 0 THEN 'Adjustments Shipping Fee'
+        ELSE 'Other Debit - Non Taxable'
+    END 'Transaction Type',
     short_code 'Seller ID or Name',
     sc_id_sales_order_item 'Order Item Id',
     oms_id_sales_order_item 'Lazada Item Id',
-    (total_seller_charge + total_delivery_cost + total_failed_delivery_cost - auto_shipping_fee - manual_shipping_fee_lzd - manual_shipping_fee_3p - shipping_fee_adjustment) * - 1 'Amount',
-    CONCAT_WS(';',
-            'SFC',
-            IFNULL(DATE(delivered_date), 'NULL'),
-            order_nr,
-            'Reimbursement Shipping Fee') 'Comment'
+    ABS(reimbursement) 'Amount',
+    CASE
+        WHEN
+            reimbursement >= 0
+        THEN
+            CONCAT_WS(';',
+                    'SFC',
+                    IFNULL(DATE(delivered_date), 'NULL'),
+                    order_nr,
+                    'Reimbursement Shipping Fee')
+        ELSE CONCAT('[Deduction Excess Shipping Fee] for Order Number ',
+                order_nr)
+    END 'Comment'
 FROM
     (SELECT 
+        *,
+            (total_seller_charge + total_delivery_cost + total_failed_delivery_cost - auto_shipping_fee - manual_shipping_fee_lzd - manual_shipping_fee_3p - shipping_fee_adjustment) * - 1 'reimbursement'
+    FROM
+        (SELECT 
         fsoi.bob_id_sales_order_item,
             fsoi.sc_id_sales_order_item,
             fsoi.oms_id_sales_order_item,
@@ -76,6 +93,7 @@ FROM
             fsoi.shipment_scheme,
             fsoi.campaign,
             SUM(IFNULL(fsoi.formula_weight_seller, 0)) 'formula_weight_seller',
+            SUM(IFNULL(fsoi.chargeable_weight_3pl, 0)) 'api_weight',
             SUM(IFNULL(fsoi.chargeable_weight_seller, 0)) 'chargeable_weight_seller',
             SUM(IFNULL(fsoi.seller_flat_charge, 0)) 'seller_flat_charge',
             SUM(IFNULL(fsoi.seller_charge, 0)) 'seller_charge',
@@ -111,4 +129,4 @@ FROM
     GROUP BY package_number , short_code) adma
     LEFT JOIN fms_sales_order_item fsoi ON adma.package_number = fsoi.package_number
         AND adma.short_code = fsoi.short_code
-    GROUP BY adma.package_number , adma.short_code) result;
+    GROUP BY adma.package_number , adma.short_code) result) result;
