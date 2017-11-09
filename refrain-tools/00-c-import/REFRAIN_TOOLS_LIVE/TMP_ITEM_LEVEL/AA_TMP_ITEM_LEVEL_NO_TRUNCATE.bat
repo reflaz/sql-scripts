@@ -2,6 +2,7 @@ echo off
 setlocal enabledelayedexpansion
 
 echo.
+echo IMPORTING refrain_live.tmp_item_level
 
 FOR %%f IN ("*.csv") DO (
   set old=%%~dpnxf

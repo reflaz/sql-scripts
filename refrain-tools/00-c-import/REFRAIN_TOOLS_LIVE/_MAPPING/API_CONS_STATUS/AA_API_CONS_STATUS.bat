@@ -2,6 +2,7 @@ echo off
 setlocal enabledelayedexpansion
 
 echo.
+echo IMPORTING refrain_live.api_cons_status
 
 FOR %%f IN ("*.csv") DO (
   set old=%%~dpnxf

@@ -2,6 +2,7 @@ echo off
 setlocal enabledelayedexpansion
 
 echo.
+echo IMPORTING refrain_live.asc_transaction
 
 FOR %%f IN ("*.csv") DO (
   set old=%%~dpnxf

@@ -14,7 +14,6 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-DROP DATABASE IF EXISTS  `refrain_live`;
 CREATE DATABASE IF NOT EXISTS `refrain_live` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `refrain_live`;
 
@@ -413,6 +412,20 @@ CREATE TABLE IF NOT EXISTS `map_category_tree` (
     KEY (`resulting_status`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='BOB Category Tree';
 
+CREATE TABLE IF NOT EXISTS `map_city_tier` (
+    `id_city_tier` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_region` INT(10) UNSIGNED DEFAULT NULL,
+    `region` VARCHAR(255) DEFAULT '',
+    `id_city` INT(10) UNSIGNED DEFAULT NULL,
+    `city` VARCHAR(255) DEFAULT '',
+    `id_district` INT(10) UNSIGNED NOT NULL,
+    `district` VARCHAR(255) DEFAULT '',
+    `tier` VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY (`id_city_tier`),
+    KEY (`id_district`),
+    KEY (`tier`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='City Tier';
+
 CREATE TABLE IF NOT EXISTS `map_default_charges` (
     `id_default_charges` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `shipment_scheme` VARCHAR(50) DEFAULT NULL,
@@ -460,17 +473,17 @@ CREATE TABLE IF NOT EXISTS `map_default_insurance` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Default insurance scheme';
 
-CREATE TABLE IF NOT EXISTS `map_origin_mapping` (
-    `id_origin_mapping` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `map_origin_access` (
+    `id_origin_access` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `origin` VARCHAR(64) DEFAULT NULL,
-    `origin_mapping` VARCHAR(64) DEFAULT NULL,
+    `origin_access` VARCHAR(64) DEFAULT NULL,
     `start_date` DATETIME DEFAULT NULL,
     `end_date` DATETIME DEFAULT NULL,
-    PRIMARY KEY (`id_origin_mapping`),
+    PRIMARY KEY (`id_origin_access`),
     KEY (`origin`),
     KEY (`start_date`),
     KEY (`end_date`)
-)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Rate card 3PL';
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Origin Access';
 
 CREATE TABLE IF NOT EXISTS `map_rate_card_3pl` (
     `id_rate_card` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,

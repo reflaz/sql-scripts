@@ -164,11 +164,11 @@ Calculate shipping charge for Non-API data on package-seller data
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE tmp_package_level tpl
-    LEFT JOIN map_origin_mapping mom ON IFNULL(tpl.origin, 'origin') = COALESCE(mom.origin, tpl.origin, 'origin')
-        AND GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) >= mom.start_date
-        AND GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) <= mom.end_date
+    LEFT JOIN map_origin_access moa ON IFNULL(tpl.origin, 'origin') = COALESCE(moa.origin, tpl.origin, 'origin')
+        AND GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) >= moa.start_date
+        AND GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) <= moa.end_date
     LEFT JOIN map_rate_card_3pl mrc3 ON tpl.id_district = mrc3.id_district
-        AND mom.origin_mapping = mrc3.origin
+        AND moa.origin_access = mrc3.origin
         AND tpl.rate_card_scheme = mrc3.rate_card_scheme
         AND tpl.chargeable_weight_3pl > mrc3.min_weight
         AND tpl.chargeable_weight_3pl <= mrc3.max_weight

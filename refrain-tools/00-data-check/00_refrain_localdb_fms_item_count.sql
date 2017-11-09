@@ -61,7 +61,8 @@ FROM
     FROM
         fms_sales_order_item pdc
     GROUP BY finver , ordered , shipped , delivered , failed) fsoi
-    JOIN period_data_check pdc ON (pdc.period = fsoi.ordered
+    JOIN period_data_check pdc ON (pdc.period = fsoi.finver
+        OR pdc.period = fsoi.ordered
         OR pdc.period = fsoi.shipped
         OR pdc.period = fsoi.delivered
         OR pdc.period = fsoi.failed)
