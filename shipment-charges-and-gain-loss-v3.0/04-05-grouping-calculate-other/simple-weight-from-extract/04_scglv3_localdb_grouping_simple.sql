@@ -275,7 +275,7 @@ FROM
             CASE
                 WHEN
                     is_marketplace = 0
-                        OR shipment_scheme IN ('DIGITAL' , 'CROSS BORDER', 'RETAIL', 'DIRECT BILLING')
+                        OR shipment_scheme IN ('DIGITAL' , 'CROSS BORDER', 'RETAIL')
                 THEN
                     NULL
                 ELSE (SELECT 
