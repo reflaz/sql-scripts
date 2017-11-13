@@ -14,20 +14,19 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE scglv3;
+USE refrain_live;
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-08-14';
-SET @extractend = '2017-08-16';-- This MUST be D + 1
+SET @extractstart = '2017-11-06';
+SET @extractend = '2017-11-07';-- This MUST be D + 1
 
 SELECT 
+    fin.id_city,
     fin.city,
-    fin.zone_type,
     fin.tier,
     fin.threshold_kg,
     fin.threshold_order,
-    fin.is_free,
     SUM(fin.unit_price) 'total_unit_price',
     SUM(fin.paid_price) 'total_paid_price',
     SUM(fin.nmv) 'nmv',
@@ -60,37 +59,31 @@ FROM
                 WHEN order_value < 200000 THEN '< 200k'
                 WHEN order_value < 250000 THEN '< 250k'
                 WHEN order_value < 300000 THEN '< 300k'
-                ELSE '> 300k'
+                WHEN order_value < 350000 THEN '< 350k'
+                WHEN order_value < 400000 THEN '< 400k'
+                WHEN order_value < 450000 THEN '< 450k'
+                WHEN order_value < 500000 THEN '< 500k'
+                ELSE '>= 500k'
             END 'threshold_order'
     FROM
         (SELECT 
-        pack.*,
-            GREATEST(weight, volumetric_weight) 'formula_weight',
-            CASE
-                WHEN
-                    IFNULL(shipping_amount, 0) = 0
-                        AND IFNULL(shipping_surcharge, 0) = 0
-                THEN
-                    'free'
-                ELSE 'paid'
-            END 'is_free'
+        pack.*, GREATEST(weight, volumetric_weight) 'formula_weight'
     FROM
         (SELECT 
         order_nr,
             id_package_dispatching,
-            zone_type,
             id_district,
             id_city,
             city,
-            id_tier_mapping,
+            id_city_tier,
             tier,
             COUNT(bob_id_sales_order_item) 'qty',
             origin,
             order_value,
             SUM(unit_price) 'unit_price',
             SUM(paid_price) 'paid_price',
-            SUM(total_shipment_fee_mp_seller_item) 'total_shipment_fee_mp_seller',
-            SUM(total_delivery_cost_item) 'total_delivery_cost',
+            SUM(total_seller_charge) 'total_shipment_fee_mp_seller',
+            SUM(total_delivery_cost) 'total_delivery_cost',
             SUM(shipping_surcharge_temp) 'shipping_surcharge',
             SUM(shipping_amount_temp) 'shipping_amount',
             SUM(nmv) 'nmv',
@@ -100,22 +93,20 @@ FROM
         (SELECT 
         ac.order_nr,
             ac.id_package_dispatching,
-            ac.zone_type,
             ac.id_district,
             tm.id_city,
             tm.city,
-            tm.id_tier_mapping,
+            tm.id_city_tier,
             tm.tier,
             ac.bob_id_sales_order_item,
             ac.origin,
             ac.order_value,
             ac.unit_price,
             ac.paid_price,
-            ac.total_shipment_fee_mp_seller_item,
-            ac.total_delivery_cost_item,
+            ac.total_seller_charge,
+            ac.total_delivery_cost,
             CASE
-                WHEN chargeable_weight_3pl_ps / qty_ps > 400 THEN 0
-                WHEN ABS(total_delivery_cost_item / unit_price) > 5 THEN 0
+                WHEN ABS(total_delivery_cost / unit_price) > 5 THEN 0
                 WHEN shipping_amount + shipping_surcharge > 40000000 THEN 0
                 ELSE 1
             END 'pass',
@@ -128,29 +119,15 @@ FROM
                 ELSE IFNULL(shipping_amount, 0)
             END 'shipping_amount_temp',
             IFNULL(paid_price / 1.1, 0) + IFNULL(shipping_surcharge / 1.1, 0) + IFNULL(shipping_amount / 1.1, 0) + IF(coupon_type <> 'coupon', IFNULL(coupon_money_value / 1.1, 0), 0) 'nmv',
-            IFNULL(CASE
-                WHEN
-                    simple_weight > 0
-                        OR (simple_length * simple_width * simple_height) > 0
-                THEN
-                    simple_weight
-                ELSE config_weight
-            END, 0) 'weight',
-            IFNULL(CASE
-                WHEN
-                    simple_weight > 0
-                        OR (simple_length * simple_width * simple_height) > 0
-                THEN
-                    (simple_length * simple_width * simple_height) / 6000
-                ELSE config_length * config_width * config_height / 6000
-            END, 0) 'volumetric_weight'
+            weight,
+            volumetric_weight
     FROM
-        anondb_calculate ac
-    LEFT JOIN tier_mapping tm ON ac.id_district = tm.id_district
+        fms_sales_order_item ac
+    LEFT JOIN map_city_tier tm ON ac.id_district = tm.id_district
     WHERE
         ac.order_date >= @extractstart
             AND ac.order_date < @extractend
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
     HAVING pass = 1) item
     GROUP BY order_nr , id_package_dispatching) pack) city) fin
-GROUP BY fin.id_city , fin.zone_type , fin.tier , fin.threshold_order , fin.is_free , fin.threshold_kg
+GROUP BY fin.id_city , fin.tier , fin.threshold_order , fin.threshold_kg
