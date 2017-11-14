@@ -12,3 +12,4 @@ NULL,NO_DELIVERY_DETAILS,Data have no delivery reference details,2017-09-14 00:0
 NULL,PACKAGE_NOT_FOUND,Package not found in Anon DB extract,2017-09-14 00:00:00,2017-09-14 00:00:00
 NULL,SELLER_NOT_FOUND,Seller not found in Anon DB extract,2017-09-14 00:00:00,2017-09-14 00:00:00
 NULL,NO_DFD_DATE,Package not yet reach delivered/failed delivery status,2017-09-14 00:00:00,2017-09-14 00:00:00
+NULL,REVERSED,Data has been reversed,2017-09-14 00:00:00,2017-09-14 00:00:00
