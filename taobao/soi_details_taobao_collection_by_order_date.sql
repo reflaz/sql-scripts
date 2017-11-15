@@ -27,11 +27,30 @@ FROM
             soi.bob_id_sales_order_item,
             ascsoi.id_sales_order_item 'sc_id_sales_order_item',
             soi.id_sales_order_item 'oms_id_sales_order_item',
-            soi.unit_price,
-            soi.paid_price,
-            soi.shipping_amount,
-            soi.shipping_surcharge,
-            soi.coupon_money_value,
+            soi.sku,
+            cc.primary_category,
+            cca.regional_key,
+            cca.name_en 'primary_category_name',
+            cty.id_customer_address_region 'id_city',
+            cty.name 'city',
+            dst.id_customer_address_region 'id_district',
+            pck.package_number,
+            sup.id_supplier,
+            ascsel.short_code,
+            sup.name 'seller_name',
+            sup.type 'seller_type',
+            ascsel.tax_class,
+            so.created_at 'order_date',
+            WEEK(so.created_at, 1) 'week_order_date',
+            verified.created_at 'verified_date',
+            IF(psh.fk_package_status = 4, psh.created_at, NULL) 'shipped_date',
+            IF(psh.fk_package_status = 6, psh.created_at, NULL) 'delivered_date',
+            IF(psh.fk_package_status = 5, psh.created_at, NULL) 'failed_delivery_date',
+            IFNULL(soi.unit_price, 0) 'unit_price',
+            IFNULL(soi.paid_price, 0) 'paid_price',
+            IFNULL(soi.shipping_amount, 0) 'shipping_amount',
+            IFNULL(soi.shipping_surcharge, 0) 'shipping_surcharge',
+            IFNULL(soi.coupon_money_value, 0) 'coupon_money_value',
             sovt.name 'coupon_type',
             IFNULL(soi.paid_price / 1.1, 0) + IFNULL(soi.shipping_surcharge / 1.1, 0) + IFNULL(soi.shipping_amount / 1.1, 0) + IF(sovt.name <> 'coupon', IFNULL(soi.coupon_money_value / 1.1, 0), 0) 'nmv',
             (IFNULL((SELECT 
@@ -49,21 +68,21 @@ FROM
                 WHERE
                     tr.ref = ascsoi.id_sales_order_item
                         AND tr.fk_transaction_type IN (8 , 142)), 0)) 'auto_shipping_fee',
-            so.created_at 'order_date',
-            verified.created_at 'verified_date',
-            IF(psh.fk_package_status = 4, psh.created_at, NULL) 'shipped_date',
-            IF(psh.fk_package_status = 6, psh.created_at, NULL) 'delivered_date',
-            IF(psh.fk_package_status = 5, psh.created_at, NULL) 'failed_delivery_date',
-            pck.package_number,
-            soi.sku,
-            cc.primary_category,
-            cca.regional_key,
-            cca.name_en 'primary_category_name',
-            sup.id_supplier,
-            ascsel.short_code,
-            sup.name 'seller_name',
-            sup.type 'seller_type',
-            ascsel.tax_class
+            (IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction tr
+                LEFT JOIN asc_live.transaction_archive ta ON tr.number = ta.number
+                WHERE
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (7 , 143)
+                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction_archive tr
+                WHERE
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (7 , 143)), 0)) * - 1 'manual_shipping_fee_lzd'
     FROM
         oms_live.ims_sales_order so
     LEFT JOIN oms_live.ims_sales_order_item soi ON so.id_sales_order = soi.fk_sales_order
@@ -76,6 +95,9 @@ FROM
     LEFT JOIN oms_live.oms_package_dispatching pd ON pck.id_package = pd.fk_package
     LEFT JOIN oms_live.ims_sales_order_item_status sois ON soi.fk_sales_order_item_status = sois.id_sales_order_item_status
     LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON so.fk_voucher_type = sovt.id_sales_order_voucher_type
+    LEFT JOIN oms_live.ims_sales_order_address soa ON so.fk_sales_order_address_shipping = soa.id_sales_order_address
+    LEFT JOIN oms_live.ims_customer_address_region dst ON soa.fk_customer_address_region = dst.id_customer_address_region
+    LEFT JOIN bob_live.customer_address_region cty ON cty.id_customer_address_region = dst.fk_customer_address_region
     LEFT JOIN bob_live.catalog_simple cs ON soi.sku = cs.sku
     LEFT JOIN bob_live.catalog_config cc ON cc.id_catalog_config = cs.fk_catalog_config
     LEFT JOIN bob_live.catalog_category cca ON cc.primary_category = cca.id_catalog_category
