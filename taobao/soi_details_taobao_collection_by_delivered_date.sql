@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-SOI Details by Delivered Date
+SOI Details TBC by Delivered Date
  
 Prepared by		: R Maliangkay
 Modified by		: 
@@ -16,8 +16,8 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-10-01';
-SET @extractend = '2017-10-02';-- This MUST be D + 1
+SET @extractstart = '2017-09-25';
+SET @extractend = '2017-09-27';-- This MUST be D + 1
 
 SELECT 
     *
@@ -27,11 +27,30 @@ FROM
             soi.bob_id_sales_order_item,
             asoi.id_sales_order_item 'sc_id_sales_order_item',
             soi.id_sales_order_item 'oms_id_sales_order_item',
-            soi.unit_price,
-            soi.paid_price,
-            soi.shipping_amount,
-            soi.shipping_surcharge,
-            soi.coupon_money_value,
+            soi.sku,
+            cc.primary_category,
+            cca.regional_key,
+            cca.name_en 'primary_category_name',
+            cty.id_customer_address_region 'id_city',
+            cty.name 'city',
+            dst.id_customer_address_region 'id_district',
+            pck.package_number,
+            sup.id_supplier,
+            sel.short_code,
+            sup.name 'seller_name',
+            sup.type 'seller_type',
+            sel.tax_class,
+            so.created_at 'order_date',
+            soish.created_at 'verified_date',
+            pash.created_at 'shipped_date',
+            IF(result.fk_package_status = 6, result.created_at, NULL) 'delivered_date',
+            WEEK(IF(result.fk_package_status = 6, result.created_at, NULL), 1) 'week_delivered_date',
+            IF(result.fk_package_status = 5, result.created_at, NULL) 'failed_delivery_date',
+            IFNULL(soi.unit_price, 0) 'unit_price',
+            IFNULL(soi.paid_price, 0) 'paid_price',
+            IFNULL(soi.shipping_amount, 0) 'shipping_amount',
+            IFNULL(soi.shipping_surcharge, 0) 'shipping_surcharge',
+            IFNULL(soi.coupon_money_value, 0) 'coupon_money_value',
             sovt.name 'coupon_type',
             IFNULL(soi.paid_price / 1.1, 0) + IFNULL(soi.shipping_surcharge / 1.1, 0) + IFNULL(soi.shipping_amount / 1.1, 0) + IF(sovt.name <> 'coupon', IFNULL(soi.coupon_money_value / 1.1, 0), 0) 'nmv',
             (IFNULL((SELECT 
@@ -49,21 +68,21 @@ FROM
                 WHERE
                     tr.ref = asoi.id_sales_order_item
                         AND tr.fk_transaction_type IN (8 , 142)), 0)) 'auto_shipping_fee',
-            so.created_at 'order_date',
-            soish.created_at 'verified_date',
-            pash.created_at 'shipped_date',
-            IF(result.fk_package_status = 6, result.created_at, NULL) 'delivered_date',
-            IF(result.fk_package_status = 5, result.created_at, NULL) 'failed_delivery_date',
-            pck.package_number,
-            soi.sku,
-            cc.primary_category,
-            cca.regional_key,
-            cca.name_en 'primary_category_name',
-            sup.id_supplier,
-            sel.short_code,
-            sup.name 'seller_name',
-            sup.type 'seller_type',
-            sel.tax_class
+            (IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction tr
+                LEFT JOIN asc_live.transaction_archive ta ON tr.number = ta.number
+                WHERE
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (7 , 143)
+                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
+                    SUM(IFNULL(tr.value, 0))
+                FROM
+                    asc_live.transaction_archive tr
+                WHERE
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (7 , 143)), 0)) * - 1 'manual_shipping_fee_lzd'
     FROM
         (SELECT 
         fk_package, fk_package_status, MIN(created_at) 'created_at'
@@ -72,7 +91,7 @@ FROM
     WHERE
         created_at >= @extractstart
             AND created_at < @extractend
-            AND fk_package_status IN (5 , 6)
+            AND fk_package_status IN (5, 6)
     GROUP BY fk_package) result
     LEFT JOIN oms_live.oms_package pck ON result.fk_package = pck.id_package
     LEFT JOIN oms_live.oms_package_dispatching pd ON pck.id_package = pd.fk_package
@@ -90,6 +109,9 @@ FROM
     LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
         AND soish.fk_sales_order_item_status = 67
     LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON so.fk_voucher_type = sovt.id_sales_order_voucher_type
+    LEFT JOIN oms_live.ims_sales_order_address soa ON so.fk_sales_order_address_shipping = soa.id_sales_order_address
+    LEFT JOIN oms_live.ims_customer_address_region dst ON soa.fk_customer_address_region = dst.id_customer_address_region
+    LEFT JOIN bob_live.customer_address_region cty ON cty.id_customer_address_region = dst.fk_customer_address_region
     LEFT JOIN bob_live.catalog_simple cs ON soi.sku = cs.sku
     LEFT JOIN bob_live.catalog_config cc ON cc.id_catalog_config = cs.fk_catalog_config
     LEFT JOIN bob_live.catalog_category cca ON cc.primary_category = cca.id_catalog_category
