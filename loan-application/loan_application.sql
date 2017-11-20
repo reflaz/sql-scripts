@@ -15,7 +15,7 @@ Instructions	: - Insert formatted parameters
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 -- Insert parameter here
-SET @scsellerid = 'ID119SH,ID10RZ2,ID109EK,ID10753';
+SET @scsellerid = 'ID111IJ,ID12U5Z,ID11CF1,ID10BX5,ID1046A,ID110TU,ID126L3,ID10WGM,ID10BNE,ID12K33,ID128GC';
 
 -- DO NOT CHANGE THESE EVER!!
 
@@ -80,6 +80,7 @@ FROM
         (SELECT 
         result.src_id 'bob_id_seller',
             result.id_seller,
+            result.first_and_last_name,
             result.shop_name,
             result.root_categories,
             result.phone_number,
@@ -269,6 +270,7 @@ FROM
             sel.name 'shop_name',
             sel.short_code 'seller_center_id',
             sel.tax_class,
+            osa.contact_name 'first_and_last_name',
             SUBSTRING_INDEX(SUBSTRING_INDEX(sel.tmp_data, 'phone":"', - 1), '","', 1) 'phone_number',
             CONCAT(SUBSTRING_INDEX(SUBSTRING_INDEX(sel.tmp_data, 'customercare_address1":"', - 1), '","', 1), ', ', SUBSTRING_INDEX(SUBSTRING_INDEX(sel.tmp_data, 'customercare_city":"', - 1), '","', 1), ' ', SUBSTRING_INDEX(SUBSTRING_INDEX(sel.tmp_data, 'customercare_postcode":"', - 1), '","', 1)) 'address',
             sel.email 'email_address',
@@ -277,6 +279,21 @@ FROM
     FROM
         asc_live.seller sel
     LEFT JOIN bob_live.supplier sup ON sel.src_id = sup.id_supplier
+    LEFT JOIN bob_live.supplier_address sa ON sup.id_supplier = sa.fk_supplier
+        AND sa.id_supplier_address = (SELECT 
+            MAX(id_supplier_address)
+        FROM
+            bob_live.supplier_address
+        WHERE
+            fk_supplier = sup.id_supplier
+                AND address_type = 'customercare')
+    LEFT JOIN oms_live.ims_supplier_address osa ON sa.id_supplier_address = osa.bob_id_supplier_address
+        AND osa.id_supplier_address = (SELECT 
+            MAX(id_supplier_address)
+        FROM
+            oms_live.ims_supplier_address
+        WHERE
+            bob_id_supplier_address = sa.id_supplier_address)
     LEFT JOIN bob_live.catalog_source cso ON sup.id_supplier = cso.fk_supplier
         AND cso.status_source = 'active'
     LEFT JOIN bob_live.catalog_simple cs ON cso.fk_catalog_simple = cs.id_catalog_simple
