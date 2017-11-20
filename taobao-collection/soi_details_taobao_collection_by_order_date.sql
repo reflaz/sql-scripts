@@ -17,7 +17,7 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2017-10-01';
-SET @extractend = '2017-10-02';-- This MUST be D + 1
+SET @extractend = '2017-10-01';-- This MUST be D + 1
 
 SELECT 
     *
@@ -41,48 +41,19 @@ FROM
             sup.type 'seller_type',
             ascsel.tax_class,
             so.created_at 'order_date',
-            WEEK(so.created_at, 1) 'week_order_date',
             verified.created_at 'verified_date',
-            IF(psh.fk_package_status = 4, psh.created_at, NULL) 'shipped_date',
-            IF(psh.fk_package_status = 6, psh.created_at, NULL) 'delivered_date',
-            IF(psh.fk_package_status = 5, psh.created_at, NULL) 'failed_delivery_date',
+            MAX(IF(psh.fk_package_status = 4, psh.created_at, NULL)) 'shipped_date',
+            MAX(IF(psh.fk_package_status = 6, psh.created_at, NULL)) 'delivered_date',
+            MAX(IF(psh.fk_package_status = 5, psh.created_at, NULL)) 'failed_delivery_date',
+            MAX(IF(psh.fk_package_status IN (5 , 6), psh.created_at, NULL)) 'dfd_date',
+            WEEK(so.created_at) 'week_order_date',
+            sovt.name 'coupon_type',
             IFNULL(soi.unit_price, 0) 'unit_price',
             IFNULL(soi.paid_price, 0) 'paid_price',
             IFNULL(soi.shipping_amount, 0) 'shipping_amount',
             IFNULL(soi.shipping_surcharge, 0) 'shipping_surcharge',
             IFNULL(soi.coupon_money_value, 0) 'coupon_money_value',
-            sovt.name 'coupon_type',
-            IFNULL(soi.paid_price / 1.1, 0) + IFNULL(soi.shipping_surcharge / 1.1, 0) + IFNULL(soi.shipping_amount / 1.1, 0) + IF(sovt.name <> 'coupon', IFNULL(soi.coupon_money_value / 1.1, 0), 0) 'nmv',
-            (IFNULL((SELECT 
-                    SUM(IFNULL(tr.value, 0))
-                FROM
-                    asc_live.transaction tr
-                LEFT JOIN asc_live.transaction_archive ta ON tr.number = ta.number
-                WHERE
-                    tr.ref = ascsoi.id_sales_order_item
-                        AND tr.fk_transaction_type IN (8 , 142)
-                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
-                    SUM(IFNULL(tr.value, 0))
-                FROM
-                    asc_live.transaction_archive tr
-                WHERE
-                    tr.ref = ascsoi.id_sales_order_item
-                        AND tr.fk_transaction_type IN (8 , 142)), 0)) 'auto_shipping_fee',
-            (IFNULL((SELECT 
-                    SUM(IFNULL(tr.value, 0))
-                FROM
-                    asc_live.transaction tr
-                LEFT JOIN asc_live.transaction_archive ta ON tr.number = ta.number
-                WHERE
-                    tr.ref = sc_id_sales_order_item
-                        AND tr.fk_transaction_type IN (7 , 143)
-                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
-                    SUM(IFNULL(tr.value, 0))
-                FROM
-                    asc_live.transaction_archive tr
-                WHERE
-                    tr.ref = sc_id_sales_order_item
-                        AND tr.fk_transaction_type IN (7 , 143)), 0)) * - 1 'manual_shipping_fee_lzd'
+            IFNULL(soi.paid_price / 1.1, 0) + IFNULL(soi.shipping_surcharge / 1.1, 0) + IFNULL(soi.shipping_amount / 1.1, 0) + IF(sovt.name <> 'coupon', IFNULL(soi.coupon_money_value / 1.1, 0), 0) 'nmv'
     FROM
         oms_live.ims_sales_order so
     LEFT JOIN oms_live.ims_sales_order_item soi ON so.id_sales_order = soi.fk_sales_order

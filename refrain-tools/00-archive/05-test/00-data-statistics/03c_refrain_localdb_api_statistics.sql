@@ -26,25 +26,25 @@ FROM
             charge_type,
             is_actual,
             status,
-            COUNT(*) 'total_data',
+            COUNT(*) 'total_temporary_api_data',
             SUM(IFNULL(amount, 0)) 'amount',
             SUM(IFNULL(discount, 0)) 'discount',
             SUM(IFNULL(tax_amount, 0)) 'tax_amount',
             SUM(IFNULL(total_amount, 0)) 'total_amount',
             SUM(CASE
-                WHEN amount > 0 THEN 1
+                WHEN amount < 0 THEN 1
                 ELSE 0
             END) 'wrong_amount_sign',
             SUM(CASE
-                WHEN discount < 0 THEN 1
+                WHEN discount > 0 THEN 1
                 ELSE 0
             END) 'wrong_discount_sign',
             SUM(CASE
-                WHEN tax_amount > 0 THEN 1
+                WHEN tax_amount < 0 THEN 1
                 ELSE 0
             END) 'wrong_tax_amount_sign',
             SUM(CASE
-                WHEN total_amount > 0 THEN 1
+                WHEN total_amount < 0 THEN 1
                 ELSE 0
             END) 'wrong_total_amount_sign',
             SUM(CASE
@@ -66,25 +66,25 @@ FROM
             charge_type,
             is_actual,
             status,
-            COUNT(*) 'total_data',
+            COUNT(*) 'total_temporary_api_data',
             SUM(IFNULL(amount, 0)) 'amount',
             SUM(IFNULL(discount, 0)) 'discount',
             SUM(IFNULL(tax_amount, 0)) 'tax_amount',
             SUM(IFNULL(total_amount, 0)) 'total_amount',
             SUM(CASE
-                WHEN amount > 0 THEN 1
+                WHEN amount < 0 THEN 1
                 ELSE 0
             END) 'wrong_amount_sign',
             SUM(CASE
-                WHEN discount < 0 THEN 1
+                WHEN discount > 0 THEN 1
                 ELSE 0
             END) 'wrong_discount_sign',
             SUM(CASE
-                WHEN tax_amount > 0 THEN 1
+                WHEN tax_amount < 0 THEN 1
                 ELSE 0
             END) 'wrong_tax_amount_sign',
             SUM(CASE
-                WHEN total_amount > 0 THEN 1
+                WHEN total_amount < 0 THEN 1
                 ELSE 0
             END) 'wrong_total_amount_sign',
             SUM(CASE

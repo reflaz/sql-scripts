@@ -13,7 +13,6 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-DROP DATABASE IF EXISTS `scglv3`;
 CREATE DATABASE IF NOT EXISTS `scglv3` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `scglv3`;
 

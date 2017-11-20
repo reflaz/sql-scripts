@@ -14,7 +14,7 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-USE refrain;
+USE refrain_staging;
 
 SELECT 
     fsoi.bob_id_sales_order_item,
@@ -162,7 +162,7 @@ FROM
             SUM(IF(charge_type = 'INSURANCE', total_amount, 0)) 'insurance_total_amount',
             MAX(IF(charge_type = 'INSURANCE', status, '')) 'insurance_status'
     FROM
-        refrain.api_data_master_account
+        api_data_master_account
     GROUP BY package_number , short_code) adma
         LEFT JOIN
     fms_sales_order_item fsoi ON adma.package_number = fsoi.package_number
