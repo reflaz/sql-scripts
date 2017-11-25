@@ -97,16 +97,16 @@ FROM
             SUM(IFNULL(fsoi.insurance_vat_seller, 0)) 'insurance_vat_seller',
             SUM(IFNULL(fsoi.total_seller_charge, 0)) 'total_seller_charge',
             SUM(IFNULL(fsoi.total_delivery_cost, 0)) 'total_delivery_cost',
-            SUM(IFNULL(fsoi.total_failed_delivery_cost, 0)) 'total_failed_delivery_cost'
+            SUM(IFNULL(fsoi.total_failed_delivery_cost, 0)) 'total_failed_delivery_cost',
+            pd.status 'api_status'
     FROM
         (SELECT 
-        id_package_dispatching
+        id_package_dispatching, status
     FROM
         api_data_master_account
     WHERE
         api_date = @api_date
             AND charge_type IN ('DELIVERY' , 'FAILED DELIVERY')
-            AND status = 'ACTIVE'
     GROUP BY id_package_dispatching) pd
     LEFT JOIN fms_sales_order_item fsoi ON pd.id_package_dispatching = fsoi.id_package_dispatching
     WHERE
