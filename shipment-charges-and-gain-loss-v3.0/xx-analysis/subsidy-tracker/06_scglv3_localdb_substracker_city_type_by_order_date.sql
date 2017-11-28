@@ -18,8 +18,8 @@ USE scglv3;
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-08-14';
-SET @extractend = '2017-08-16';-- This MUST be D + 1
+SET @extractstart = '2017-11-20';
+SET @extractend = '2017-11-27';-- This MUST be D + 1
 
 SELECT 
     fin.city,
@@ -28,6 +28,9 @@ SELECT
     fin.threshold_kg,
     fin.threshold_order,
     fin.is_free,
+    SUM(formula_weight) 'total_formula_weight',
+    SUM(chargeable_weight_seller) 'total_chargeable_weight_seller',
+    SUM(chargeable_weight_3pl) 'total_chargeable_weight_3pl',
     SUM(fin.unit_price) 'total_unit_price',
     SUM(fin.paid_price) 'total_paid_price',
     SUM(fin.nmv) 'nmv',
@@ -94,6 +97,8 @@ FROM
             SUM(shipping_surcharge_temp) 'shipping_surcharge',
             SUM(shipping_amount_temp) 'shipping_amount',
             SUM(nmv) 'nmv',
+            SUM(chargeable_weight_seller) 'chargeable_weight_seller',
+            SUM(chargeable_weight_3pl) 'chargeable_weight_3pl',
             SUM(weight) 'weight',
             SUM(volumetric_weight) 'volumetric_weight'
     FROM
@@ -113,6 +118,8 @@ FROM
             ac.paid_price,
             ac.total_shipment_fee_mp_seller_item,
             ac.total_delivery_cost_item,
+            ac.chargeable_weight_seller_ps / qty_ps 'chargeable_weight_seller',
+            ac.chargeable_weight_3pl_ps /qty_ps 'chargeable_weight_3pl',
             CASE
                 WHEN chargeable_weight_3pl_ps / qty_ps > 400 THEN 0
                 WHEN ABS(total_delivery_cost_item / unit_price) > 5 THEN 0

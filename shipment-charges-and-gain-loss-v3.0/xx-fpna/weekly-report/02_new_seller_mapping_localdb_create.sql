@@ -28,7 +28,7 @@ USE `seller_mapping`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 CREATE TABLE IF NOT EXISTS `brand_partnership` (
-    `id_brand_partnership` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_brand_partnership` INT(10) UNSIGNED NOT NULL,
     `id_supplier` INT(10) DEFAULT NULL,
     `short_code` VARCHAR(7) DEFAULT NULL,
     `seller_name` VARCHAR(255) DEFAULT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `brand_partnership` (
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8;
 
 CREATE TABLE IF NOT EXISTS `catalog_brand` (
-    `id_catalog_brand` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_catalog_brand` INT(10) UNSIGNED NOT NULL,
     `regional_key` VARCHAR(5) DEFAULT NULL,
     `status` ENUM('active', 'inactive', 'deleted', 'pending_approve') NOT NULL,
     `name` VARCHAR(255) NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `catalog_brand` (
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='SEAAMZ-4728';
 
 CREATE TABLE IF NOT EXISTS `catalog_config` (
-    `id_catalog_config` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_catalog_config` INT(10) UNSIGNED NOT NULL,
     `sku` VARCHAR(255) NOT NULL,
     `status` ENUM('active', 'inactive', 'deleted') NOT NULL DEFAULT 'active',
     `fk_catalog_brand` INT(10) UNSIGNED DEFAULT NULL,

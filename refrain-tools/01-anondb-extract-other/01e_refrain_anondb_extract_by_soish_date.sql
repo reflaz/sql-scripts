@@ -305,9 +305,10 @@ FROM
                         AND sfom.origin IS NULL)
                 THEN
                     CASE
+                        WHEN soi.fk_mwh_warehouse = 1 THEN 'DKI Jakarta'
                         WHEN soi.fk_mwh_warehouse = 2 THEN 'East Java'
                         WHEN soi.fk_mwh_warehouse = 3 THEN 'North Sumatera'
-                        ELSE 'DKI Jakarta'
+                        ELSE wh.name
                     END
                 WHEN sfom.origin IS NOT NULL THEN sfom.origin
                 ELSE 'Cross Border'
@@ -364,6 +365,7 @@ FROM
     LEFT JOIN oms_live.ims_customer_address_region dst ON soa.fk_customer_address_region = dst.id_customer_address_region
     LEFT JOIN oms_live.wms_inventory inv ON pi.fk_inventory = inv.id_inventory
     LEFT JOIN oms_live.ims_purchase_order_item poi ON inv.fk_purchase_order_item = poi.id_purchase_order_item
+    LEFT JOIN oms_live.oms_warehouse wh ON soi.fk_mwh_warehouse = wh.id_warehouse
     LEFT JOIN bob_live.sales_order_instalment ins ON so.order_nr = ins.order_nr
     LEFT JOIN bob_live.catalog_simple cs ON soi.sku = cs.sku
     LEFT JOIN bob_live.catalog_config cc ON cc.id_catalog_config = cs.fk_catalog_config

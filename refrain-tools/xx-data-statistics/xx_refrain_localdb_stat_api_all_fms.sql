@@ -109,14 +109,14 @@ FROM
             addb.package_number 'missing_package_number_reference'
     FROM
         api_data_direct_billing addb
-    LEFT JOIN tmp_item_level til ON addb.package_number = til.package_number
+    LEFT JOIN fms_sales_order_item til ON addb.package_number = til.package_number
     WHERE
         til.bob_id_sales_order_item IS NULL UNION ALL SELECT 
         2 AS 'api_type',
             adma.package_number 'missing_package_number_reference'
     FROM
         api_data_master_account adma
-    LEFT JOIN tmp_item_level til ON adma.package_number = til.package_number
+    LEFT JOIN fms_sales_order_item til ON adma.package_number = til.package_number
     WHERE
         til.bob_id_sales_order_item IS NULL) mpn
 GROUP BY missing_package_number_reference;
