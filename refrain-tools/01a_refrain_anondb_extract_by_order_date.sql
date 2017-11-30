@@ -392,5 +392,6 @@ FROM
                 AND is_live = 1)
     LEFT JOIN asc_live.seller ascsel ON sup.id_supplier = ascsel.src_id
     WHERE
-        so.order_nr in ('383537457')
-GROUP BY soi.bob_id_sales_order_item) result
+        so.created_at >= @extractstart
+            AND so.created_at < @extractend
+    GROUP BY soi.bob_id_sales_order_item) result
