@@ -104,5 +104,5 @@ WHERE
     so.created_at > @extractstart
         AND so.created_at <= @extractend
         AND so.coupon_code IS NOT NULL
-        AND srs.promotion_level = 'shop'
+        AND srs.seller_id IS NOT NULL
         AND ascsel.id_seller IN ()
