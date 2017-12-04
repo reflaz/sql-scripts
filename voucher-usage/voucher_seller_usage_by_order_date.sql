@@ -1,3 +1,19 @@
+/*-----------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------
+Voucher Seller Usage by Order Date
+
+Prepared by		: Ryan Disastra
+Modified by		: RD
+Version			: 1.0
+Changes made	: 
+
+Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
+				  - Run the query by pressing the execute button
+                  - Wait until the query finished, then export the result
+                  - Close the query WITHOUT SAVING ANY CHANGES
+-------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2017-11-01';
@@ -89,29 +105,4 @@ WHERE
         AND so.created_at <= @extractend
         AND so.coupon_code IS NOT NULL
         AND srs.promotion_level = 'shop'
-        AND ascsel.id_seller IN ('27860' , '33753',
-        '59795',
-        '37550',
-        '73269',
-        '70577',
-        '2340',
-        '34432',
-        '82979',
-        '81615',
-        '68788',
-        '82415',
-        '6017',
-        '81636',
-        '100015812',
-        '31350',
-        '34114',
-        '38157',
-        '100042779',
-        '24780',
-        '42631',
-        '2324',
-        '100011236',
-        '78419',
-        '75459',
-        '582',
-        '100010151')
+        AND ascsel.id_seller IN ()
