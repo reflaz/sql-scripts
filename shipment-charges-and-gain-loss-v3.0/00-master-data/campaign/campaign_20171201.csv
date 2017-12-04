@@ -13,9 +13,9 @@ id_campaign,campaign,pickup_provider_type,shipment_fee_mp_seller_flat_rate,shipm
 7,Lazada Prioritas - VIP,NULL,0,0,0,2017-08-14 00:00:00,2017-09-03 23:59:59
 8,Lazada Prioritas - Juragan,LEX,0,3250,NULL,2017-09-04 00:00:00,2017-11-30 23:59:59
 8,Lazada Prioritas - Juragan,NULL,0,3500,NULL,2017-09-04 00:00:00,2017-11-30 23:59:59
-8,Lazada Prioritas - Juragan,NULL,0,0,NULL,2017-12-01 00:00:00,9999-12-31 23:59:59
+8,Lazada Prioritas - Juragan,NULL,0,0,0,2017-12-01 00:00:00,9999-12-31 23:59:59
 9,Lazada Prioritas - Jagoan,LEX,0,3250,NULL,2017-09-04 00:00:00,2017-11-30 23:59:59
 9,Lazada Prioritas - Jagoan,NULL,0,3500,NULL,2017-09-04 00:00:00,2017-11-30 23:59:59
-9,Lazada Prioritas - Jagoan,NULL,0,0,NULL,2017-12-01 00:00:00,9999-12-31 23:59:59
+9,Lazada Prioritas - Jagoan,NULL,0,0,0,2017-12-01 00:00:00,9999-12-31 23:59:59
 10,Lazada Prioritas - Jawara,NULL,0,0,0,2017-09-04 00:00:00,9999-12-31 23:59:59
 11,Lazada Prioritas - Maestro,NULL,0,0,0,2017-09-04 00:00:00,9999-12-31 23:59:59

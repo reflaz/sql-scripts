@@ -92,6 +92,24 @@ FROM
 		api_type,
 		shipment_scheme,
 		campaign,
+        IFNULL(CASE
+                WHEN
+                    IFNULL(simple_weight, 0) > 0
+                        OR (IFNULL(simple_length, 0) * IFNULL(simple_width, 0) * IFNULL(simple_height, 0)) > 0
+                THEN
+                    simple_weight
+                ELSE config_weight
+            END,
+            0) 'bob_weight',
+		IFNULL(CASE
+                WHEN
+                    IFNULL(simple_weight, 0) > 0
+                        OR (IFNULL(simple_length, 0) * IFNULL(simple_width, 0) * IFNULL(simple_height, 0)) > 0
+                THEN
+                    (simple_length * simple_width * simple_height) / 6000
+                ELSE config_length * config_width * config_height / 6000
+            END,
+            0) 'bob_volumetric_weight',
 		weight,
 		volumetric_weight,
 		item_weight_seller,
@@ -186,6 +204,8 @@ ON DUPLICATE KEY UPDATE
 	api_type = til.api_type,
 	shipment_scheme = til.shipment_scheme,
 	campaign = til.campaign,
+    bob_weight = til.bob_weight,
+	bob_volumetric_weight = til.bob_volumetric_weight,
 	weight = til.weight,
 	volumetric_weight = til.volumetric_weight,
 	item_weight_seller = til.item_weight_seller,
@@ -224,17 +244,17 @@ ON DUPLICATE KEY UPDATE
 Update API Data Status from COMPLETE to ACTIVE
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-UPDATE api_data_direct_billing
-SET
-	status = 'ACTIVE'
+UPDATE api_data_direct_billing 
+SET 
+    status = 'ACTIVE'
 WHERE
-	status IN ('COMPLETE', 'INCOMPLETE', 'NO_DFD_DATE');
+    status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE');
 
-UPDATE api_data_master_account
-SET
-	status = 'ACTIVE'
+UPDATE api_data_master_account 
+SET 
+    status = 'ACTIVE'
 WHERE
-	status IN ('COMPLETE', 'INCOMPLETE', 'NO_DFD_DATE');
+    status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE');
 
 
 /*-----------------------------------------------------------------------------------------------------------------------------------

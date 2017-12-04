@@ -253,6 +253,8 @@ CREATE TABLE IF NOT EXISTS `fms_sales_order_item` (
     `api_type` TINYINT(4) DEFAULT 0,
     `shipment_scheme` VARCHAR(50) DEFAULT NULL,
     `campaign` VARCHAR(50) DEFAULT NULL,
+    `bob_weight` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `bob_volumetric_weight` DECIMAL(20 , 4 ) DEFAULT NULL,
     `weight` DECIMAL(20 , 4 ) DEFAULT NULL,
     `volumetric_weight` DECIMAL(20 , 4 ) DEFAULT NULL,
     `item_weight_seller` DECIMAL(20 , 4 ) DEFAULT NULL,
