@@ -1,6 +1,6 @@
 id_payment_cost_mapping,payment_method,tenor,bank,flat_rate,mdr_rate,ipp_rate,start_date,end_date
 1,NoPayment,NULL,NULL,0,0,0,1900-01-01 00:00:00,9999-12-31 23:59:59
-2,CashOnDelivery,NULL,NULL,0,0.015,0,1900-01-01 00:00:00,2017-04-01 23:59:59
+2,CashOnDelivery,NULL,NULL,0,0.015,0,1900-01-01 00:00:00,2017-03-31 23:59:59
 3,CashOnDelivery,NULL,NULL,0,0.01,0,2017-04-01 00:00:00,9999-12-31 23:59:59
 4,DOKUInstallment,NULL,NULL,0,0.0203,0.043,1900-01-01 00:00:00,9999-12-31 23:59:59
 5,NULL,NULL,NULL,0,0.0203,0,1900-01-01 00:00:00,9999-12-31 23:59:59

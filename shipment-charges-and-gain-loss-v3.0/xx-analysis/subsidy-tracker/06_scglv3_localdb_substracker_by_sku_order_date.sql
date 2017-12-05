@@ -8,6 +8,10 @@ Version			: 1.0
 Changes made	: 
 
 Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
+				  - Go to your excel file
+				  - Format the parameters in excel using this formula: ="'"&Column&"'," --> change Column accordingly
+				  - Insert formatted parameters
+                  - Delete the last comma (,)
                   - Run the query by pressing the execute button
                   - Wait until the query finished, then export the result
                   - Close the query WITHOUT SAVING ANY CHANGES
@@ -143,6 +147,7 @@ FROM
     WHERE
         ac.order_date >= @extractstart
             AND ac.order_date < @extractend
+            AND ac.sku IN ()
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
     HAVING pass = 1) item) city) fin
 GROUP BY fin.origin , fin.id_city, fin.shipment_scheme , fin.sku , fin.is_free

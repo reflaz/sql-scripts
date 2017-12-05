@@ -36,7 +36,17 @@ Initialize ANON DB extract temporary data
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE tmp_item_level til
-SET 
+		LEFT JOIN
+	map_payment_cost mpc ON til.payment_method = IFNULL(mpc.payment_method, til.payment_method)
+		AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mpc.start_date
+        AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mpc.end_date
+SET
+	til.payment_flat_cost_rate = mpc.flat_rate,
+    til.payment_mdr_cost_rate = mpc.mdr_rate,
+    til.payment_ipp_cost_rate = mpc.ipp_rate,
+    til.payment_flat_cost = IFNULL(mpc.flat_rate, 0) * (IFNULL(til.paid_price, 0) + IFNULL(til.shipping_amount, 0) + IFNULL(til.shipping_surcharge, 0)) / til.payment_value,
+    til.payment_mdr_cost = IFNULL(mpc.mdr_rate, 0) * (IFNULL(til.paid_price, 0) + IFNULL(til.shipping_amount, 0) + IFNULL(til.shipping_surcharge, 0)),
+    til.payment_ipp_cost = IFNULL(mpc.ipp_rate, 0) * (IFNULL(til.paid_price, 0) + IFNULL(til.shipping_amount, 0) + IFNULL(til.shipping_surcharge, 0)),
     til.weight = IFNULL(til.config_weight, 0),
     til.volumetric_weight = IFNULL(til.config_length * til.config_width * til.config_height / 6000,
             0),
