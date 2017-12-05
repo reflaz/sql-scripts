@@ -35,19 +35,19 @@ START TRANSACTION;
 Initialize ANON DB extract temporary data
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-UPDATE tmp_item_level 
+UPDATE tmp_item_level til
 SET 
-    weight = IFNULL(config_weight, 0),
-    volumetric_weight = IFNULL(config_length * config_width * config_height / 6000,
+    til.weight = IFNULL(til.config_weight, 0),
+    til.volumetric_weight = IFNULL(til.config_length * til.config_width * til.config_height / 6000,
             0),
-    item_weight_seller = GREATEST(IFNULL(config_weight, 0),
-            IFNULL(config_length * config_width * config_height / 6000,
+    til.item_weight_seller = GREATEST(IFNULL(til.config_weight, 0),
+            IFNULL(til.config_length * til.config_width * til.config_height / 6000,
                     0)),
-    total_customer_charge = (IFNULL(shipping_amount, 0) + IFNULL(shipping_surcharge, 0)) / IF(is_marketplace = 1, 1, 1.1),
-    created_at = IFNULL(created_at, @updated_at),
-    updated_at = @updated_at
+    til.total_customer_charge = (IFNULL(til.shipping_amount, 0) + IFNULL(til.shipping_surcharge, 0)) / IF(til.is_marketplace = 1, 1, 1.1),
+    til.created_at = IFNULL(til.created_at, @updated_at),
+    til.updated_at = @updated_at
 WHERE
-    created_at IS NULL;
+    til.created_at IS NULL;
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Update campaign tracker end date

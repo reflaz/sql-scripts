@@ -487,6 +487,24 @@ CREATE TABLE IF NOT EXISTS `map_origin_access` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Origin Access';
 
+CREATE TABLE IF NOT EXISTS `map_payment_cost` (
+    `id_payment_cost_mapping` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `payment_method` VARCHAR(100) DEFAULT NULL,
+    `tenor` INT(10) DEFAULT NULL,
+    `bank` VARCHAR(100) DEFAULT NULL,
+    `flat_rate` DECIMAL(20 , 5 ) DEFAULT NULL,
+    `mdr_rate` DECIMAL(20 , 5 ) DEFAULT NULL,
+    `ipp_rate` DECIMAL(20 , 5 ) DEFAULT NULL,
+    `start_date` DATETIME DEFAULT NULL,
+    `end_date` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id_payment_cost_mapping`),
+    KEY (`payment_method`),
+    KEY (`tenor`),
+    KEY (`bank`),
+    KEY (`start_date`),
+    KEY (`end_date`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Payment Cost Mapping';
+
 CREATE TABLE IF NOT EXISTS `map_rate_card_3pl` (
     `id_rate_card` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `rate_card_scheme` VARCHAR(12) DEFAULT NULL,

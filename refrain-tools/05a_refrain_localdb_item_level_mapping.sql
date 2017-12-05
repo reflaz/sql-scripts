@@ -163,7 +163,7 @@ SELECT
     manual_shipping_fee_3p_tmp 'manual_shipping_fee_3p',
     shipping_fee_adjustment_tmp 'shipping_fee_adjustment',
     package_seller_value,
-    payment_mdr_cost,
+    0 'payment_mdr_cost',
     api_type,
     shipment_scheme,
     weight_tmp 'weight',

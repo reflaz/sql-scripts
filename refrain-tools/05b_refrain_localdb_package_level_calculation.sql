@@ -223,7 +223,10 @@ UPDATE tmp_item_level til
         AND IFNULL(til.id_package_dispatching, 1) = IFNULL(tpl.id_package_dispatching, 1)
 SET
 	til.package_seller_value = tpl.package_seller_value,
-    til.payment_mdr_cost = ROUND(IFNULL(til.unit_price, 0) / IFNULL(tpl.package_seller_value, 0) * IFNULL(tpl.payment_mdr_cost, 0), 4),
+    til.payment_mdr_cost = CASE
+			WHEN tpl.payment_mdr_cost > 0 THEN ROUND(IFNULL(til.unit_price, 0) / IFNULL(tpl.package_seller_value, 0) * IFNULL(tpl.payment_mdr_cost, 0), 4)
+            ELSE til.payment_mdr_cost
+		END,
 	til.item_weight_flag_seller = tpl.item_weight_flag_seller,
 	til.weight_seller_pct = CASE
 			WHEN tpl.formula_weight_3pl = 0 OR tpl.formula_weight_3pl IS NULL THEN ROUND(IFNULL(til.unit_price, 0) / IFNULL(tpl.package_seller_value, 0), 4)

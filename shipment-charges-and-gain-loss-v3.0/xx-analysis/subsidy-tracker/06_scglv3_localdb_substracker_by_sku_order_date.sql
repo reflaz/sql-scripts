@@ -22,9 +22,10 @@ SET @extractstart = '2017-11-20';
 SET @extractend = '2017-11-21';-- This MUST be D + 1
 
 SELECT 
+    fin.origin,
+    fin.city 'destination_city',
+    fin.shipment_scheme 'BU',
     fin.sku,
-    fin.range_order_value,
-    fin.range_kg,
     fin.is_free,
     SUM(formula_weight) 'total_formula_weight',
     SUM(chargeable_weight_seller) 'total_chargeable_weight_seller',
@@ -103,6 +104,7 @@ FROM
             IFNULL(paid_price / 1.1, 0) + IFNULL(shipping_surcharge / 1.1, 0) + IFNULL(shipping_amount / 1.1, 0) + IF(coupon_type <> 'coupon', IFNULL(coupon_money_value / 1.1, 0), 0) 'nmv',
             IFNULL(ac.total_shipment_fee_mp_seller_item, 0) 'total_shipment_fee_mp_seller_item',
             IFNULL(ac.total_delivery_cost_item, 0) 'total_delivery_cost_item',
+            ac.shipment_scheme,
             ac.id_package_dispatching,
             ac.origin,
             ac.zone_type,
@@ -143,4 +145,4 @@ FROM
             AND ac.order_date < @extractend
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
     HAVING pass = 1) item) city) fin
-GROUP BY fin.sku , fin.range_kg , fin.range_order_value , fin.is_free
+GROUP BY fin.origin , fin.id_city, fin.shipment_scheme , fin.sku , fin.is_free
