@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Subsidy Tracker SKU by Order Date
+Subsidy Tracker by City Tier Mapping by Delivered Date
  
 Prepared by		: Ryan Disastra
 Modified by		: 
@@ -22,9 +22,11 @@ SET @extractstart = '2017-11-20';
 SET @extractend = '2017-11-21';-- This MUST be D + 1
 
 SELECT 
-    fin.sku,
-    fin.range_order_value,
-    fin.range_kg,
+    fin.origin,
+    fin.city 'destination_city',
+    fin.tier,
+    fin.threshold_order,
+    fin.threshold_kg,
     fin.is_free,
     SUM(formula_weight) 'total_formula_weight',
     SUM(chargeable_weight_seller) 'total_chargeable_weight_seller',
@@ -34,13 +36,13 @@ SELECT
     SUM(fin.nmv) 'nmv',
     COUNT(DISTINCT fin.order_nr) 'total_so',
     COUNT(DISTINCT fin.id_package_dispatching) 'total_pck',
-    COUNT(bob_id_sales_order_item) 'total_soi',
+    SUM(fin.qty) 'total_soi',
     SUM(fin.unit_price) / COUNT(DISTINCT fin.order_nr) 'aov',
     SUM(fin.shipping_surcharge) 'total_shipping_surcharge',
     SUM(fin.shipping_amount) 'total_shipping_amount',
-    SUM(fin.total_shipment_fee_mp_seller_item) 'total_shipment_fee_mp_seller',
-    SUM(fin.total_delivery_cost_item) 'total_delivery_cost',
-    SUM(fin.shipping_surcharge) + SUM(fin.shipping_amount) + SUM(fin.total_shipment_fee_mp_seller_item) + SUM(fin.total_delivery_cost_item) 'net_subsidy'
+    SUM(fin.total_shipment_fee_mp_seller) 'total_shipment_fee_mp_seller',
+    SUM(fin.total_delivery_cost) 'total_delivery_cost',
+    SUM(fin.shipping_surcharge) + SUM(fin.shipping_amount) + SUM(fin.total_shipment_fee_mp_seller) + SUM(fin.total_delivery_cost) 'net_subsidy'
 FROM
     (SELECT 
         city.*,
@@ -62,10 +64,18 @@ FROM
                 WHEN formula_weight <= 6.3 THEN '<= 6kg'
                 WHEN formula_weight <= 7.3 THEN '<= 7kg'
                 ELSE '> 7kg'
-            END 'range_kg'
+            END 'range_kg',
+            CASE
+                WHEN shipping_amount > 0 THEN 'under'
+                ELSE 'above'
+            END 'threshold_order',
+            CASE
+                WHEN shipping_surcharge > 0 THEN 'above'
+                ELSE 'under'
+            END 'threshold_kg'
     FROM
         (SELECT 
-        item.*,
+        pack.*,
             GREATEST(weight, volumetric_weight) 'formula_weight',
             CASE
                 WHEN
@@ -75,6 +85,35 @@ FROM
                     'free'
                 ELSE 'paid'
             END 'is_free'
+    FROM
+        (SELECT 
+        order_nr,
+            sku,
+            bob_id_supplier,
+            short_code,
+            seller_name,
+            seller_type,
+            order_value,
+            SUM(unit_price) 'unit_price',
+            SUM(paid_price) 'paid_price',
+            SUM(shipping_amount) 'shipping_amount',
+            SUM(shipping_surcharge) 'shipping_surcharge',
+            SUM(nmv) 'nmv',
+            SUM(total_shipment_fee_mp_seller_item) 'total_shipment_fee_mp_seller',
+            SUM(total_delivery_cost_item) 'total_delivery_cost',
+            id_package_dispatching,
+            origin,
+            zone_type,
+            id_district,
+            id_city,
+            city,
+            id_tier_mapping,
+            tier,
+            COUNT(bob_id_sales_order_item) 'qty',
+            SUM(chargeable_weight_seller) 'chargeable_weight_seller',
+            SUM(chargeable_weight_3pl) 'chargeable_weight_3pl',
+            SUM(weight) 'weight',
+            SUM(volumetric_weight) 'volumetric_weight'
     FROM
         (SELECT 
         ac.order_nr,
@@ -139,8 +178,9 @@ FROM
         anondb_calculate ac
     LEFT JOIN tier_mapping tm ON ac.id_district = tm.id_district
     WHERE
-        ac.order_date >= @extractstart
-            AND ac.order_date < @extractend
+        ac.delivered_date >= @extractstart
+            AND ac.delivered_date < @extractend
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
-    HAVING pass = 1) item) city) fin
-GROUP BY fin.sku , fin.range_kg , fin.range_order_value , fin.is_free
+    HAVING pass = 1) item
+    GROUP BY order_nr , id_package_dispatching) pack) city) fin
+GROUP BY fin.origin , fin.id_city , fin.tier , fin.threshold_order , fin.threshold_kg , fin.is_free
