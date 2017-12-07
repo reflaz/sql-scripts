@@ -121,4 +121,4 @@ FROM
             AND so.created_at <= @extractend
             AND so.coupon_code IS NOT NULL
             AND srs.seller_id IS NOT NULL
-            AND ascsel.id_seller IN ('582' , '2324', '2340', '6017', '24780', '27860', '31350', '33753', '34114', '34432', '37550', '38157', '42631', '59795', '68788', '70577', '73269', '75459', '78419', '81615', '81636', '82415', '82979', '100010151', '100011236', '100015812', '100042779')) result
+            AND ascsel.id_seller IN ()) result
