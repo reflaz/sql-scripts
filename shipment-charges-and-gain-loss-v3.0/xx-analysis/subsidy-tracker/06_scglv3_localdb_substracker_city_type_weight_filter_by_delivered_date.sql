@@ -18,14 +18,17 @@ USE scglv3;
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-11-20';
-SET @extractend = '2017-11-21';-- This MUST be D + 1
+SET @extractstart = '2017-11-01';
+SET @extractend = '2017-11-02';-- This MUST be D + 1
 
 SELECT 
     fin.origin,
+    fin.delivery_type,
     fin.city 'destination_city',
     fin.tier,
     fin.zone_type,
+    fin.range_order,
+    fin.range_kg,
     fin.threshold_order,
     fin.threshold_kg,
     fin.is_free,
@@ -42,29 +45,24 @@ SELECT
     SUM(fin.shipping_surcharge) 'total_shipping_surcharge',
     SUM(fin.shipping_amount) 'total_shipping_amount',
     SUM(fin.total_shipment_fee_mp_seller) 'total_shipment_fee_mp_seller',
+    SUM(delivery_cost_item) 'delivery_cost',
+    SUM(pickup_cost_item) 'pickup_cost',
+    SUM(insurance_item) 'insurance',
     SUM(fin.total_delivery_cost) 'total_delivery_cost',
     SUM(fin.shipping_surcharge) + SUM(fin.shipping_amount) + SUM(fin.total_shipment_fee_mp_seller) + SUM(fin.total_delivery_cost) 'net_subsidy'
 FROM
     (SELECT 
         city.*,
             CASE
-                WHEN order_value < 50000 THEN '< 50k'
-                WHEN order_value < 100000 THEN '< 100k'
-                WHEN order_value < 150000 THEN '< 150k'
-                WHEN order_value < 200000 THEN '< 200k'
-                WHEN order_value < 250000 THEN '< 250k'
-                WHEN order_value < 300000 THEN '< 300k'
-                ELSE '>= 300k'
-            END 'range_order_value',
+                WHEN unit_price < 50000 THEN 'unit price < 50k'
+                WHEN unit_price < 75000 THEN 'unit price >= 50k'
+                WHEN unit_price < 100000 THEN 'unit price >= 75k'
+                ELSE 'unit price >= 100k'
+            END 'range_order',
             CASE
-                WHEN formula_weight <= 1.3 THEN '<= 1kg'
-                WHEN formula_weight <= 2.3 THEN '<= 2kg'
-                WHEN formula_weight <= 3.3 THEN '<= 3kg'
-                WHEN formula_weight <= 4.3 THEN '<= 4kg'
-                WHEN formula_weight <= 5.3 THEN '<= 5kg'
-                WHEN formula_weight <= 6.3 THEN '<= 6kg'
-                WHEN formula_weight <= 7.3 THEN '<= 7kg'
-                ELSE '> 7kg'
+                WHEN formula_weight <= 2.3 THEN 'package 1-2 kg'
+                WHEN formula_weight <= 7.3 THEN 'package 3-7 kg'
+                ELSE 'package > 7 kg'
             END 'range_kg',
             CASE
                 WHEN shipping_amount > 0 THEN 'under'
@@ -101,8 +99,12 @@ FROM
             SUM(shipping_surcharge) 'shipping_surcharge',
             SUM(nmv) 'nmv',
             SUM(total_shipment_fee_mp_seller_item) 'total_shipment_fee_mp_seller',
+            SUM(delivery_cost_item) 'delivery_cost_item',
+            SUM(pickup_cost_item) 'pickup_cost_item',
+            SUM(insurance_item) 'insurance_item',
             SUM(total_delivery_cost_item) 'total_delivery_cost',
             id_package_dispatching,
+            delivery_type,
             origin,
             zone_type,
             id_district,
@@ -142,8 +144,19 @@ FROM
             END 'shipping_surcharge',
             IFNULL(paid_price / 1.1, 0) + IFNULL(shipping_surcharge / 1.1, 0) + IFNULL(shipping_amount / 1.1, 0) + IF(coupon_type <> 'coupon', IFNULL(coupon_money_value / 1.1, 0), 0) 'nmv',
             IFNULL(ac.total_shipment_fee_mp_seller_item, 0) 'total_shipment_fee_mp_seller_item',
+            IFNULL(ac.delivery_cost_item, 0) + IFNULL(ac.delivery_cost_discount_item, 0) + IFNULL(ac.delivery_cost_vat_item, 0) 'delivery_cost_item',
+            IFNULL(ac.pickup_cost_item, 0) + IFNULL(ac.pickup_cost_discount_item, 0) + IFNULL(ac.pickup_cost_vat_item, 0) 'pickup_cost_item',
+            IFNULL(ac.insurance_3pl_item, 0) + IFNULL(ac.insurance_vat_3pl_item, 0) 'insurance_item',
             IFNULL(ac.total_delivery_cost_item, 0) 'total_delivery_cost_item',
             ac.id_package_dispatching,
+            CASE
+                WHEN
+                    ac.delivery_type = 'warehouse'
+                        OR ac.seller_type = 'supplier'
+                THEN
+                    'warehouse'
+                ELSE 'others'
+            END 'delivery_type',
             ac.origin,
             ac.zone_type,
             ac.id_district,
@@ -183,5 +196,7 @@ FROM
             AND ac.delivered_date < @extractend
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
     HAVING pass = 1) item
-    GROUP BY order_nr , id_package_dispatching) pack) city) fin
-GROUP BY fin.origin , fin.id_city , fin.tier , fin.threshold_order , fin.threshold_kg , fin.is_free
+    GROUP BY order_nr , id_package_dispatching) pack
+    HAVING chargeable_weight_3pl >= 3
+        AND chargeable_weight_3pl < 7.3) city) fin
+GROUP BY fin.origin , fin.delivery_type , fin.id_city , fin.tier , fin.range_order , fin.range_kg , fin.threshold_order , fin.threshold_kg , fin.is_free

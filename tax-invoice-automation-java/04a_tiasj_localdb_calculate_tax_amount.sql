@@ -1,5 +1,5 @@
-SET @extractstart = '2017-09-01';
-SET @extractend = '2017-10-01';
+SET @extractstart = '2017-11-01';
+SET @extractend = '2017-12-01';
 
 SELECT 
     *
@@ -17,10 +17,10 @@ FROM
         SUM(IF(tr.transaction_type IN ('Payment Fee'), value, 0)) / 1.1 'payment_fee',
             SUM(IF(tr.transaction_type IN ('Commission Credit' , 'Reversal Commission'), value, 0)) / 1.1 'commission_credit',
             SUM(IF(tr.transaction_type IN ('Commission'), value, 0)) / 1.1 'commission',
-            SUM(IF(tr.transaction_type IN ('Seller Credit'), value, 0)) / 1.1 'seller_credit',
+            SUM(IF(tr.transaction_type IN ('Seller Credit', 'Adjustments Commission'), value, 0)) / 1.1 'seller_credit',
             SUM(IF(tr.transaction_type IN ('Seller Credit Item'), value, 0)) / 1.1 'seller_credit_item',
             SUM(IF(tr.transaction_type IN ('Seller Debit Item' , 'Other Debit - Non Taxable', 'Other Debits (Returns)'), value, 0)) / 1.1 'seller_debit_item',
-            SUM(IF(tr.transaction_type IN ('Other Fee' , 'Sponsored Product Fee', 'Photoshoot Content Service', 'Other Services Fee'), value, 0)) / 1.1 'other_fee',
+            SUM(IF(tr.transaction_type IN ('Adjustments Others', 'Other Fee' , 'Sponsored Product Fee', 'Photoshoot Content Service', 'Other Services Fee', 'Seller Incentive'), value, 0)) / 1.1 'other_fee',
             - SUM(tr.value) 'amount_paid_to_seller',
             - SUM(tr.value) / 1.1 'amount_subjected_to_tax',
             - SUM(tr.value) + (SUM(value) / 1.1) 'tax_amount',
