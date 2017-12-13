@@ -19,7 +19,7 @@ USE scglv3;
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2017-11-01';
-SET @extractend = '2017-11-02';-- This MUST be D + 1
+SET @extractend = '2017-12-01';-- This MUST be D + 1
 
 SELECT 
     fin.origin,
@@ -60,8 +60,8 @@ FROM
                 ELSE 'unit price >= 100k'
             END 'range_order',
             CASE
-                WHEN formula_weight <= 2.3 THEN 'package 1-2 kg'
-                WHEN formula_weight <= 7.3 THEN 'package 3-7 kg'
+                WHEN chargeable_weight_3pl <= 2.3 THEN 'package 1-2 kg'
+                WHEN chargeable_weight_3pl <= 7.3 THEN 'package 3-7 kg'
                 ELSE 'package > 7 kg'
             END 'range_kg',
             CASE

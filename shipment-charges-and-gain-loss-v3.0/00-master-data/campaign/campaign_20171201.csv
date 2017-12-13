@@ -19,3 +19,5 @@ id_campaign,campaign,pickup_provider_type,shipment_fee_mp_seller_flat_rate,shipm
 9,Lazada Prioritas - Jagoan,NULL,0,0,0,2017-12-01 00:00:00,9999-12-31 23:59:59
 10,Lazada Prioritas - Jawara,NULL,0,0,0,2017-09-04 00:00:00,9999-12-31 23:59:59
 11,Lazada Prioritas - Maestro,NULL,0,0,0,2017-09-04 00:00:00,9999-12-31 23:59:59
+12,Brand Partnership,LEX,0,6500,0.0025,2017-12-01 00:00:00,9999-12-31 23:59:59
+12,Brand Partnership,NULL,0,7000,0.0025,2017-12-01 00:00:00,9999-12-31 23:59:59
