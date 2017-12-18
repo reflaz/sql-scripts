@@ -7,17 +7,15 @@ Modified by		:
 Version			: 1.0
 Changes made	: 
 
-Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
+Instructions	: - Go to your excel file
+				  - Format the parameters in excel using this formula: ="'"&Column&"'," --> change Column accordingly
+				  - Insert formatted parameters
+                  - Delete the last comma (,)
                   - Run the query by pressing the execute button
                   - Wait until the query finished, then export the result
                   - Close the query WITHOUT SAVING ANY CHANGES
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
-
--- Change this before running the script
--- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-10-01';
-SET @extractend = '2017-11-01';-- This MUST be H + 1
 
 SELECT 
     *
@@ -46,15 +44,5 @@ FROM
             fk_sales_order_item = soi.id_sales_order_item
                 AND fk_sales_order_item_status = 27)
     WHERE
-        tr.created_at >= @extractstart
-            AND tr.created_at < @extractend
-            AND (tr.fk_transaction_type IN (67 , 84, 65, 66, 123)
-            OR tr.description LIKE '%[Marketing Package VIP Seller]%'
-            OR tr.description LIKE '%[Customer Flat Fee]%'
-            OR tr.description LIKE '%[Service Photoshoot]%'
-            OR tr.description LIKE '%[Reimbursement Commission]%'
-            OR tr.description LIKE '%[Reimbursement Payment Fee]%'
-            OR tr.description LIKE '%[Adjustments Commission]%'
-            OR tr.description LIKE '%[Adjustments Payment Fee]%'
-            OR tr.description LIKE '%[Taxable]%')
+        tr.number IN ()
     GROUP BY transaction_number) sca;

@@ -1,21 +1,24 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Tax Invoice Automation System - Adjustment Extract
+Tax Invoice Automation System - Transaction Extract
 
 Prepared by		: R Maliangkay
 Modified by		: 
 Version			: 1.0
 Changes made	: 
 
-Instructions	: - Go to your excel file
-				  - Format the parameters in excel using this formula: ="'"&Column&"'," --> change Column accordingly
-				  - Insert formatted parameters
-                  - Delete the last comma (,)
+Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
                   - Run the query by pressing the execute button
                   - Wait until the query finished, then export the result
                   - Close the query WITHOUT SAVING ANY CHANGES
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
+
+-- Change this before running the script
+-- The format must be in 'YYYY-MM-DD'
+SET @extractstart = '2016-12-01';
+SET @extractend = '2017-01-01';-- This MUST be H + 1
+
 SELECT 
     *
 FROM
@@ -43,5 +46,7 @@ FROM
             fk_sales_order_item = soi.id_sales_order_item
                 AND fk_sales_order_item_status = 27)
     WHERE
-        tr.number IN ()
+        tr.created_at >= @extractstart
+            AND tr.created_at < @extractend
+            AND tr.fk_transaction_type IN (3 , 4, 67, 84, 15, 16, 65, 66, 123, 112, 137)
     GROUP BY transaction_number) sca;

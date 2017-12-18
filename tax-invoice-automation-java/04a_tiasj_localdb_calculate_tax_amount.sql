@@ -5,37 +5,45 @@ SELECT
     *
 FROM
     (SELECT 
-        IFNULL(sd.legal_name, IFNULL(sdm.legal_name, '')) 'legal_name',
-            IFNULL(sd.seller_name, IFNULL(sdm.seller_name, '')) 'seller_name',
+        IFNULL(sd.legal_name, '') 'legal_name',
+            IFNULL(sd.seller_name, '') 'seller_name',
+            CASE
+                WHEN tmp_data LIKE '%"name":"%' THEN SUBSTRING_INDEX(SUBSTRING_INDEX(sd.tmp_data, '"name":"', - 1), '","', 1)
+                ELSE ''
+            END 'first_and_last_name',
+            CASE
+                WHEN tmp_data LIKE '%"business_reg_number":"%' THEN SUBSTRING_INDEX(SUBSTRING_INDEX(sd.tmp_data, '"business_reg_number":"', - 1), '","', 1)
+                ELSE ''
+            END 'business_reg_number',
             IFNULL(IF(TRIM(sd.vat_number) = 'null'
-                OR TRIM(sd.vat_number) = '', '00.000.000.0-000.000', TRIM(sd.vat_number)), IFNULL(sdm.vat_number, '00.000.000.0-000.000')) 'vat_number',
-            IFNULL(sd.address, IFNULL(sdm.address, '')) 'address',
-            IFNULL(sd.email, IFNULL(sdm.email, '')) 'email',
+                OR TRIM(sd.vat_number) = '', '00.000.000.0-000.000', TRIM(sd.vat_number)), '00.000.000.0-000.000') 'vat_number',
+            CASE
+                WHEN tmp_data LIKE '%"customercare_address1":"%' THEN CONCAT(SUBSTRING_INDEX(SUBSTRING_INDEX(sd.tmp_data, 'customercare_address1":"', - 1), '","', 1), ', ', SUBSTRING_INDEX(SUBSTRING_INDEX(sd.tmp_data, 'customercare_city":"', - 1), '","', 1), ' ', SUBSTRING_INDEX(SUBSTRING_INDEX(sd.tmp_data, 'customercare_postcode":"', - 1), '","', 1))
+                ELSE ''
+            END 'address',
+            IFNULL(sd.email, '') 'email',
             result.*
     FROM
         (SELECT 
-        SUM(IF(tr.transaction_type IN ('Payment Fee'), value, 0)) / 1.1 'payment_fee',
-            SUM(IF(tr.transaction_type IN ('Commission Credit' , 'Reversal Commission'), value, 0)) / 1.1 'commission_credit',
-            SUM(IF(tr.transaction_type IN ('Commission'), value, 0)) / 1.1 'commission',
-            SUM(IF(tr.transaction_type IN ('Seller Credit', 'Adjustments Commission'), value, 0)) / 1.1 'seller_credit',
-            SUM(IF(tr.transaction_type IN ('Seller Credit Item'), value, 0)) / 1.1 'seller_credit_item',
-            SUM(IF(tr.transaction_type IN ('Seller Debit Item' , 'Other Debit - Non Taxable', 'Other Debits (Returns)'), value, 0)) / 1.1 'seller_debit_item',
-            SUM(IF(tr.transaction_type IN ('Adjustments Others', 'Other Fee' , 'Sponsored Product Fee', 'Photoshoot Content Service', 'Other Services Fee', 'Seller Incentive'), value, 0)) / 1.1 'other_fee',
-            - SUM(tr.value) 'amount_paid_to_seller',
-            - SUM(tr.value) / 1.1 'amount_subjected_to_tax',
-            - SUM(tr.value) + (SUM(value) / 1.1) 'tax_amount',
+        transaction_type,
+            SUM(amount_paid_to_seller) 'amount_paid_to_seller',
+            SUM(amount_subjected_to_tax) 'amount_subjected_to_tax',
+            SUM(tax_amount) 'tax_amount',
             IFNULL(tr.bob_id_supplier, '') 'bob_id_supplier'
     FROM
         (SELECT 
         *,
+            IFNULL(value, 0) 'amount_paid_to_seller',
+            - IFNULL(value, 0) / 1.1 'amount_subjected_to_tax',
+            - IFNULL(value, 0) + (IFNULL(value, 0) / 1.1) 'tax_amount',
             CASE
                 WHEN
-                    transaction_type IN ('Commission Credit' , 'Reversal Commission')
+                    transaction_type IN ('Commission Credit' , 'Reversal Commission', '')
                         AND delivered_date < @extractstart
                 THEN
                     0
                 WHEN
-                    transaction_type IN ('Commission Credit' , 'Reversal Commission')
+                    transaction_type IN ('Commission Credit' , 'Reversal Commission', '')
                         AND delivered_date IS NULL
                 THEN
                     0
@@ -44,7 +52,6 @@ FROM
     FROM
         tias_java.transaction
     HAVING pass = 1) tr
-    GROUP BY bob_id_supplier
+    GROUP BY bob_id_supplier , transaction_type
     HAVING bob_id_supplier IS NOT NULL) result
-    LEFT JOIN tias_java.seller_details sd ON result.bob_id_supplier = sd.bob_id_supplier
-    LEFT JOIN tias_java.seller_details_manual sdm ON result.bob_id_supplier = sdm.bob_id_supplier) result
+    LEFT JOIN tias_java.seller_details sd ON result.bob_id_supplier = sd.bob_id_supplier) result

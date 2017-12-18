@@ -39,8 +39,8 @@ CREATE TABLE `seller_details` (
     `seller_name` VARCHAR(255) NOT NULL,
     `tax_class` ENUM('international', 'local') DEFAULT 'local',
     `vat_number` VARCHAR(255) DEFAULT NULL,
-    `address` TEXT DEFAULT NULL,
     `email` VARCHAR(100) DEFAULT NULL,
+    `tmp_data` TEXT DEFAULT NULL,
     `updated_at` DATETIME DEFAULT NULL,
     PRIMARY KEY `bob_id_supplier` (`bob_id_supplier`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Supplier Details Manual List';

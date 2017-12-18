@@ -60,7 +60,8 @@ FROM
                 ELSE 'unit price >= 100k'
             END 'range_order',
             CASE
-                WHEN chargeable_weight_3pl <= 2.3 THEN 'package 1-2 kg'
+				WHEN chargeable_weight_3pl <= 1.3 THEN 'package 1 kg'
+                WHEN chargeable_weight_3pl <= 2.3 THEN 'package 2 kg'
                 WHEN chargeable_weight_3pl <= 7.3 THEN 'package 3-7 kg'
                 ELSE 'package > 7 kg'
             END 'range_kg',
