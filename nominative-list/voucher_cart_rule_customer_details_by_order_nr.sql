@@ -23,6 +23,8 @@ FROM
     (SELECT 
         so.order_nr,
             soi.bob_id_sales_order_item 'sales_order_item',
+            soi.sku,
+            soi.name 'item_name',
             is_marketplace,
             IFNULL(soi.unit_price, 0) 'unit_price',
             IFNULL(soi.paid_price, 0) 'paid_price',

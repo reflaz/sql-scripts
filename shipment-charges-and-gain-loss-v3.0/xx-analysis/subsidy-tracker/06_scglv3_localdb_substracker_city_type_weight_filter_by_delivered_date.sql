@@ -151,12 +151,14 @@ FROM
             IFNULL(ac.total_delivery_cost_item, 0) 'total_delivery_cost_item',
             ac.id_package_dispatching,
             CASE
+                WHEN ac.shipment_scheme = 'DIRECT BILLING' THEN 'DIRECT BILLING'
                 WHEN
                     ac.delivery_type = 'warehouse'
                         OR ac.seller_type = 'supplier'
                 THEN
                     'warehouse'
-                ELSE 'others'
+				WHEN ac.first_shipment_provider LIKE '%LEX%' THEN 'MA-LEX'
+                ELSE 'MA-NON-LEX'
             END 'delivery_type',
             ac.origin,
             ac.zone_type,
@@ -198,6 +200,7 @@ FROM
             AND ac.shipment_scheme IN ('RETAIL' , 'FBL', 'DIRECT BILLING', 'MASTER ACCOUNT')
     HAVING pass = 1) item
     GROUP BY order_nr , id_package_dispatching) pack
-    HAVING chargeable_weight_3pl >= 3
-        AND chargeable_weight_3pl < 7.3) city) fin
+    -- HAVING chargeable_weight_3pl >= 3
+       -- AND chargeable_weight_3pl < 7.3
+        ) city) fin
 GROUP BY fin.origin , fin.delivery_type , fin.id_city , fin.tier , fin.range_order , fin.range_kg , fin.threshold_order , fin.threshold_kg , fin.is_free
