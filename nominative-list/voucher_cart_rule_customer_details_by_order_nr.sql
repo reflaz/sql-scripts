@@ -28,6 +28,8 @@ FROM
             is_marketplace,
             IFNULL(soi.unit_price, 0) 'unit_price',
             IFNULL(soi.paid_price, 0) 'paid_price',
+            IFNULL(soi.shipping_amount, 0) 'shipping_amount',
+            IFNULL(soi.shipping_surcharge, 0) 'shipping_surcharge',
             IFNULL(soi.coupon_money_value, 0) 'coupon_money_value',
             IFNULL(soi.cart_rule_discount, 0) 'cart_rule_discount',
             so.coupon_code,
