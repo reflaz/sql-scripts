@@ -1,5 +1,5 @@
 SET @extractstart = '2015-01-01';
-SET @extractend = '2015-01-10';
+SET @extractend = '2015-01-08';
 
 SELECT 
     *
@@ -8,7 +8,7 @@ FROM
         tr.created_at 'Transaction Date',
             tt.description 'Transaction Type',
             tr.number 'Transaction Number',
-            COALESCE(soi.name, soia.name, '') 'Details',
+            REPLACE(REPLACE(COALESCE(soi.name, soia.name, ''), '\\', ''), char(10), ' ') 'Details',
             COALESCE(soi.sku_seller, soia.sku_seller, '') 'Seller SKU',
             COALESCE(soi.sku, soia.sku, '') 'Lazada SKU',
             tr.value 'Amount',
@@ -47,7 +47,7 @@ FROM
         tr.created_at 'Transaction Date',
             tt.description 'Transaction Type',
             tr.number 'Transaction Number',
-            COALESCE(soi.name, soia.name, '') 'Details',
+            REPLACE(REPLACE(COALESCE(soi.name, soia.name, ''), '\\', ''), char(10), ' ') 'Details',
             COALESCE(soi.sku_seller, soia.sku_seller, '') 'Seller SKU',
             COALESCE(soi.sku, soia.sku, '') 'Lazada SKU',
             tr.value 'Amount',
