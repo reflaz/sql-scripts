@@ -1,8 +1,8 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-SOI Details by BOB SOI
+SOI Details RTS by RTS Number
  
-Prepared by		: R Maliangkay
+Prepared by		: RM
 Modified by		: 
 Version			: 1.0
 Changes made	: 
@@ -65,7 +65,11 @@ SELECT
     result.last_shipment_provider,
     result.origin,
     result.destination_city,
-    result.id_district
+    result.id_district,
+    result.return_number,
+    result.return_date,
+    result.return_status,
+    result.return_item_status
 FROM
     (SELECT 
         res.*,
@@ -182,17 +186,13 @@ FROM
                 WHERE
                     tr.ref = sc_id_sales_order_item
                         AND tr.fk_transaction_type IN (19 , 20, 36, 37, 64, 104, 138, 140, 141, 144, 145)
-                        AND ta.id_transaction IS NULL
-                        AND (tr.description LIKE '%shipping%'
-                        OR tr.description LIKE '%flat fee%')), 0) + IFNULL((SELECT 
+                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
                     SUM(IFNULL(ta.value, 0))
                 FROM
                     asc_live.transaction_archive ta
                 WHERE
                     ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type IN (19 , 20, 36, 37, 64, 104, 138, 140, 141, 144, 145)
-                        AND (ta.description LIKE '%shipping%'
-                        OR ta.description LIKE '%flat fee%')), 0)) * - 1 'shipping_fee_adjustment'
+                        AND ta.fk_transaction_type IN (19 , 20, 36, 37, 64, 104, 138, 140, 141, 144, 145)), 0)) * - 1 'shipping_fee_adjustment'
     FROM
         (SELECT 
         soi.bob_id_sales_order_item,
@@ -208,18 +208,18 @@ FROM
                 WHERE
                     src_id = soi.id_sales_order_item)) 'sc_id_sales_order_item',
             soi.id_sales_order_item 'sap_item_id',
-            inv.uid 'uid',
+            inv.uid,
             so.order_nr,
             so.payment_method,
             soi.name 'item_name',
             soi.sku,
-            sup.id_supplier 'id_supplier',
+            sup.id_supplier,
             ascsel.short_code,
             sup.name 'seller_name',
             sup.type 'seller_type',
             CASE
                 WHEN
-                    soi.is_marketplace = 1
+                    soi.is_marketplace = 0
                         AND sa.fk_country = 101
                 THEN
                     'local'
@@ -278,19 +278,6 @@ FROM
                     fk_package = pck.id_package
                         AND fk_package_status = 6)) 'delivered_date',
             IFNULL((SELECT 
-                    MIN(real_action_date)
-                FROM
-                    oms_live.ims_sales_order_item_status_history
-                WHERE
-                    fk_sales_order_item = soi.id_sales_order_item
-                        AND fk_sales_order_item_status = 27), (SELECT 
-                    MIN(real_action_date)
-                FROM
-                    oms_live.oms_package_status_history
-                WHERE
-                    fk_package = pck.id_package
-                        AND fk_package_status = 6)) 'real_delivered_date',
-            IFNULL((SELECT 
                     MIN(created_at)
                 FROM
                     oms_live.ims_sales_order_item_status_history
@@ -303,12 +290,25 @@ FROM
                 WHERE
                     fk_package = pck.id_package
                         AND fk_package_status = 5)) 'failed_delivery_date',
+            IFNULL((SELECT 
+                    MIN(real_action_date)
+                FROM
+                    oms_live.ims_sales_order_item_status_history
+                WHERE
+                    fk_sales_order_item = soi.id_sales_order_item
+                        AND fk_sales_order_item_status = 27), (SELECT 
+                    MIN(real_action_date)
+                FROM
+                    oms_live.oms_package_status_history
+                WHERE
+                    fk_package = pck.id_package
+                        AND fk_package_status = 6)) 'real_delivered_date',
             (SELECT 
                     username
                 FROM
                     oms_live.ims_user
                 WHERE
-                    id_user = IFNULL((SELECT 
+                    id_user = (IFNULL((SELECT 
                             fk_user
                         FROM
                             oms_live.ims_sales_order_item_status_history
@@ -320,9 +320,9 @@ FROM
                             oms_live.oms_package_status_history
                         WHERE
                             fk_package = pck.id_package
-                                AND fk_package_status = 6))) 'delivery_updater',
-            pck.package_number 'package_number',
-            pck.invoice_number 'invoice_number',
+                                AND fk_package_status = 6)))) 'delivery_updater',
+            pck.package_number,
+            pck.invoice_number,
             pdh.tracking_number 'first_tracking_number',
             sp1.shipment_provider_name 'first_shipment_provider',
             pd.tracking_number 'last_tracking_number',
@@ -344,33 +344,41 @@ FROM
                 ELSE sfom.origin
             END 'origin',
             soa.city 'destination_city',
-            dst.id_customer_address_region 'id_district'
+            dst.id_customer_address_region 'id_district',
+            sr.return_number,
+            sr.created_at 'return_date',
+            srs.name 'return_status',
+            sris.name 'return_item_status'
     FROM
-        oms_live.ims_sales_order_item soi
-    LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
-    LEFT JOIN oms_live.oms_package_item pi ON pi.fk_sales_order_item = soi.id_sales_order_item
+        oms_live.oms_supplier_return sr
+    LEFT JOIN oms_live.oms_supplier_return_item sri ON sr.id_supplier_return = sri.fk_supplier_return
+    LEFT JOIN oms_live.oms_supplier_return_item_status sris ON sri.fk_supplier_return_item_status = sris.id_supplier_return_item_status
+    LEFT JOIN oms_live.oms_supplier_return_status srs ON sr.fk_supplier_return_status = srs.id_supplier_return_status
+    LEFT JOIN oms_live.wms_inventory inv ON inv.id_inventory = sri.fk_inventory
+    LEFT JOIN oms_live.ims_purchase_order_item poi ON inv.fk_purchase_order_item = poi.id_purchase_order_item
+    LEFT JOIN oms_live.ims_sales_order_item soi ON soi.id_sales_order_item = poi.fk_sales_order_item
+    LEFT JOIN oms_live.ims_sales_order so ON so.id_sales_order = soi.fk_sales_order
+    LEFT JOIN oms_live.oms_shipping_type st ON st.id_shipping_type = soi.fk_shipping_type
+    LEFT JOIN oms_live.ims_sales_order_item_status sois ON sois.id_sales_order_item_status = soi.fk_sales_order_item_status
+    LEFT JOIN oms_live.oms_package_item pi ON pi.fk_inventory = inv.id_inventory
     LEFT JOIN oms_live.oms_package pck ON pck.id_package = pi.fk_package
-    LEFT JOIN oms_live.oms_package_dispatching pd ON pck.id_package = pd.fk_package
+    LEFT JOIN oms_live.oms_package_dispatching pd ON pd.fk_package = pck.id_package
+    LEFT JOIN oms_live.oms_shipment_provider sp2 ON sp2.id_shipment_provider = pd.fk_shipment_provider
     LEFT JOIN oms_live.oms_package_dispatching_history pdh ON pck.id_package = pdh.fk_package
         AND pdh.id_package_dispatching_history = (SELECT 
             MIN(id_package_dispatching_history)
         FROM
             oms_live.oms_package_dispatching_history
         WHERE
-            fk_package = pck.id_package
+            fk_package_dispatching = pd.id_package_dispatching
                 AND tracking_number IS NOT NULL)
-    LEFT JOIN oms_live.oms_shipment_provider sp1 ON pdh.fk_shipment_provider = sp1.id_shipment_provider
-    LEFT JOIN oms_live.oms_shipment_provider sp2 ON pd.fk_shipment_provider = sp2.id_shipment_provider
+    LEFT JOIN oms_live.oms_shipment_provider sp1 ON sp1.id_shipment_provider = pdh.fk_shipment_provider
+    LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON sovt.id_sales_order_voucher_type = so.fk_voucher_type
+    LEFT JOIN oms_live.oms_flag flag ON flag.id_flag = so.fk_flag
     LEFT JOIN oms_live.ims_sales_order_address soa ON soa.id_sales_order_address = so.fk_sales_order_address_shipping
     LEFT JOIN oms_live.ims_customer_address_region dst ON dst.id_customer_address_region = soa.fk_customer_address_region
-    LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON sovt.id_sales_order_voucher_type = so.fk_voucher_type
-    LEFT JOIN oms_live.ims_sales_order_item_status sois ON sois.id_sales_order_item_status = soi.fk_sales_order_item_status
-    LEFT JOIN oms_live.oms_shipping_type st ON soi.fk_shipping_type = st.id_shipping_type
-    LEFT JOIN oms_live.wms_inventory inv ON pi.fk_inventory = inv.id_inventory
-    LEFT JOIN oms_live.ims_purchase_order_item poi ON inv.fk_purchase_order_item = poi.id_purchase_order_item
-    LEFT JOIN oms_live.oms_flag flag ON so.fk_flag = flag.id_flag
     LEFT JOIN bob_live.supplier sup ON sup.id_supplier = soi.bob_id_supplier
-    LEFT JOIN bob_live.supplier_address sa ON sa.fk_supplier = sup.id_supplier
+    LEFT JOIN bob_live.supplier_address sa ON sup.id_supplier = sa.fk_supplier
         AND sa.id_supplier_address = (SELECT 
             MAX(id_supplier_address)
         FROM
@@ -379,7 +387,7 @@ FROM
             fk_supplier = sup.id_supplier
                 AND fk_country_region IS NOT NULL
                 AND address_type = 'warehouse')
-    LEFT JOIN bob_live.shipping_fee_origin_mapping sfom ON sfom.fk_country_region = sa.fk_country_region
+    LEFT JOIN bob_live.shipping_fee_origin_mapping sfom ON sa.fk_country_region = sfom.fk_country_region
         AND sfom.id_shipping_fee_origin_mapping = (SELECT 
             MAX(id_shipping_fee_origin_mapping)
         FROM
@@ -388,7 +396,6 @@ FROM
             fk_country_region = sa.fk_country_region
                 AND origin <> 'Cross Border'
                 AND is_live = 1)
-    LEFT JOIN asc_live.seller ascsel ON ascsel.src_id = sup.id_supplier
+    LEFT JOIN asc_live.seller ascsel ON sup.id_supplier = ascsel.src_id
     WHERE
-        soi.bob_id_sales_order_item IN ()
-    GROUP BY soi.bob_id_sales_order_item) res) result
+        sr.return_number IN ()) res) result

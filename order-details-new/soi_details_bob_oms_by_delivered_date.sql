@@ -1,21 +1,23 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-SOI Details by BOB SOI
- 
+SOI Details by Delivered Date (Delivery Updater Bob Oms)
+
 Prepared by		: R Maliangkay
-Modified by		: 
+Modified by		: RM
 Version			: 1.0
 Changes made	: 
 
-Instructions	: - Go to your excel file
-				  - Format the parameters in excel using this formula: ="'"&Column&"'," --> change Column accordingly
-				  - Insert formatted parameters
-                  - Delete the last comma (,)
+Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
                   - Run the query by pressing the execute button
                   - Wait until the query finished, then export the result
                   - Close the query WITHOUT SAVING ANY CHANGES
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
+
+-- Change this before running the script
+-- The format must be in 'YYYY-MM-DD'
+SET @extractstart = '2017-05-01';
+SET @extractend = '2017-05-02';-- This MUST be D + 1
 
 SELECT 
     result.bob_id_sales_order_item,
@@ -208,12 +210,12 @@ FROM
                 WHERE
                     src_id = soi.id_sales_order_item)) 'sc_id_sales_order_item',
             soi.id_sales_order_item 'sap_item_id',
-            inv.uid 'uid',
+            inv.uid,
             so.order_nr,
             so.payment_method,
             soi.name 'item_name',
             soi.sku,
-            sup.id_supplier 'id_supplier',
+            sup.id_supplier,
             ascsel.short_code,
             sup.name 'seller_name',
             sup.type 'seller_type',
@@ -290,6 +292,34 @@ FROM
                 WHERE
                     fk_package = pck.id_package
                         AND fk_package_status = 6)) 'real_delivered_date',
+            (SELECT 
+                    username
+                FROM
+                    oms_live.ims_user
+                WHERE
+                    id_user = IFNULL((SELECT 
+                            fk_user
+                        FROM
+                            oms_live.ims_sales_order_item_status_history
+                        WHERE
+                            id_sales_order_item_status_history = (SELECT 
+                                    MIN(id_sales_order_item_status_history)
+                                FROM
+                                    oms_live.ims_sales_order_item_status_history
+                                WHERE
+                                    fk_sales_order_item = soi.id_sales_order_item
+                                        AND fk_sales_order_item_status = 27)), (SELECT 
+                            fk_ims_user
+                        FROM
+                            oms_live.oms_package_status_history
+                        WHERE
+                            id_package_status_history = (SELECT 
+                                    MIN(id_package_status_history)
+                                FROM
+                                    oms_live.oms_package_status_history
+                                WHERE
+                                    fk_package = pck.id_package
+                                        AND fk_package_status = 6)))) 'delivery_updater',
             IFNULL((SELECT 
                     MIN(created_at)
                 FROM
@@ -303,74 +333,75 @@ FROM
                 WHERE
                     fk_package = pck.id_package
                         AND fk_package_status = 5)) 'failed_delivery_date',
-            (SELECT 
-                    username
-                FROM
-                    oms_live.ims_user
-                WHERE
-                    id_user = IFNULL((SELECT 
-                            fk_user
-                        FROM
-                            oms_live.ims_sales_order_item_status_history
-                        WHERE
-                            fk_sales_order_item = soi.id_sales_order_item
-                                AND fk_sales_order_item_status = 27), (SELECT 
-                            fk_ims_user
-                        FROM
-                            oms_live.oms_package_status_history
-                        WHERE
-                            fk_package = pck.id_package
-                                AND fk_package_status = 6))) 'delivery_updater',
-            pck.package_number 'package_number',
-            pck.invoice_number 'invoice_number',
-            pdh.tracking_number 'first_tracking_number',
-            sp1.shipment_provider_name 'first_shipment_provider',
-            pd.tracking_number 'last_tracking_number',
-            sp2.shipment_provider_name 'last_shipment_provider',
+            pck.package_number,
+            pck.invoice_number,
+            first_tracking_number,
+            first_shipment_provider,
+            last_tracking_number,
+            last_shipment_provider,
             CASE
-                WHEN ascsel.tax_class = 1 THEN 'Cross Border'
                 WHEN
                     sup.type = 'supplier'
-                        OR st.name = 'warehouse'
-                        OR soi.fk_mwh_warehouse <> 1
-                        OR sfom.origin IS NULL
+                        OR (ascsel.tax_class = 0
+                        AND st.name = 'warehouse')
+                        OR (ascsel.tax_class = 0
+                        AND sfom.origin IS NULL)
                 THEN
                     CASE
-                        WHEN soi.fk_mwh_warehouse = 1 THEN 'DKI Jakarta'
                         WHEN soi.fk_mwh_warehouse = 2 THEN 'East Java'
                         WHEN soi.fk_mwh_warehouse = 3 THEN 'North Sumatera'
-                        WHEN soi.fk_mwh_warehouse = 4 THEN 'DKI Jakarta'
+                        ELSE 'DKI Jakarta'
                     END
-                ELSE sfom.origin
+                WHEN sfom.origin IS NOT NULL THEN sfom.origin
+                ELSE 'Cross Border'
             END 'origin',
             soa.city 'destination_city',
             dst.id_customer_address_region 'id_district'
     FROM
-        oms_live.ims_sales_order_item soi
-    LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
-    LEFT JOIN oms_live.oms_package_item pi ON pi.fk_sales_order_item = soi.id_sales_order_item
-    LEFT JOIN oms_live.oms_package pck ON pck.id_package = pi.fk_package
-    LEFT JOIN oms_live.oms_package_dispatching pd ON pck.id_package = pd.fk_package
-    LEFT JOIN oms_live.oms_package_dispatching_history pdh ON pck.id_package = pdh.fk_package
+        (SELECT 
+        pck.id_package,
+            pck.package_number,
+            pck.invoice_number,
+            pdh.tracking_number 'first_tracking_number',
+            sp1.shipment_provider_name 'first_shipment_provider',
+            pd.tracking_number 'last_tracking_number',
+            sp2.shipment_provider_name 'last_shipment_provider'
+    FROM
+        (SELECT 
+        fk_package
+    FROM
+        oms_live.oms_package_status_history
+    WHERE
+        created_at >= @extractstart
+            AND created_at < @extractend
+            AND fk_package_status = 6
+            AND fk_ims_user = 2157
+    GROUP BY fk_package) pack
+    LEFT JOIN oms_live.oms_package pck ON pck.id_package = pack.fk_package
+    LEFT JOIN oms_live.oms_package_dispatching pd ON pd.fk_package = pck.id_package
+    LEFT JOIN oms_live.oms_package_dispatching_history pdh ON pdh.fk_package = pck.id_package
         AND pdh.id_package_dispatching_history = (SELECT 
-            MIN(id_package_dispatching_history)
+            MAX(id_package_dispatching_history)
         FROM
             oms_live.oms_package_dispatching_history
         WHERE
-            fk_package = pck.id_package
+            fk_package_dispatching = pd.id_package_dispatching
                 AND tracking_number IS NOT NULL)
-    LEFT JOIN oms_live.oms_shipment_provider sp1 ON pdh.fk_shipment_provider = sp1.id_shipment_provider
-    LEFT JOIN oms_live.oms_shipment_provider sp2 ON pd.fk_shipment_provider = sp2.id_shipment_provider
-    LEFT JOIN oms_live.ims_sales_order_address soa ON soa.id_sales_order_address = so.fk_sales_order_address_shipping
-    LEFT JOIN oms_live.ims_customer_address_region dst ON dst.id_customer_address_region = soa.fk_customer_address_region
-    LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON sovt.id_sales_order_voucher_type = so.fk_voucher_type
+    LEFT JOIN oms_live.oms_shipment_provider sp1 ON sp1.id_shipment_provider = pdh.fk_shipment_provider
+    LEFT JOIN oms_live.oms_shipment_provider sp2 ON sp2.id_shipment_provider = pd.fk_shipment_provider) pck
+    LEFT JOIN oms_live.oms_package_item pi ON pi.fk_package = pck.id_package
+    LEFT JOIN oms_live.ims_sales_order_item soi ON soi.id_sales_order_item = pi.fk_sales_order_item
+    LEFT JOIN oms_live.ims_sales_order so ON so.id_sales_order = soi.fk_sales_order
+    LEFT JOIN oms_live.oms_shipping_type st ON st.id_shipping_type = soi.fk_shipping_type
     LEFT JOIN oms_live.ims_sales_order_item_status sois ON sois.id_sales_order_item_status = soi.fk_sales_order_item_status
-    LEFT JOIN oms_live.oms_shipping_type st ON soi.fk_shipping_type = st.id_shipping_type
     LEFT JOIN oms_live.wms_inventory inv ON pi.fk_inventory = inv.id_inventory
     LEFT JOIN oms_live.ims_purchase_order_item poi ON inv.fk_purchase_order_item = poi.id_purchase_order_item
-    LEFT JOIN oms_live.oms_flag flag ON so.fk_flag = flag.id_flag
+    LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON so.fk_voucher_type = sovt.id_sales_order_voucher_type
+    LEFT JOIN oms_live.oms_flag flag ON flag.id_flag = so.fk_flag
+    LEFT JOIN oms_live.ims_sales_order_address soa ON soa.id_sales_order_address = so.fk_sales_order_address_shipping
+    LEFT JOIN oms_live.ims_customer_address_region dst ON dst.id_customer_address_region = soa.fk_customer_address_region
     LEFT JOIN bob_live.supplier sup ON sup.id_supplier = soi.bob_id_supplier
-    LEFT JOIN bob_live.supplier_address sa ON sa.fk_supplier = sup.id_supplier
+    LEFT JOIN bob_live.supplier_address sa ON sup.id_supplier = sa.fk_supplier
         AND sa.id_supplier_address = (SELECT 
             MAX(id_supplier_address)
         FROM
@@ -378,17 +409,14 @@ FROM
         WHERE
             fk_supplier = sup.id_supplier
                 AND fk_country_region IS NOT NULL
-                AND address_type = 'warehouse')
-    LEFT JOIN bob_live.shipping_fee_origin_mapping sfom ON sfom.fk_country_region = sa.fk_country_region
+                AND address_type = 'wareshouse')
+    LEFT JOIN bob_live.shipping_fee_origin_mapping sfom ON sfom.fk_country = sa.fk_country
         AND sfom.id_shipping_fee_origin_mapping = (SELECT 
             MAX(id_shipping_fee_origin_mapping)
         FROM
             bob_live.shipping_fee_origin_mapping
         WHERE
-            fk_country_region = sa.fk_country_region
-                AND origin <> 'Cross Border'
+            fk_country = sa.fk_country
+                AND IFNULL(fk_country_region, sa.fk_country_region) = sa.fk_country_region
                 AND is_live = 1)
-    LEFT JOIN asc_live.seller ascsel ON ascsel.src_id = sup.id_supplier
-    WHERE
-        soi.bob_id_sales_order_item IN ()
-    GROUP BY soi.bob_id_sales_order_item) res) result
+    LEFT JOIN asc_live.seller ascsel ON ascsel.src_id = sup.id_supplier) res) result

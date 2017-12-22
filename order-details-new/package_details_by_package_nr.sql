@@ -1,8 +1,8 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-SOI Details by BOB SOI
+Package Details by Package Number
  
-Prepared by		: R Maliangkay
+Prepared by		: Michael Julius
 Modified by		: 
 Version			: 1.0
 Changes made	: 
@@ -18,11 +18,14 @@ Instructions	: - Go to your excel file
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 SELECT 
-    result.bob_id_sales_order_item,
-    result.sc_id_sales_order_item,
-    result.sap_item_id,
-    result.uid,
+    result.package_number,
+    result.invoice_number,
+    result.first_tracking_number,
+    result.first_shipment_provider,
+    result.last_tracking_number,
+    result.last_shipment_provider,
     result.order_nr,
+    COUNT(bob_id_sales_order_item) 'qty',
     result.payment_method,
     result.item_name,
     result.sku,
@@ -31,20 +34,20 @@ SELECT
     result.seller_name,
     result.seller_type,
     result.tax_class,
-    result.unit_price,
-    result.paid_price,
-    result.shipping_amount,
-    result.shipping_surcharge,
-    result.commission,
-    result.commission_adjustment,
-    result.payment_fee,
-    result.payment_fee_adjustment,
-    result.auto_shipping_fee,
-    result.manual_shipping_fee_lzd,
-    result.manual_shipping_fee_3p,
-    result.shipping_fee_adjustment,
-    result.coupon_money_value,
-    result.cart_rule_discount,
+    SUM(result.unit_price) 'unit_price',
+    SUM(result.paid_price) 'paid_price',
+    SUM(result.shipping_amount) 'shipping_amount',
+    SUM(result.shipping_surcharge) 'shipping_surcharge',
+    SUM(result.commission) 'commission',
+    SUM(result.commission_adjustment) 'commission_adjustment',
+    SUM(result.payment_fee) 'payment_fee',
+    SUM(result.payment_fee_adjustment) 'payment_fee_adjustment',
+    SUM(result.auto_shipping_fee) 'auto_shipping_fee',
+    SUM(result.manual_shipping_fee_lzd) 'manual_shipping_fee_lzd',
+    SUM(result.manual_shipping_fee_3p) 'manual_shipping_fee_3p',
+    SUM(result.shipping_fee_adjustment) 'shipping_fee_adjustment',
+    SUM(result.coupon_money_value) 'coupon_money_value',
+    SUM(result.cart_rule_discount) 'cart_rule_discount',
     result.coupon_code,
     result.coupon_type,
     result.cart_rule_display_names,
@@ -57,12 +60,6 @@ SELECT
     result.delivered_date,
     result.delivery_updater,
     result.failed_delivery_date,
-    result.package_number,
-    result.invoice_number,
-    result.first_tracking_number,
-    result.first_shipment_provider,
-    result.last_tracking_number,
-    result.last_shipment_provider,
     result.origin,
     result.destination_city,
     result.id_district
@@ -91,14 +88,14 @@ FROM
                 LEFT JOIN asc_live.transaction_archive ta ON tr.number = ta.number
                 WHERE
                     tr.ref = sc_id_sales_order_item
-                        AND tr.fk_transaction_type IN (65 , 66, 123)
+                        AND tr.fk_transaction_type IN (65 , 66, 122)
                         AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
                     SUM(IFNULL(ta.value, 0))
                 FROM
                     asc_live.transaction_archive ta
                 WHERE
                     ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type IN (65 , 66, 123)), 0)) * - 1 'commission_adjustment',
+                        AND ta.fk_transaction_type IN (65 , 66, 122)), 0)) * - 1 'commission_adjustment',
             (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
@@ -108,12 +105,12 @@ FROM
                     tr.ref = sc_id_sales_order_item
                         AND tr.fk_transaction_type IN (3 , 4)
                         AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
-                    SUM(IFNULL(ta.value, 0))
+                    SUM(IFNULL(tr.value, 0))
                 FROM
-                    asc_live.transaction_archive ta
+                    asc_live.transaction_archive tr
                 WHERE
-                    ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type IN (3 , 4)), 0)) * - 1 'payment_fee',
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (3 , 4)), 0)) * - 1 'payment_fee',
             (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
@@ -123,12 +120,12 @@ FROM
                     tr.ref = sc_id_sales_order_item
                         AND tr.fk_transaction_type IN (67 , 84)
                         AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
-                    SUM(IFNULL(ta.value, 0))
+                    SUM(IFNULL(tr.value, 0))
                 FROM
-                    asc_live.transaction_archive ta
+                    asc_live.transaction_archive tr
                 WHERE
-                    ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type IN (67 , 84)), 0)) * - 1 'payment_fee_adjustment',
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (67 , 84)), 0)) * - 1 'payment_fee_adjustment',
             (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
@@ -138,12 +135,12 @@ FROM
                     tr.ref = sc_id_sales_order_item
                         AND tr.fk_transaction_type IN (8 , 142)
                         AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
-                    SUM(IFNULL(ta.value, 0))
+                    SUM(IFNULL(tr.value, 0))
                 FROM
-                    asc_live.transaction_archive ta
+                    asc_live.transaction_archive tr
                 WHERE
-                    ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type IN (8 , 142)), 0)) * - 1 'auto_shipping_fee',
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (8 , 142)), 0)) * - 1 'auto_shipping_fee',
             (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
@@ -153,12 +150,12 @@ FROM
                     tr.ref = sc_id_sales_order_item
                         AND tr.fk_transaction_type IN (7 , 143)
                         AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
-                    SUM(IFNULL(ta.value, 0))
+                    SUM(IFNULL(tr.value, 0))
                 FROM
-                    asc_live.transaction_archive ta
+                    asc_live.transaction_archive tr
                 WHERE
-                    ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type IN (7 , 143)), 0)) * - 1 'manual_shipping_fee_lzd',
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (7 , 143)), 0)) * - 1 'manual_shipping_fee_lzd',
             (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
@@ -168,12 +165,12 @@ FROM
                     tr.ref = sc_id_sales_order_item
                         AND tr.fk_transaction_type = 21
                         AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
-                    SUM(IFNULL(ta.value, 0))
+                    SUM(IFNULL(tr.value, 0))
                 FROM
-                    asc_live.transaction_archive ta
+                    asc_live.transaction_archive tr
                 WHERE
-                    ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type = 21), 0)) * - 1 'manual_shipping_fee_3p',
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type = 21), 0)) * - 1 'manual_shipping_fee_3p',
             (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
@@ -185,14 +182,14 @@ FROM
                         AND ta.id_transaction IS NULL
                         AND (tr.description LIKE '%shipping%'
                         OR tr.description LIKE '%flat fee%')), 0) + IFNULL((SELECT 
-                    SUM(IFNULL(ta.value, 0))
+                    SUM(IFNULL(tr.value, 0))
                 FROM
-                    asc_live.transaction_archive ta
+                    asc_live.transaction_archive tr
                 WHERE
-                    ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type IN (19 , 20, 36, 37, 64, 104, 138, 140, 141, 144, 145)
-                        AND (ta.description LIKE '%shipping%'
-                        OR ta.description LIKE '%flat fee%')), 0)) * - 1 'shipping_fee_adjustment'
+                    tr.ref = sc_id_sales_order_item
+                        AND tr.fk_transaction_type IN (19 , 20, 36, 37, 64, 104, 138, 140, 141, 144, 145)
+                        AND (tr.description LIKE '%shipping%'
+                        OR tr.description LIKE '%flat fee%')), 0)) * - 1 'shipping_fee_adjustment'
     FROM
         (SELECT 
         soi.bob_id_sales_order_item,
@@ -208,12 +205,12 @@ FROM
                 WHERE
                     src_id = soi.id_sales_order_item)) 'sc_id_sales_order_item',
             soi.id_sales_order_item 'sap_item_id',
-            inv.uid 'uid',
+            inv.uid,
             so.order_nr,
             so.payment_method,
             soi.name 'item_name',
             soi.sku,
-            sup.id_supplier 'id_supplier',
+            sup.id_supplier,
             ascsel.short_code,
             sup.name 'seller_name',
             sup.type 'seller_type',
@@ -308,7 +305,7 @@ FROM
                 FROM
                     oms_live.ims_user
                 WHERE
-                    id_user = IFNULL((SELECT 
+                    id_user = (IFNULL((SELECT 
                             fk_user
                         FROM
                             oms_live.ims_sales_order_item_status_history
@@ -320,13 +317,13 @@ FROM
                             oms_live.oms_package_status_history
                         WHERE
                             fk_package = pck.id_package
-                                AND fk_package_status = 6))) 'delivery_updater',
-            pck.package_number 'package_number',
-            pck.invoice_number 'invoice_number',
-            pdh.tracking_number 'first_tracking_number',
-            sp1.shipment_provider_name 'first_shipment_provider',
-            pd.tracking_number 'last_tracking_number',
-            sp2.shipment_provider_name 'last_shipment_provider',
+                                AND fk_package_status = 6)))) 'delivery_updater',
+            pck.package_number,
+            pck.invoice_number,
+            first_tracking_number,
+            first_shipment_provider,
+            last_tracking_number,
+            last_shipment_provider,
             CASE
                 WHEN ascsel.tax_class = 1 THEN 'Cross Border'
                 WHEN
@@ -346,29 +343,40 @@ FROM
             soa.city 'destination_city',
             dst.id_customer_address_region 'id_district'
     FROM
-        oms_live.ims_sales_order_item soi
-    LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
-    LEFT JOIN oms_live.oms_package_item pi ON pi.fk_sales_order_item = soi.id_sales_order_item
-    LEFT JOIN oms_live.oms_package pck ON pck.id_package = pi.fk_package
-    LEFT JOIN oms_live.oms_package_dispatching pd ON pck.id_package = pd.fk_package
-    LEFT JOIN oms_live.oms_package_dispatching_history pdh ON pck.id_package = pdh.fk_package
-        AND pdh.id_package_dispatching_history = (SELECT 
+        (SELECT 
+        pck.id_package,
+            pck.package_number,
+            pck.invoice_number,
+            pdh.tracking_number 'first_tracking_number',
+            sp1.shipment_provider_name 'first_shipment_provider',
+            pd.tracking_number 'last_tracking_number',
+            sp2.shipment_provider_name 'last_shipment_provider'
+    FROM
+        oms_live.oms_package pck
+    LEFT JOIN oms_live.oms_package_dispatching pd ON pd.fk_package = pck.id_package
+    LEFT JOIN oms_live.oms_package_dispatching_history pdh ON pdh.fk_package = pck.id_package
+        AND id_package_dispatching_history = (SELECT 
             MIN(id_package_dispatching_history)
         FROM
             oms_live.oms_package_dispatching_history
         WHERE
-            fk_package = pck.id_package
+            fk_package = pd.fk_package
                 AND tracking_number IS NOT NULL)
-    LEFT JOIN oms_live.oms_shipment_provider sp1 ON pdh.fk_shipment_provider = sp1.id_shipment_provider
-    LEFT JOIN oms_live.oms_shipment_provider sp2 ON pd.fk_shipment_provider = sp2.id_shipment_provider
-    LEFT JOIN oms_live.ims_sales_order_address soa ON soa.id_sales_order_address = so.fk_sales_order_address_shipping
-    LEFT JOIN oms_live.ims_customer_address_region dst ON dst.id_customer_address_region = soa.fk_customer_address_region
-    LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON sovt.id_sales_order_voucher_type = so.fk_voucher_type
+    LEFT JOIN oms_live.oms_shipment_provider sp1 ON sp1.id_shipment_provider = pdh.fk_shipment_provider
+    LEFT JOIN oms_live.oms_shipment_provider sp2 ON sp2.id_shipment_provider = pd.fk_shipment_provider
+    WHERE
+        pck.package_number IN ()) pck
+    LEFT JOIN oms_live.oms_package_item pi ON pi.fk_package = pck.id_package
+    LEFT JOIN oms_live.ims_sales_order_item soi ON soi.id_sales_order_item = pi.fk_sales_order_item
+    LEFT JOIN oms_live.ims_sales_order so ON so.id_sales_order = soi.fk_sales_order
+    LEFT JOIN oms_live.oms_shipping_type st ON st.id_shipping_type = soi.fk_shipping_type
     LEFT JOIN oms_live.ims_sales_order_item_status sois ON sois.id_sales_order_item_status = soi.fk_sales_order_item_status
-    LEFT JOIN oms_live.oms_shipping_type st ON soi.fk_shipping_type = st.id_shipping_type
     LEFT JOIN oms_live.wms_inventory inv ON pi.fk_inventory = inv.id_inventory
     LEFT JOIN oms_live.ims_purchase_order_item poi ON inv.fk_purchase_order_item = poi.id_purchase_order_item
-    LEFT JOIN oms_live.oms_flag flag ON so.fk_flag = flag.id_flag
+    LEFT JOIN oms_live.oms_flag flag ON flag.id_flag = so.fk_flag
+    LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON sovt.id_sales_order_voucher_type = so.fk_voucher_type
+    LEFT JOIN oms_live.ims_sales_order_address soa ON soa.id_sales_order_address = so.fk_sales_order_address_shipping
+    LEFT JOIN oms_live.ims_customer_address_region dst ON soa.fk_customer_address_region = dst.id_customer_address_region
     LEFT JOIN bob_live.supplier sup ON sup.id_supplier = soi.bob_id_supplier
     LEFT JOIN bob_live.supplier_address sa ON sa.fk_supplier = sup.id_supplier
         AND sa.id_supplier_address = (SELECT 
@@ -379,7 +387,7 @@ FROM
             fk_supplier = sup.id_supplier
                 AND fk_country_region IS NOT NULL
                 AND address_type = 'warehouse')
-    LEFT JOIN bob_live.shipping_fee_origin_mapping sfom ON sfom.fk_country_region = sa.fk_country_region
+    LEFT JOIN bob_live.shipping_fee_origin_mapping sfom ON sa.fk_country_region = sfom.fk_country_region
         AND sfom.id_shipping_fee_origin_mapping = (SELECT 
             MAX(id_shipping_fee_origin_mapping)
         FROM
@@ -388,7 +396,5 @@ FROM
             fk_country_region = sa.fk_country_region
                 AND origin <> 'Cross Border'
                 AND is_live = 1)
-    LEFT JOIN asc_live.seller ascsel ON ascsel.src_id = sup.id_supplier
-    WHERE
-        soi.bob_id_sales_order_item IN ()
-    GROUP BY soi.bob_id_sales_order_item) res) result
+    LEFT JOIN asc_live.seller ascsel ON ascsel.src_id = sup.id_supplier) res) result
+GROUP BY package_number

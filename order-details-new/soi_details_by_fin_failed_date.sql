@@ -1,21 +1,23 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-SOI Details by BOB SOI
+SOI Details by Finance Failed Date
  
 Prepared by		: R Maliangkay
 Modified by		: 
 Version			: 1.0
 Changes made	: 
 
-Instructions	: - Go to your excel file
-				  - Format the parameters in excel using this formula: ="'"&Column&"'," --> change Column accordingly
-				  - Insert formatted parameters
-                  - Delete the last comma (,)
+Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
                   - Run the query by pressing the execute button
                   - Wait until the query finished, then export the result
                   - Close the query WITHOUT SAVING ANY CHANGES
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
+
+-- Change this before running the script
+-- The format must be in 'YYYY-MM-DD'
+SET @extractstart = '2016-10-01';
+SET @extractend = '2016-10-02';-- This MUST be D + 1
 
 SELECT 
     result.bob_id_sales_order_item,
@@ -65,7 +67,10 @@ SELECT
     result.last_shipment_provider,
     result.origin,
     result.destination_city,
-    result.id_district
+    result.id_district,
+    result.finance_failed_date,
+    result.cancelled_date,
+    result.refund_completed_date
 FROM
     (SELECT 
         res.*,
@@ -344,9 +349,32 @@ FROM
                 ELSE sfom.origin
             END 'origin',
             soa.city 'destination_city',
-            dst.id_customer_address_region 'id_district'
+            dst.id_customer_address_region 'id_district',
+            finfailed.created_at 'finance_failed_date',
+            (SELECT 
+                    MIN(created_at)
+                FROM
+                    oms_live.ims_sales_order_item_status_history
+                WHERE
+                    fk_sales_order_item = soi.id_sales_order_item
+                        AND fk_sales_order_item_status = 9) 'cancelled_date',
+            (SELECT 
+                    MIN(created_at)
+                FROM
+                    oms_live.ims_sales_order_item_status_history
+                WHERE
+                    fk_sales_order_item = soi.id_sales_order_item
+                        AND fk_sales_order_item_status = 56) 'refund_completed_date'
     FROM
-        oms_live.ims_sales_order_item soi
+        (SELECT 
+        fk_sales_order_item, created_at
+    FROM
+        oms_live.ims_sales_order_item_status_history
+    WHERE
+        updated_at >= @extractstart
+            AND updated_at < @extractend
+            AND fk_sales_order_item_status = 66) finfailed
+    LEFT JOIN oms_live.ims_sales_order_item soi ON finfailed.fk_sales_order_item = soi.id_sales_order_item
     LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
     LEFT JOIN oms_live.oms_package_item pi ON pi.fk_sales_order_item = soi.id_sales_order_item
     LEFT JOIN oms_live.oms_package pck ON pck.id_package = pi.fk_package
@@ -389,6 +417,4 @@ FROM
                 AND origin <> 'Cross Border'
                 AND is_live = 1)
     LEFT JOIN asc_live.seller ascsel ON ascsel.src_id = sup.id_supplier
-    WHERE
-        soi.bob_id_sales_order_item IN ()
     GROUP BY soi.bob_id_sales_order_item) res) result

@@ -21,6 +21,7 @@ SELECT
     result.bob_id_sales_order_item,
     result.sc_id_sales_order_item,
     result.sap_item_id,
+    result.uid,
     result.order_nr,
     result.payment_method,
     result.item_name,
@@ -207,6 +208,7 @@ FROM
                 WHERE
                     src_id = soi.id_sales_order_item)) 'sc_id_sales_order_item',
             soi.id_sales_order_item 'sap_item_id',
+            inv.uid 'uid',
             so.order_nr,
             so.payment_method,
             soi.name 'item_name',
@@ -217,7 +219,7 @@ FROM
             sup.type 'seller_type',
             CASE
                 WHEN
-                    is_marketplace = 1
+                    soi.is_marketplace = 1
                         AND sa.fk_country = 101
                 THEN
                     'local'
@@ -363,7 +365,7 @@ FROM
     LEFT JOIN oms_live.oms_package_item pi ON soi.id_sales_order_item = pi.fk_sales_order_item
     LEFT JOIN oms_live.oms_package pck ON pi.fk_package = pck.id_package
     LEFT JOIN oms_live.oms_package_dispatching pd ON pd.fk_package = pck.id_package
-    LEFT JOIN oms_live.oms_package_dispatching_history pdh ON pdh.fk_package_dispatching = pd.id_package_dispatching
+    LEFT JOIN oms_live.oms_package_dispatching_history pdh ON pck.id_package = pdh.fk_package
         AND pdh.id_package_dispatching_history = (SELECT 
             MIN(id_package_dispatching_history)
         FROM
@@ -377,6 +379,8 @@ FROM
     LEFT JOIN oms_live.ims_customer_address_region dst ON dst.id_customer_address_region = soa.fk_customer_address_region
     LEFT JOIN oms_live.oms_shipping_type st ON soi.fk_shipping_type = st.id_shipping_type
     LEFT JOIN oms_live.oms_flag flag ON so.fk_flag = flag.id_flag
+    LEFT JOIN oms_live.wms_inventory inv ON pi.fk_inventory = inv.id_inventory
+    LEFT JOIN oms_live.ims_purchase_order_item poi ON inv.fk_purchase_order_item = poi.id_purchase_order_item
     LEFT JOIN bob_live.supplier sup ON sup.id_supplier = soi.bob_id_supplier
     LEFT JOIN bob_live.supplier_address sa ON sup.id_supplier = sa.fk_supplier
         AND sa.id_supplier_address = (SELECT 
@@ -398,5 +402,5 @@ FROM
                 AND is_live = 1)
     LEFT JOIN asc_live.seller ascsel ON ascsel.src_id = sup.id_supplier
     WHERE
-        so.order_nr IN ('3955159952')
+        so.order_nr IN ()
     GROUP BY soi.bob_id_sales_order_item) res) result

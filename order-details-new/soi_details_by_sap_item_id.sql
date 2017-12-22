@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-SOI Details by BOB SOI
+SOI Details by SAP Item ID
  
 Prepared by		: R Maliangkay
 Modified by		: 
@@ -208,12 +208,12 @@ FROM
                 WHERE
                     src_id = soi.id_sales_order_item)) 'sc_id_sales_order_item',
             soi.id_sales_order_item 'sap_item_id',
-            inv.uid 'uid',
+            inv.uid,
             so.order_nr,
             so.payment_method,
             soi.name 'item_name',
             soi.sku,
-            sup.id_supplier 'id_supplier',
+            sup.id_supplier,
             ascsel.short_code,
             sup.name 'seller_name',
             sup.type 'seller_type',
@@ -290,6 +290,24 @@ FROM
                 WHERE
                     fk_package = pck.id_package
                         AND fk_package_status = 6)) 'real_delivered_date',
+            (SELECT 
+                    username
+                FROM
+                    oms_live.ims_user
+                WHERE
+                    id_user = (IFNULL((SELECT 
+                            fk_user
+                        FROM
+                            oms_live.ims_sales_order_item_status_history
+                        WHERE
+                            fk_sales_order_item = soi.id_sales_order_item
+                                AND fk_sales_order_item_status = 27), (SELECT 
+                            fk_ims_user
+                        FROM
+                            oms_live.oms_package_status_history
+                        WHERE
+                            fk_package = pck.id_package
+                                AND fk_package_status = 6)))) 'delivery_updater',
             IFNULL((SELECT 
                     MIN(created_at)
                 FROM
@@ -303,26 +321,8 @@ FROM
                 WHERE
                     fk_package = pck.id_package
                         AND fk_package_status = 5)) 'failed_delivery_date',
-            (SELECT 
-                    username
-                FROM
-                    oms_live.ims_user
-                WHERE
-                    id_user = IFNULL((SELECT 
-                            fk_user
-                        FROM
-                            oms_live.ims_sales_order_item_status_history
-                        WHERE
-                            fk_sales_order_item = soi.id_sales_order_item
-                                AND fk_sales_order_item_status = 27), (SELECT 
-                            fk_ims_user
-                        FROM
-                            oms_live.oms_package_status_history
-                        WHERE
-                            fk_package = pck.id_package
-                                AND fk_package_status = 6))) 'delivery_updater',
-            pck.package_number 'package_number',
-            pck.invoice_number 'invoice_number',
+            pck.package_number,
+            pck.invoice_number,
             pdh.tracking_number 'first_tracking_number',
             sp1.shipment_provider_name 'first_shipment_provider',
             pd.tracking_number 'last_tracking_number',
@@ -348,6 +348,7 @@ FROM
     FROM
         oms_live.ims_sales_order_item soi
     LEFT JOIN oms_live.ims_sales_order so ON soi.fk_sales_order = so.id_sales_order
+    LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soish.fk_sales_order_item = soi.id_sales_order_item
     LEFT JOIN oms_live.oms_package_item pi ON pi.fk_sales_order_item = soi.id_sales_order_item
     LEFT JOIN oms_live.oms_package pck ON pck.id_package = pi.fk_package
     LEFT JOIN oms_live.oms_package_dispatching pd ON pck.id_package = pd.fk_package
@@ -390,5 +391,5 @@ FROM
                 AND is_live = 1)
     LEFT JOIN asc_live.seller ascsel ON ascsel.src_id = sup.id_supplier
     WHERE
-        soi.bob_id_sales_order_item IN ()
+        soi.id_sales_order_item IN ()
     GROUP BY soi.bob_id_sales_order_item) res) result

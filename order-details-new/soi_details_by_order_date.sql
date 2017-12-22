@@ -23,6 +23,7 @@ SELECT
     result.bob_id_sales_order_item,
     result.sc_id_sales_order_item,
     result.sap_item_id,
+    result.uid,
     result.order_nr,
     result.payment_method,
     result.item_name,
@@ -57,6 +58,7 @@ SELECT
     result.real_delivered_date,
     result.delivered_date,
     result.delivery_updater,
+    result.failed_delivery_date,
     result.package_number,
     result.invoice_number,
     result.first_tracking_number,
@@ -69,7 +71,7 @@ SELECT
 FROM
     (SELECT 
         res.*,
-            IFNULL((SELECT 
+            (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
                     asc_live.transaction tr
@@ -77,14 +79,14 @@ FROM
                 WHERE
                     tr.ref = sc_id_sales_order_item
                         AND tr.fk_transaction_type IN (15 , 16)
-                        AND ta.id_transaction IS NOT NULL), 0) + IFNULL((SELECT 
+                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
                     SUM(IFNULL(ta.value, 0))
                 FROM
                     asc_live.transaction_archive ta
                 WHERE
                     ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type IN (15 , 16)), 0) * - 1 'commission',
-            IFNULL((SELECT 
+                        AND ta.fk_transaction_type IN (15 , 16)), 0)) * - 1 'commission',
+            (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
                     asc_live.transaction tr
@@ -92,14 +94,14 @@ FROM
                 WHERE
                     tr.ref = sc_id_sales_order_item
                         AND tr.fk_transaction_type IN (65 , 66, 123)
-                        AND ta.id_transaction IS NOT NULL), 0) + IFNULL((SELECT 
+                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
                     SUM(IFNULL(ta.value, 0))
                 FROM
                     asc_live.transaction_archive ta
                 WHERE
                     ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type IN (65 , 66, 123)), 0) * - 1 'commission_adjustment',
-            IFNULL((SELECT 
+                        AND ta.fk_transaction_type IN (65 , 66, 123)), 0)) * - 1 'commission_adjustment',
+            (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
                     asc_live.transaction tr
@@ -107,14 +109,14 @@ FROM
                 WHERE
                     tr.ref = sc_id_sales_order_item
                         AND tr.fk_transaction_type IN (3 , 4)
-                        AND ta.id_transaction IS NOT NULL), 0) + IFNULL((SELECT 
+                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
                     SUM(IFNULL(ta.value, 0))
                 FROM
                     asc_live.transaction_archive ta
                 WHERE
                     ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type IN (3 , 4)), 0) * - 1 'payment_fee',
-            IFNULL((SELECT 
+                        AND ta.fk_transaction_type IN (3 , 4)), 0)) * - 1 'payment_fee',
+            (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
                     asc_live.transaction tr
@@ -122,14 +124,14 @@ FROM
                 WHERE
                     tr.ref = sc_id_sales_order_item
                         AND tr.fk_transaction_type IN (67 , 84)
-                        AND ta.id_transaction IS NOT NULL), 0) + IFNULL((SELECT 
+                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
                     SUM(IFNULL(ta.value, 0))
                 FROM
                     asc_live.transaction_archive ta
                 WHERE
                     ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type IN (67 , 84)), 0) * - 1 'payment_fee_adjustment',
-            IFNULL((SELECT 
+                        AND ta.fk_transaction_type IN (67 , 84)), 0)) * - 1 'payment_fee_adjustment',
+            (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
                     asc_live.transaction tr
@@ -137,14 +139,14 @@ FROM
                 WHERE
                     tr.ref = sc_id_sales_order_item
                         AND tr.fk_transaction_type IN (8 , 142)
-                        AND ta.id_transaction IS NOT NULL), 0) + IFNULL((SELECT 
+                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
                     SUM(IFNULL(ta.value, 0))
                 FROM
                     asc_live.transaction_archive ta
                 WHERE
                     ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type IN (8 , 142)), 0) * - 1 'auto_shipping_fee',
-            IFNULL((SELECT 
+                        AND ta.fk_transaction_type IN (8 , 142)), 0)) * - 1 'auto_shipping_fee',
+            (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
                     asc_live.transaction tr
@@ -152,14 +154,14 @@ FROM
                 WHERE
                     tr.ref = sc_id_sales_order_item
                         AND tr.fk_transaction_type IN (7 , 143)
-                        AND ta.id_transaction IS NOT NULL), 0) + IFNULL((SELECT 
+                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
                     SUM(IFNULL(ta.value, 0))
                 FROM
                     asc_live.transaction_archive ta
                 WHERE
                     ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type IN (7 , 143)), 0) * - 1 'manual_shipping_fee_lzd',
-            IFNULL((SELECT 
+                        AND ta.fk_transaction_type IN (7 , 143)), 0)) * - 1 'manual_shipping_fee_lzd',
+            (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
                     asc_live.transaction tr
@@ -167,13 +169,13 @@ FROM
                 WHERE
                     tr.ref = sc_id_sales_order_item
                         AND tr.fk_transaction_type = 21
-                        AND ta.id_transaction IS NOT NULL), 0) + IFNULL((SELECT 
+                        AND ta.id_transaction IS NULL), 0) + IFNULL((SELECT 
                     SUM(IFNULL(ta.value, 0))
                 FROM
                     asc_live.transaction_archive ta
                 WHERE
                     ta.ref = sc_id_sales_order_item
-                        AND ta.fk_transaction_type = 21), 0) * - 1 'manual_shipping_fee_3p',
+                        AND ta.fk_transaction_type = 21), 0)) * - 1 'manual_shipping_fee_3p',
             (IFNULL((SELECT 
                     SUM(IFNULL(tr.value, 0))
                 FROM
@@ -208,6 +210,7 @@ FROM
                 WHERE
                     src_id = soi.id_sales_order_item)) 'sc_id_sales_order_item',
             soi.id_sales_order_item 'sap_item_id',
+            inv.uid 'uid',
             so.order_nr,
             so.payment_method,
             soi.name 'item_name',
@@ -218,7 +221,7 @@ FROM
             sup.type 'seller_type',
             CASE
                 WHEN
-                    is_marketplace = 1
+                    soi.is_marketplace = 1
                         AND sa.fk_country = 101
                 THEN
                     'local'
@@ -380,6 +383,8 @@ FROM
     LEFT JOIN oms_live.oms_warehouse wh ON wh.id_warehouse = soi.fk_mwh_warehouse
     LEFT JOIN oms_live.ims_sales_order_voucher_type sovt ON sovt.id_sales_order_voucher_type = so.fk_voucher_type
     LEFT JOIN oms_live.oms_flag flag ON flag.id_flag = so.fk_flag
+    LEFT JOIN oms_live.wms_inventory inv ON pi.fk_inventory = inv.id_inventory
+    LEFT JOIN oms_live.ims_purchase_order_item poi ON inv.fk_purchase_order_item = poi.id_purchase_order_item
     LEFT JOIN bob_live.supplier sup ON soi.bob_id_supplier = sup.id_supplier
     LEFT JOIN asc_live.seller ascsel ON sup.id_supplier = ascsel.src_id
     LEFT JOIN bob_live.supplier_address sa ON sup.id_supplier = sa.fk_supplier
@@ -402,4 +407,5 @@ FROM
                 AND is_live = 1)
     WHERE
         so.created_at > @extractstart
-            AND so.created_at <= @extractend) res) result
+            AND so.created_at <= @extractend
+    GROUP BY soi.bob_id_sales_order_item) res) result
