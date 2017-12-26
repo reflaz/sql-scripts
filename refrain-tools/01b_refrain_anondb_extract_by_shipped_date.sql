@@ -262,7 +262,7 @@ FROM
                 FROM
                     oms_live.oms_package_status_history
                 WHERE
-                    fk_package = pck.id_package
+                    fk_package = result.id_package
                         AND fk_package_status = 4)) 'first_shipped_date',
             IFNULL((SELECT 
                     MAX(created_at)
@@ -275,7 +275,7 @@ FROM
                 FROM
                     oms_live.oms_package_status_history
                 WHERE
-                    fk_package = pck.id_package
+                    fk_package = result.id_package
                         AND fk_package_status = 4)) 'last_shipped_date',
             IFNULL((SELECT 
                     MIN(created_at)
@@ -288,7 +288,7 @@ FROM
                 FROM
                     oms_live.oms_package_status_history
                 WHERE
-                    fk_package = pck.id_package
+                    fk_package = result.id_package
                         AND fk_package_status = 6)) 'delivered_date',
             IFNULL((SELECT 
                     MIN(created_at)
@@ -301,7 +301,7 @@ FROM
                 FROM
                     oms_live.oms_package_status_history
                 WHERE
-                    fk_package = pck.id_package
+                    fk_package = result.id_package
                         AND fk_package_status = 5)) 'failed_delivery_date',
             CASE
                 WHEN
@@ -323,12 +323,12 @@ FROM
             dst.id_customer_address_region 'id_district',
             so.bob_id_customer,
             ppt.name 'pickup_provider_type',
-            pd.id_package_dispatching,
-            pck.package_number,
-            pdh.tracking_number 'first_tracking_number',
-            sp1.shipment_provider_name 'first_shipment_provider',
-            pd.tracking_number 'last_tracking_number',
-            sp2.shipment_provider_name 'last_shipment_provider',
+            result.id_package_dispatching,
+            result.package_number,
+            result.first_tracking_number,
+            result.first_shipment_provider,
+            result.last_tracking_number,
+            result.last_shipment_provider,
             cc.package_length 'config_length',
             cc.package_width 'config_width',
             cc.package_height 'config_height',
@@ -381,18 +381,6 @@ FROM
     LEFT JOIN oms_live.ims_supplier osup ON soi.bob_id_supplier = osup.bob_id_supplier
     LEFT JOIN oms_live.oms_pickup_provider_type ppt ON osup.fk_pickup_provider_type = ppt.id_pickup_provider_type
     LEFT JOIN oms_live.oms_shipping_type st ON soi.fk_shipping_type = st.id_shipping_type
-    LEFT JOIN oms_live.oms_package pck ON pi.fk_package = pck.id_package
-    LEFT JOIN oms_live.oms_package_dispatching pd ON pck.id_package = pd.fk_package
-    LEFT JOIN oms_live.oms_package_dispatching_history pdh ON pck.id_package = pdh.fk_package
-        AND pdh.id_package_dispatching_history = (SELECT 
-            MIN(id_package_dispatching_history)
-        FROM
-            oms_live.oms_package_dispatching_history
-        WHERE
-            fk_package_dispatching = pd.id_package_dispatching
-                AND tracking_number IS NOT NULL)
-    LEFT JOIN oms_live.oms_shipment_provider sp1 ON pdh.fk_shipment_provider = sp1.id_shipment_provider
-    LEFT JOIN oms_live.oms_shipment_provider sp2 ON pd.fk_shipment_provider = sp2.id_shipment_provider
     LEFT JOIN oms_live.ims_sales_order_address soa ON so.fk_sales_order_address_shipping = soa.id_sales_order_address
     LEFT JOIN oms_live.ims_customer_address_region dst ON soa.fk_customer_address_region = dst.id_customer_address_region
     LEFT JOIN oms_live.wms_inventory inv ON pi.fk_inventory = inv.id_inventory

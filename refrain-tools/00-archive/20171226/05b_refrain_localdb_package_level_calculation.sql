@@ -30,37 +30,80 @@ Map 3pl charge components to API data and calculate shipping charge components o
 
 UPDATE tmp_package_level tpl
         LEFT JOIN
-    api_data delv ON tpl.id_package_dispatching = delv.id_package_dispatching
+    api_data_direct_billing delv ON tpl.id_package_dispatching = delv.id_package_dispatching
         AND tpl.bob_id_supplier = delv.bob_id_supplier
-        AND tpl.fk_api_type = delv.fk_api_type
         AND delv.posting_type = 'INCOMING'
         AND delv.charge_type = 'DELIVERY'
         AND delv.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
-    api_data fdel ON tpl.id_package_dispatching = fdel.id_package_dispatching
+	map_weight_threshold_seller mwts ON GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) >= mwts.start_date
+        AND GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) <= mwts.end_date
+SET
+    tpl.chargeable_weight_seller = COALESCE(delv.rounded_weight, delv.formula_weight, 0),
+    tpl.chargeable_weight_seller = CASE
+			WHEN tpl.chargeable_weight_seller = 0 THEN 0
+			WHEN tpl.chargeable_weight_seller < 1 THEN 1
+			WHEN MOD(tpl.chargeable_weight_seller, 1) <= tpl.rounding_seller THEN FLOOR(tpl.chargeable_weight_seller)
+			ELSE CEIL(tpl.chargeable_weight_seller)
+		END,
+	tpl.chargeable_weight_seller = CASE
+			WHEN mwts.package_weight_threshold IS NULL THEN tpl.chargeable_weight_seller
+			WHEN tpl.chargeable_weight_seller <= mwts.package_weight_threshold THEN tpl.chargeable_weight_seller
+			ELSE CASE
+				WHEN mwts.package_weight_no_bulky = 1 THEN 0
+				WHEN mwts.package_weight_offset = 1 THEN tpl.chargeable_weight_seller - mwts.package_weight_threshold
+				WHEN mwts.package_weight_max = 1 THEN mwts.package_weight_threshold
+				ELSE 0
+			END
+		END,
+	tpl.seller_flat_charge = 0,
+	tpl.seller_charge = IFNULL(tpl.chargeable_weight_seller, 0) * IFNULL(tpl.seller_charge_rate, 0),
+    tpl.insurance_seller = 0,
+    tpl.insurance_vat_seller = 0,
+    tpl.chargeable_weight_3pl = COALESCE(delv.rounded_weight, delv.formula_weight, 0),
+    tpl.pickup_cost = 0,
+    tpl.pickup_cost_discount = 0,
+    tpl.pickup_cost_vat = 0,
+    tpl.delivery_cost = IFNULL(delv.amount, 0),
+    tpl.delivery_cost_discount = IFNULL(delv.discount, 0),
+    tpl.delivery_cost_vat = IFNULL(delv.tax_amount, 0),
+    tpl.insurance_3pl = 0,
+    tpl.insurance_vat_3pl = 0,
+    tpl.total_seller_charge = IFNULL(tpl.seller_flat_charge, 0) + IFNULL(tpl.seller_charge, 0) + IFNULL(tpl.insurance_seller, 0) + IFNULL(tpl.insurance_vat_seller, 0),
+    tpl.total_pickup_cost = 0,
+    tpl.total_delivery_cost = IFNULL(delv.total_amount, 0),
+    tpl.total_failed_delivery_cost = 0
+WHERE
+	tpl.api_type = 1;
+
+UPDATE tmp_package_level tpl
+        LEFT JOIN
+    api_data_master_account delv ON tpl.id_package_dispatching = delv.id_package_dispatching
+        AND tpl.bob_id_supplier = delv.bob_id_supplier
+        AND delv.posting_type = 'INCOMING'
+        AND delv.charge_type = 'DELIVERY'
+        AND delv.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
+        LEFT JOIN
+    api_data_master_account fdel ON tpl.id_package_dispatching = fdel.id_package_dispatching
         AND tpl.bob_id_supplier = fdel.bob_id_supplier
-        AND tpl.fk_api_type = fdel.fk_api_type
         AND fdel.posting_type = 'INCOMING'
         AND fdel.charge_type = 'FAILED DELIVERY'
         AND fdel.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
-    api_data pckc ON tpl.id_package_dispatching = pckc.id_package_dispatching
+    api_data_master_account pckc ON tpl.id_package_dispatching = pckc.id_package_dispatching
         AND tpl.bob_id_supplier = pckc.bob_id_supplier
-        AND tpl.fk_api_type = pckc.fk_api_type
         AND pckc.posting_type = 'INCOMING'
         AND pckc.charge_type = 'PICKUP'
         AND pckc.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
-    api_data cod ON tpl.id_package_dispatching = cod.id_package_dispatching
+    api_data_master_account cod ON tpl.id_package_dispatching = cod.id_package_dispatching
         AND tpl.bob_id_supplier = cod.bob_id_supplier
-        AND tpl.fk_api_type = cod.fk_api_type
         AND cod.posting_type = 'INCOMING'
         AND cod.charge_type = 'COD'
         AND cod.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
-    api_data ins ON tpl.id_package_dispatching = ins.id_package_dispatching
+    api_data_master_account ins ON tpl.id_package_dispatching = ins.id_package_dispatching
         AND tpl.bob_id_supplier = ins.bob_id_supplier
-        AND tpl.fk_api_type = ins.fk_api_type
         AND ins.posting_type = 'INCOMING'
         AND ins.charge_type = 'INSURANCE'
         AND ins.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
@@ -108,13 +151,13 @@ SET
     tpl.total_seller_charge = IFNULL(tpl.seller_flat_charge, 0) + IFNULL(tpl.seller_charge, 0) + IFNULL(tpl.insurance_seller, 0) + IFNULL(tpl.insurance_vat_seller, 0),
     tpl.total_pickup_cost = IFNULL(pckc.total_amount, 0),
     tpl.total_delivery_cost = CASE
-			WHEN delv.id_api_data IS NOT NULL THEN IFNULL(delv.total_amount, 0) + IFNULL(ins.total_amount, 0)
-            WHEN fdel.id_api_data IS NOT NULL THEN (IFNULL(fdel.total_amount, 0) / 2) + IFNULL(ins.total_amount, 0)
+			WHEN delv.id_api_master_account IS NOT NULL THEN IFNULL(delv.total_amount, 0) + IFNULL(ins.total_amount, 0)
+            WHEN fdel.id_api_master_account IS NOT NULL THEN (IFNULL(fdel.total_amount, 0) / 2) + IFNULL(ins.total_amount, 0)
             ELSE 0
 		END,
     tpl.total_failed_delivery_cost = IFNULL(fdel.total_amount, 0) / 2
 WHERE
-	tpl.fk_api_type <> 0;
+	tpl.api_type = 2;
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Calculate shipping charge for Non-API data on package-seller data
@@ -167,7 +210,7 @@ SET
             ELSE 0
 		END
 WHERE
-	tpl.fk_api_type = 0;
+	tpl.api_type = 0;
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Calculate shipping charges on item level

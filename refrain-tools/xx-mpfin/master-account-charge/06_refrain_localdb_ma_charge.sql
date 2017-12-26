@@ -17,8 +17,8 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-10-30';
-SET @extractend = '2017-11-06';-- This MUST be D + 1
+SET @extractstart = '2017-12-01';
+SET @extractend = '2017-12-04';-- This MUST be D + 1
 
 USE refrain_live;
 
@@ -93,4 +93,5 @@ FROM
             AND first_shipped_date < @extractend
             AND shipment_scheme IN ('EXPRESS FBL' , 'EXPRESS MASTER ACCOUNT', 'FBL', 'MASTER ACCOUNT')
             AND is_marketplace = 1
-    GROUP BY order_nr , bob_id_supplier , id_package_dispatching) result
+    GROUP BY order_nr , bob_id_supplier , id_package_dispatching
+    HAVING total_seller_charge > 0) result

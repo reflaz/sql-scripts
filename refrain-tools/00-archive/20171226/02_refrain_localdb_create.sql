@@ -18,7 +18,7 @@ CREATE DATABASE IF NOT EXISTS `refrain_live` /*!40100 DEFAULT CHARACTER SET utf8
 USE `refrain_live`;
 
 CREATE TABLE IF NOT EXISTS `api_cons_charge_type` (
-    `id_api_charge_type` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_api_charge_type` INT(10) NOT NULL AUTO_INCREMENT,
     `charge_type` VARCHAR(20) DEFAULT NULL,
     `description` VARCHAR(255) DEFAULT NULL,
     `created_at` DATETIME DEFAULT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `api_cons_charge_type` (
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='API Charge Type Constraints';
 
 CREATE TABLE IF NOT EXISTS `api_cons_posting_type` (
-    `id_api_posting_type` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_api_posting_type` INT(10) NOT NULL AUTO_INCREMENT,
     `posting_type` VARCHAR(20) DEFAULT NULL,
     `description` VARCHAR(255) DEFAULT NULL,
     `created_at` DATETIME DEFAULT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `api_cons_posting_type` (
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='API Posting Type Constraints';
 
 CREATE TABLE IF NOT EXISTS `api_cons_status` (
-    `id_api_status` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_api_status` INT(10) NOT NULL AUTO_INCREMENT,
     `status` VARCHAR(20) DEFAULT NULL,
     `description` VARCHAR(255) DEFAULT NULL,
     `created_at` DATETIME DEFAULT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `api_cons_status` (
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='API Status Constraints';
 
 CREATE TABLE IF NOT EXISTS `api_cons_type` (
-    `id_api_type` INT(10) UNSIGNED NOT NULL,
+    `id_api_type` INT(10) NOT NULL AUTO_INCREMENT,
     `api_type` VARCHAR(20) DEFAULT NULL,
     `description` VARCHAR(255) DEFAULT NULL,
     `created_at` DATETIME DEFAULT NULL,
@@ -65,9 +65,8 @@ CREATE TABLE IF NOT EXISTS `api_cons_type` (
     KEY (`updated_at`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='API Status Constraints';
 
-CREATE TABLE IF NOT EXISTS `api_data` (
-    `id_api_data` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `fk_api_type` INT(10) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `api_data_direct_billing` (
+    `id_api_direct_billing` BIGINT(20) NOT NULL AUTO_INCREMENT,
     `api_date` VARCHAR(20) DEFAULT NULL,
     `posting_type` VARCHAR(20) DEFAULT NULL,
     `charge_type` VARCHAR(20) DEFAULT NULL,
@@ -83,15 +82,13 @@ CREATE TABLE IF NOT EXISTS `api_data` (
     `discount` DECIMAL(20 , 4 ) DEFAULT NULL,
     `tax_amount` DECIMAL(20 , 4 ) DEFAULT NULL,
     `total_amount` DECIMAL(20 , 4 ) DEFAULT NULL,
-    `id_api_data_reference` BIGINT(20) DEFAULT NULL,
+    `id_api_direct_billing_reference` BIGINT(20) DEFAULT NULL,
     `commentary` VARCHAR(255) DEFAULT NULL,
     `status` VARCHAR(20) DEFAULT NULL,
     `dfd_date` DATETIME DEFAULT NULL COMMENT 'Delivered or failed delivery date',
     `created_at` DATETIME DEFAULT NULL,
     `updated_at` DATETIME DEFAULT NULL,
-    PRIMARY KEY (`id_api_data`),
-    UNIQUE KEY (`fk_api_type` , `api_date` , `posting_type` , `charge_type` , `is_actual` , `package_number` , `short_code`),
-    KEY (`fk_api_type`),
+    PRIMARY KEY (`id_api_direct_billing`),
     KEY (`api_date`),
     KEY (`posting_type`),
     KEY (`charge_type`),
@@ -100,27 +97,72 @@ CREATE TABLE IF NOT EXISTS `api_data` (
     KEY (`package_number`),
     KEY (`bob_id_supplier`),
     KEY (`short_code`),
-    KEY (`id_api_data_reference`),
+    KEY (`id_api_direct_billing_reference`),
     KEY (`status`),
     KEY (`dfd_date`),
     KEY (`created_at`),
     KEY (`updated_at`),
-    CONSTRAINT `api_type_constraint` FOREIGN KEY (`fk_api_type`)
-        REFERENCES `api_cons_type` (`id_api_type`)
-        ON DELETE RESTRICT ON UPDATE RESTRICT,
-    CONSTRAINT `posting_type_constraint` FOREIGN KEY (`posting_type`)
+    CONSTRAINT `posting_type_constraint_db` FOREIGN KEY (`posting_type`)
         REFERENCES `api_cons_posting_type` (`posting_type`)
         ON DELETE RESTRICT ON UPDATE RESTRICT,
-    CONSTRAINT `charge_type_constraint` FOREIGN KEY (`charge_type`)
+    CONSTRAINT `charge_type_constraint_db` FOREIGN KEY (`charge_type`)
         REFERENCES `api_cons_charge_type` (`charge_type`)
         ON DELETE RESTRICT ON UPDATE RESTRICT,
-    CONSTRAINT `status_constraint` FOREIGN KEY (`status`)
+    CONSTRAINT `status_constraint_db` FOREIGN KEY (`status`)
         REFERENCES `api_cons_status` (`status`)
         ON DELETE RESTRICT ON UPDATE RESTRICT
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Direct billing API data';
 
+CREATE TABLE IF NOT EXISTS `api_data_master_account` (
+    `id_api_master_account` BIGINT(20) NOT NULL AUTO_INCREMENT,
+    `api_date` VARCHAR(20) DEFAULT NULL,
+    `posting_type` VARCHAR(20) DEFAULT NULL,
+    `charge_type` VARCHAR(20) DEFAULT NULL,
+    `is_actual` TINYINT(4) DEFAULT NULL,
+    `id_package_dispatching` BIGINT(20) UNSIGNED DEFAULT NULL,
+    `package_number` VARCHAR(50) DEFAULT NULL,
+    `bob_id_supplier` INT(10) UNSIGNED DEFAULT NULL,
+    `short_code` VARCHAR(7) DEFAULT NULL,
+    `formula_weight` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `rounded_weight` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `weight_source` VARCHAR(50) DEFAULT NULL,
+    `amount` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `discount` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `tax_amount` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `total_amount` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `id_api_master_account_reference` BIGINT(20) DEFAULT NULL,
+    `commentary` VARCHAR(255) DEFAULT NULL,
+    `status` VARCHAR(20) DEFAULT NULL,
+    `dfd_date` DATETIME DEFAULT NULL COMMENT 'Delivered or failed delivery date',
+    `created_at` DATETIME DEFAULT NULL,
+    `updated_at` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id_api_master_account`),
+    KEY (`api_date`),
+    KEY (`posting_type`),
+    KEY (`charge_type`),
+    KEY (`is_actual`),
+    KEY (`id_package_dispatching`),
+    KEY (`package_number`),
+    KEY (`bob_id_supplier`),
+    KEY (`short_code`),
+    KEY (`id_api_master_account_reference`),
+    KEY (`status`),
+    KEY (`dfd_date`),
+    KEY (`created_at`),
+    KEY (`updated_at`),
+    CONSTRAINT `posting_type_constraint_ma` FOREIGN KEY (`posting_type`)
+        REFERENCES `api_cons_posting_type` (`posting_type`)
+        ON DELETE RESTRICT ON UPDATE RESTRICT,
+    CONSTRAINT `charge_type_constraint_ma` FOREIGN KEY (`charge_type`)
+        REFERENCES `api_cons_charge_type` (`charge_type`)
+        ON DELETE RESTRICT ON UPDATE RESTRICT,
+    CONSTRAINT `status_constraint_ma` FOREIGN KEY (`status`)
+        REFERENCES `api_cons_status` (`status`)
+        ON DELETE RESTRICT ON UPDATE RESTRICT
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Master account API data';
+
 CREATE TABLE IF NOT EXISTS `asc_transaction` (
-    `id_transaction` BIGINT(20) UNSIGNED NOT NULL,
+    `id_transaction` BIGINT(20) NOT NULL,
     `fk_seller` BIGINT(20) DEFAULT NULL COMMENT 'seller id',
     `fk_transaction_type` INT(11) DEFAULT NULL COMMENT 'transaction type id',
     `is_unique` TINYINT(4) DEFAULT NULL COMMENT 'is unique',
@@ -152,7 +194,7 @@ CREATE TABLE IF NOT EXISTS `asc_transaction` (
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='finance transaction';
 
 CREATE TABLE IF NOT EXISTS `asc_transaction_type` (
-    `id_transaction_type` INT(11) UNSIGNED NOT NULL,
+    `id_transaction_type` INT(11) NOT NULL,
     `description` VARCHAR(255) DEFAULT NULL COMMENT 'description',
     `type` VARCHAR(128) DEFAULT NULL COMMENT 'debit or credit',
     `fk_fee_type` INT(11) DEFAULT NULL COMMENT 'fee type id',
@@ -220,7 +262,7 @@ CREATE TABLE IF NOT EXISTS `fms_sales_order_item` (
     `payment_flat_cost` DECIMAL(20 , 4 ) DEFAULT NULL,
     `payment_mdr_cost` DECIMAL(20 , 4 ) DEFAULT NULL,
     `payment_ipp_cost` DECIMAL(20 , 4 ) DEFAULT NULL,
-    `fk_api_type` INT(10) UNSIGNED DEFAULT 0,
+    `api_type` TINYINT(4) DEFAULT 0,
     `shipment_scheme` VARCHAR(50) DEFAULT NULL,
     `campaign` VARCHAR(50) DEFAULT NULL,
     `bob_weight` DECIMAL(20 , 4 ) DEFAULT NULL,
@@ -287,7 +329,7 @@ CREATE TABLE IF NOT EXISTS `fms_sales_order_item` (
     KEY (`first_shipment_provider`),
     KEY (`last_tracking_number`),
     KEY (`last_shipment_provider`),
-    KEY (`fk_api_type`),
+    KEY (`api_type`),
     KEY (`shipment_scheme`),
     KEY (`campaign`),
     KEY (`rate_card_scheme`),
@@ -509,7 +551,7 @@ CREATE TABLE IF NOT EXISTS `map_shipment_scheme` (
     `shipping_type` VARCHAR(100) DEFAULT NULL,
     `delivery_type` VARCHAR(45) DEFAULT NULL,
     `auto_shipping_fee` TINYINT(4) DEFAULT NULL,
-    `fk_api_type` INT(10) UNSIGNED DEFAULT 0,
+    `api_type` TINYINT(4) DEFAULT NULL,
     `start_date` DATETIME DEFAULT NULL,
     `end_date` DATETIME DEFAULT NULL,
     KEY (`id_shipment_scheme`),
@@ -523,7 +565,7 @@ CREATE TABLE IF NOT EXISTS `map_shipment_scheme` (
     KEY (`shipping_type`),
     KEY (`delivery_type`),
     KEY (`auto_shipping_fee`),
-    KEY (`fk_api_type`),
+    KEY (`api_type`),
     KEY (`start_date`),
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Shipment scheme';
@@ -613,7 +655,7 @@ CREATE TABLE IF NOT EXISTS `tmp_item_level` (
     `payment_flat_cost` DECIMAL(20 , 4 ) DEFAULT NULL,
     `payment_mdr_cost` DECIMAL(20 , 4 ) DEFAULT NULL,
     `payment_ipp_cost` DECIMAL(20 , 4 ) DEFAULT NULL,
-    `fk_api_type` INT(10) UNSIGNED DEFAULT 0,
+    `api_type` TINYINT(4) DEFAULT 0,
     `shipment_scheme` VARCHAR(50) DEFAULT NULL,
     `campaign` VARCHAR(50) DEFAULT NULL,
     `weight` DECIMAL(20 , 4 ) DEFAULT NULL,
@@ -693,7 +735,7 @@ CREATE TABLE IF NOT EXISTS `tmp_item_level` (
     KEY (`first_shipment_provider`),
     KEY (`last_tracking_number`),
     KEY (`last_shipment_provider`),
-    KEY (`fk_api_type`),
+    KEY (`api_type`),
     KEY (`shipment_scheme`),
     KEY (`campaign`),
     KEY (`rate_card_scheme`),
@@ -718,7 +760,7 @@ CREATE TABLE IF NOT EXISTS `tmp_package_level` (
     `shipping_fee_adjustment` DECIMAL(20 , 4 ) DEFAULT NULL,
     `package_seller_value` DECIMAL(20 , 4 ) DEFAULT NULL,
     `payment_mdr_cost` DECIMAL(20 , 4 ) DEFAULT NULL,
-    `fk_api_type` INT(10) UNSIGNED DEFAULT 0,
+    `api_type` TINYINT(4) DEFAULT 0,
     `shipment_scheme` VARCHAR(50) DEFAULT NULL,
     `weight` DECIMAL(20 , 4 ) DEFAULT NULL,
     `volumetric_weight` DECIMAL(20 , 4 ) DEFAULT NULL,
@@ -772,7 +814,7 @@ CREATE TABLE IF NOT EXISTS `tmp_package_level` (
     KEY (`origin`),
     KEY (`id_district`),
     KEY (`id_package_dispatching`),
-    KEY (`fk_api_type`),
+    KEY (`api_type`),
     KEY (`shipment_scheme`),
     KEY (`rate_card_scheme`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Temporary calculation data package level';

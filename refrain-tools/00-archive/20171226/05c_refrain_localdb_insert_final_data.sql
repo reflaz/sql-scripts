@@ -89,7 +89,7 @@ FROM
 		payment_flat_cost,
 		payment_mdr_cost,
 		payment_ipp_cost,
-		fk_api_type,
+		api_type,
 		shipment_scheme,
 		campaign,
         IFNULL(CASE
@@ -201,7 +201,7 @@ ON DUPLICATE KEY UPDATE
 	payment_flat_cost = til.payment_flat_cost,
 	payment_mdr_cost = til.payment_mdr_cost,
 	payment_ipp_cost = til.payment_ipp_cost,
-	fk_api_type = til.fk_api_type,
+	api_type = til.api_type,
 	shipment_scheme = til.shipment_scheme,
 	campaign = til.campaign,
     bob_weight = til.bob_weight,
@@ -244,7 +244,13 @@ ON DUPLICATE KEY UPDATE
 Update API Data Status from COMPLETE to ACTIVE
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-UPDATE api_data
+UPDATE api_data_direct_billing 
+SET 
+    status = 'ACTIVE'
+WHERE
+    status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE');
+
+UPDATE api_data_master_account 
 SET 
     status = 'ACTIVE'
 WHERE

@@ -39,7 +39,7 @@ UPDATE tmp_item_level til
         AND IFNULL(til.shipping_type, 'shipping_type') = COALESCE(mss.shipping_type, til.shipping_type, 'shipping_type')
         AND IFNULL(til.delivery_type, 'delivery_type') = COALESCE(mss.delivery_type, til.delivery_type, 'delivery_type')
         AND IFNULL(til.auto_shipping_fee, 0) < IFNULL(mss.auto_shipping_fee, 1)
-        AND IFNULL(til.fk_api_type, 0) = IFNULL(mss.fk_api_type, IFNULL(til.fk_api_type, 0))
+        AND IFNULL(til.api_type, 0) = IFNULL(mss.api_type, IFNULL(til.api_type, 0))
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mss.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mss.end_date
         JOIN
@@ -164,7 +164,7 @@ SELECT
     shipping_fee_adjustment_tmp 'shipping_fee_adjustment',
     package_seller_value,
     0 'payment_mdr_cost',
-    fk_api_type,
+    api_type,
     shipment_scheme,
     weight_tmp 'weight',
     volumetric_weight_tmp 'volumetric_weight',

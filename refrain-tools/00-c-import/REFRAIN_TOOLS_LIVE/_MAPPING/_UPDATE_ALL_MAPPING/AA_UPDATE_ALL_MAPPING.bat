@@ -14,6 +14,9 @@ del /q "C:\REFRAIN_TOOLS_LIVE\_MAPPING\API_CONS_POSTING_TYPE\*.csv" >nul
 echo deleting old API CONS Status...
 del /q "C:\REFRAIN_TOOLS_LIVE\_MAPPING\API_CONS_STATUS\*.csv" >nul
 
+echo deleting old API CONS Type...
+del /q "C:\REFRAIN_TOOLS_LIVE\_MAPPING\API_CONS_TYPE\*.csv" >nul
+
 echo deleting old ASC Transaction Type...
 del /q "C:\REFRAIN_TOOLS_LIVE\_MAPPING\ASC_TRANSACTION_TYPE\*.csv" >nul
 
@@ -69,6 +72,9 @@ copy "C:\REFRAIN_TOOLS_LIVE\_MAPPING\_UPDATE_ALL_MAPPING\api-cons-posting-type\*
 
 echo copying new API CONS Status...
 copy "C:\REFRAIN_TOOLS_LIVE\_MAPPING\_UPDATE_ALL_MAPPING\api-cons-status\*.csv" "C:\REFRAIN_TOOLS_LIVE\_MAPPING\API_CONS_STATUS\" >nul
+
+echo copying new API CONS Type...
+copy "C:\REFRAIN_TOOLS_LIVE\_MAPPING\_UPDATE_ALL_MAPPING\api-cons-type\*.csv" "C:\REFRAIN_TOOLS_LIVE\_MAPPING\API_CONS_TYPE\" >nul
 
 echo copying new ASC Transaction Type...
 copy "C:\REFRAIN_TOOLS_LIVE\_MAPPING\_UPDATE_ALL_MAPPING\asc-transaction-type\*.csv" "C:\REFRAIN_TOOLS_LIVE\_MAPPING\ASC_TRANSACTION_TYPE\" >nul
@@ -127,6 +133,9 @@ call AA_API_CONS_POSTING_TYPE.bat
 
 cd "C:\REFRAIN_TOOLS_LIVE\_MAPPING\API_CONS_STATUS\"
 call AA_API_CONS_STATUS.bat
+
+cd "C:\REFRAIN_TOOLS_LIVE\_MAPPING\API_CONS_TYPE\"
+call AA_API_CONS_TYPE.bat
 
 cd "C:\REFRAIN_TOOLS_LIVE\_MAPPING\ASC_TRANSACTION_TYPE\"
 call AA_ASC_TRANSACTION_TYPE.bat
