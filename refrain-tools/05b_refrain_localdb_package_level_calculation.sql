@@ -35,35 +35,35 @@ UPDATE tmp_package_level tpl
         AND tpl.fk_api_type = delv.fk_api_type
         AND delv.posting_type = 'INCOMING'
         AND delv.charge_type = 'DELIVERY'
-        AND delv.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
+        AND delv.status IN ('COMPLETE' , 'INCOMPLETE', 'DUPLICATE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
     api_data fdel ON tpl.id_package_dispatching = fdel.id_package_dispatching
         AND tpl.bob_id_supplier = fdel.bob_id_supplier
         AND tpl.fk_api_type = fdel.fk_api_type
         AND fdel.posting_type = 'INCOMING'
         AND fdel.charge_type = 'FAILED DELIVERY'
-        AND fdel.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
+        AND fdel.status IN ('COMPLETE' , 'INCOMPLETE', 'DUPLICATE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
     api_data pckc ON tpl.id_package_dispatching = pckc.id_package_dispatching
         AND tpl.bob_id_supplier = pckc.bob_id_supplier
         AND tpl.fk_api_type = pckc.fk_api_type
         AND pckc.posting_type = 'INCOMING'
         AND pckc.charge_type = 'PICKUP'
-        AND pckc.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
+        AND pckc.status IN ('COMPLETE' , 'INCOMPLETE', 'DUPLICATE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
     api_data cod ON tpl.id_package_dispatching = cod.id_package_dispatching
         AND tpl.bob_id_supplier = cod.bob_id_supplier
         AND tpl.fk_api_type = cod.fk_api_type
         AND cod.posting_type = 'INCOMING'
         AND cod.charge_type = 'COD'
-        AND cod.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
+        AND cod.status IN ('COMPLETE' , 'INCOMPLETE', 'DUPLICATE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
     api_data ins ON tpl.id_package_dispatching = ins.id_package_dispatching
         AND tpl.bob_id_supplier = ins.bob_id_supplier
         AND tpl.fk_api_type = ins.fk_api_type
         AND ins.posting_type = 'INCOMING'
         AND ins.charge_type = 'INSURANCE'
-        AND ins.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
+        AND ins.status IN ('COMPLETE' , 'INCOMPLETE', 'DUPLICATE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
 	map_weight_threshold_seller mwts ON GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) >= mwts.start_date
         AND GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) <= mwts.end_date
@@ -181,7 +181,7 @@ UPDATE tmp_item_level til
 SET
 	til.package_seller_value = tpl.package_seller_value,
     til.payment_mdr_cost = CASE
-			WHEN tpl.payment_mdr_cost > 0 THEN ROUND(IFNULL(til.unit_price, 0) / IFNULL(tpl.package_seller_value, 0) * IFNULL(tpl.payment_mdr_cost, 0), 4)
+			WHEN tpl.payment_mdr_cost < 0 THEN ROUND(IFNULL(til.unit_price, 0) / IFNULL(tpl.package_seller_value, 0) * IFNULL(tpl.payment_mdr_cost, 0), 4)
             ELSE til.payment_mdr_cost
 		END,
 	til.item_weight_flag_seller = tpl.item_weight_flag_seller,

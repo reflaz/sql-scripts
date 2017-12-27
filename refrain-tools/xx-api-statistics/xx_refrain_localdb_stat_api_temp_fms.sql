@@ -1,7 +1,7 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
 Refrain Tools
-API Statistics
+API Statistics - Temporary API to Calculated Raw Data
 
 Prepared by		: R Maliangkay
 Modified by		: RM
@@ -20,109 +20,61 @@ SELECT
     *
 FROM
     (SELECT 
-        'api_data_direct_billing' AS 'api_type',
-            api_date,
-            posting_type,
-            charge_type,
-            is_actual,
-            status,
-            COUNT(*) 'total_temporary_api_data',
-            SUM(IFNULL(amount, 0)) 'amount',
-            SUM(IFNULL(discount, 0)) 'discount',
-            SUM(IFNULL(tax_amount, 0)) 'tax_amount',
-            SUM(IFNULL(total_amount, 0)) 'total_amount',
+        act.api_type,
+            ad.api_date,
+            ad.posting_type,
+            ad.charge_type,
+            ad.is_actual,
+            ad.status,
+            COUNT(ad.id_api_data) 'total_temporary_api_data',
+            SUM(IFNULL(ad.amount, 0)) 'amount',
+            SUM(IFNULL(ad.discount, 0)) 'discount',
+            SUM(IFNULL(ad.tax_amount, 0)) 'tax_amount',
+            SUM(IFNULL(ad.total_amount, 0)) 'total_amount',
             SUM(CASE
-                WHEN amount < 0 THEN 1
+                WHEN ad.amount < 0 THEN 1
                 ELSE 0
             END) 'wrong_amount_sign',
             SUM(CASE
-                WHEN discount > 0 THEN 1
+                WHEN ad.discount > 0 THEN 1
                 ELSE 0
             END) 'wrong_discount_sign',
             SUM(CASE
-                WHEN tax_amount < 0 THEN 1
+                WHEN ad.tax_amount < 0 THEN 1
                 ELSE 0
             END) 'wrong_tax_amount_sign',
             SUM(CASE
-                WHEN total_amount < 0 THEN 1
+                WHEN ad.total_amount < 0 THEN 1
                 ELSE 0
             END) 'wrong_total_amount_sign',
             SUM(CASE
-                WHEN TRIM(package_number) = '' THEN 1
-                WHEN package_number IS NULL THEN 1
+                WHEN TRIM(ad.package_number) = '' THEN 1
+                WHEN ad.package_number IS NULL THEN 1
                 ELSE 0
             END) 'missing_package_number',
             SUM(CASE
-                WHEN TRIM(short_code) = '' THEN 1
-                WHEN short_code IS NULL THEN 1
+                WHEN TRIM(ad.short_code) = '' THEN 1
+                WHEN ad.short_code IS NULL THEN 1
                 ELSE 0
             END) 'missing_short_code'
     FROM
-        api_data_direct_billing
+        api_data ad
+    LEFT JOIN api_cons_type act ON ad.fk_api_type = act.id_api_type
     WHERE
-        created_at IS NULL
-    GROUP BY api_date , posting_type , charge_type , is_actual , status UNION ALL SELECT 
-        'api_data_master_account',
-            api_date,
-            posting_type,
-            charge_type,
-            is_actual,
-            status,
-            COUNT(*) 'total_temporary_api_data',
-            SUM(IFNULL(amount, 0)) 'amount',
-            SUM(IFNULL(discount, 0)) 'discount',
-            SUM(IFNULL(tax_amount, 0)) 'tax_amount',
-            SUM(IFNULL(total_amount, 0)) 'total_amount',
-            SUM(CASE
-                WHEN amount < 0 THEN 1
-                ELSE 0
-            END) 'wrong_amount_sign',
-            SUM(CASE
-                WHEN discount > 0 THEN 1
-                ELSE 0
-            END) 'wrong_discount_sign',
-            SUM(CASE
-                WHEN tax_amount < 0 THEN 1
-                ELSE 0
-            END) 'wrong_tax_amount_sign',
-            SUM(CASE
-                WHEN total_amount < 0 THEN 1
-                ELSE 0
-            END) 'wrong_total_amount_sign',
-            SUM(CASE
-                WHEN TRIM(package_number) = '' THEN 1
-                WHEN package_number IS NULL THEN 1
-                ELSE 0
-            END) 'missing_package_number',
-            SUM(CASE
-                WHEN TRIM(short_code) = '' THEN 1
-                WHEN short_code IS NULL THEN 1
-                ELSE 0
-            END) 'missing_short_code'
-    FROM
-        api_data_master_account
-    WHERE
-        created_at IS NULL
+        ad.created_at IS NULL
     GROUP BY api_date , posting_type , charge_type , is_actual , status) statistics;
 
 SELECT 
     *
 FROM
     (SELECT 
-        1 AS 'api_type',
-            addb.package_number 'missing_package_number_reference'
+        act.api_type,
+            ad.package_number 'missing_package_number_reference'
     FROM
-        api_data_direct_billing addb
-    LEFT JOIN fms_sales_order_item til ON addb.package_number = til.package_number
+        api_data ad
+    LEFT JOIN api_cons_type act ON ad.fk_api_type = act.id_api_type
+    LEFT JOIN fms_sales_order_item til ON ad.package_number = til.package_number
     WHERE
-        addb.created_at IS NULL
-            AND til.bob_id_sales_order_item IS NULL UNION ALL SELECT 
-        2 AS 'api_type',
-            adma.package_number 'missing_package_number_reference'
-    FROM
-        api_data_master_account adma
-    LEFT JOIN fms_sales_order_item til ON adma.package_number = til.package_number
-    WHERE
-        adma.created_at IS NULL
+        ad.created_at IS NULL
             AND til.bob_id_sales_order_item IS NULL) mpn
 GROUP BY missing_package_number_reference;

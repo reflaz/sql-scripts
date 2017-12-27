@@ -44,9 +44,9 @@ SET
 	til.payment_flat_cost_rate = mpc.flat_rate,
     til.payment_mdr_cost_rate = mpc.mdr_rate,
     til.payment_ipp_cost_rate = mpc.ipp_rate,
-    til.payment_flat_cost = IFNULL(mpc.flat_rate, 0) * (IFNULL(til.paid_price, 0) + IFNULL(til.shipping_amount, 0) + IFNULL(til.shipping_surcharge, 0)) / til.payment_value,
-    til.payment_mdr_cost = IFNULL(mpc.mdr_rate, 0) * (IFNULL(til.paid_price, 0) + IFNULL(til.shipping_amount, 0) + IFNULL(til.shipping_surcharge, 0)),
-    til.payment_ipp_cost = IFNULL(mpc.ipp_rate, 0) * (IFNULL(til.paid_price, 0) + IFNULL(til.shipping_amount, 0) + IFNULL(til.shipping_surcharge, 0)),
+    til.payment_flat_cost = - IFNULL(mpc.flat_rate, 0) * (IFNULL(til.paid_price, 0) + IFNULL(til.shipping_amount, 0) + IFNULL(til.shipping_surcharge, 0)) / til.payment_value,
+    til.payment_mdr_cost = - IFNULL(mpc.mdr_rate, 0) * (IFNULL(til.paid_price, 0) + IFNULL(til.shipping_amount, 0) + IFNULL(til.shipping_surcharge, 0)),
+    til.payment_ipp_cost = - IFNULL(mpc.ipp_rate, 0) * (IFNULL(til.paid_price, 0) + IFNULL(til.shipping_amount, 0) + IFNULL(til.shipping_surcharge, 0)),
     til.weight = IFNULL(til.config_weight, 0),
     til.volumetric_weight = IFNULL(til.config_length * til.config_width * til.config_height / 6000, 0),
     til.item_weight_seller = GREATEST(IFNULL(til.config_weight, 0), IFNULL(til.config_length * til.config_width * til.config_height / 6000, 0)),
@@ -80,7 +80,7 @@ SET
     created_at = DATE_FORMAT(SUBSTRING_INDEX(api_date, '-', - 1), '%Y-%m-%d %T'),
     updated_at = @updated_at
 WHERE
-    status IS NULL OR status NOT IN ('ACTIVE', 'DELETED', 'REVERESED');
+    status IS NULL OR status NOT IN ('ACTIVE', 'DELETED', 'API_TYPE_CONFLICT', 'REVERSED');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check if temporary API data exists in different types of APIs
@@ -95,7 +95,7 @@ UPDATE api_data adma
         AND adma.short_code = addb.short_code
         AND adma.is_actual = addb.is_actual
         AND addb.fk_api_type <> 10002
-        AND addb.status NOT IN ('DELETED', 'REVERSED')
+        AND addb.status NOT IN ('DELETED', 'NO_REFERENCE', 'API_TYPE_CONFLICT', 'NO_DELIVERY_DETAILS', 'REVERSED')
 SET 
     adma.status = 'API_TYPE_CONFLICT'
 WHERE
@@ -108,7 +108,7 @@ UPDATE api_data addb
         AND addb.short_code = adma.short_code
         AND addb.is_actual = adma.is_actual
         AND adma.fk_api_type = 10002
-        AND adma.status NOT IN ('DELETED', 'REVERSED')
+        AND adma.status NOT IN ('DELETED', 'NO_REFERENCE', 'API_TYPE_CONFLICT', 'NO_DELIVERY_DETAILS', 'REVERSED')
 SET 
     adma.status = 'API_TYPE_CONFLICT'
 WHERE
@@ -117,7 +117,6 @@ WHERE
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check for duplicate API data entries
-Comparing data status is not 'DELETED' OR 'REVERSED'
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE api_data ad1
@@ -129,7 +128,7 @@ UPDATE api_data ad1
         AND ad1.charge_type = ad2.charge_type
         AND ad1.is_actual = ad2.is_actual
         AND ad1.id_api_data <> ad2.id_api_data
-        AND ad2.status NOT IN ('DELETED', 'REVERSED')
+        AND ad2.status NOT IN ('DELETED', 'NO_REFERENCE', 'API_TYPE_CONFLICT', 'NO_DELIVERY_DETAILS', 'REVERSED')
 SET
     ad1.status = 'DUPLICATE'
 WHERE
@@ -137,7 +136,6 @@ WHERE
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check delivery referrence
-Comparing data status is not 'DELETED' OR 'REVERSED'
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE api_data ad1
@@ -148,19 +146,18 @@ UPDATE api_data ad1
         AND ad1.id_api_data <> ad2.id_api_data
         AND ad2.posting_type = 'INCOMING'
         AND ad2.charge_type IN ('DELIVERY' , 'FAILED DELIVERY')
-        AND ad2.status NOT IN ('DELETED', 'REVERSED')
+        AND ad2.status NOT IN ('DELETED', 'NO_REFERENCE', 'API_TYPE_CONFLICT', 'NO_DELIVERY_DETAILS', 'REVERSED')
 SET 
     ad1.status = CASE
         WHEN ad2.id_api_data IS NOT NULL THEN ad1.status
         ELSE 'NO_DELIVERY_DETAILS'
     END
 WHERE
-    ad1.status IN ('TEMPORARY' , 'INCOMPLETE')
+    ad1.status IN ('TEMPORARY', 'NO_DELIVERY_DETAILS')
         AND ad1.charge_type IN ('PICKUP' , 'COD', 'INSURANCE');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check reference for reversal and adjustment API data
-Comparing data status is not 'DELETED' OR 'REVERSED'
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE api_data ad1
@@ -171,7 +168,7 @@ UPDATE api_data ad1
         AND ad1.charge_type = ad2.charge_type
         AND ad1.id_api_data <> ad2.id_api_data
         AND ad2.posting_type = 'INCOMING'
-        AND ad2.status NOT IN ('DELETED', 'REVERSED')
+        AND ad2.status NOT IN ('DELETED', 'NO_REFERENCE', 'API_TYPE_CONFLICT', 'NO_DELIVERY_DETAILS', 'REVERSED')
 SET 
     ad1.id_api_data_reference = ad2.id_api_data,
     ad1.status = CASE
@@ -206,7 +203,7 @@ SET
         ELSE 'COMPLETE'
     END
 WHERE
-    ad.status NOT IN ('ACTIVE', 'DELETED', 'REVERSED');
+    ad.status NOT IN ('ACTIVE', 'DELETED', 'NO_REFERENCE', 'API_TYPE_CONFLICT', 'NO_DELIVERY_DETAILS', 'REVERSED');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Set status to NA for all API data not found in ANON DB extract
