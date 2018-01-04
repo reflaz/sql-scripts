@@ -237,8 +237,7 @@ ON DUPLICATE KEY UPDATE
 	total_delivery_cost = til.total_delivery_cost,
 	total_failed_delivery_cost = til.total_failed_delivery_cost,
 	created_at = til.created_at,
-	updated_at = til.updated_at
-	;
+	updated_at = til.updated_at;
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Update API Data Status from COMPLETE to ACTIVE
@@ -248,8 +247,7 @@ UPDATE api_data
 SET 
     status = 'ACTIVE'
 WHERE
-    status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE');
-
+    status IN ('COMPLETE');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Commit Transaction

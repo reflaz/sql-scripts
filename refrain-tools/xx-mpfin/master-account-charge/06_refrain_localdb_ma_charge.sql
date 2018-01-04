@@ -17,8 +17,8 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-12-01';
-SET @extractend = '2017-12-04';-- This MUST be D + 1
+SET @extractstart = '2017-12-18';
+SET @extractend = '2017-12-25';-- This MUST be D + 1
 
 USE refrain_live;
 
@@ -63,7 +63,7 @@ FROM
             SUM(IFNULL(fsoi.manual_shipping_fee_lzd, 0)) 'manual_shipping_fee_lzd',
             SUM(IFNULL(fsoi.manual_shipping_fee_3p, 0)) 'manual_shipping_fee_3p',
             SUM(IFNULL(fsoi.shipping_fee_adjustment, 0)) 'shipping_fee_adjustment',
-            fsoi.api_type,
+            fsoi.fk_api_type,
             fsoi.shipment_scheme,
             fsoi.campaign,
             SUM(IFNULL(fsoi.formula_weight_seller, 0)) 'formula_weight_seller',

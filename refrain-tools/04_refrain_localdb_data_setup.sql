@@ -203,7 +203,7 @@ SET
         ELSE 'COMPLETE'
     END
 WHERE
-    ad.status NOT IN ('ACTIVE', 'DELETED', 'NO_REFERENCE', 'API_TYPE_CONFLICT', 'NO_DELIVERY_DETAILS', 'REVERSED');
+    ad.status NOT IN ('DELETED', 'NO_REFERENCE', 'API_TYPE_CONFLICT', 'NO_DELIVERY_DETAILS', 'REVERSED');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Set status to NA for all API data not found in ANON DB extract

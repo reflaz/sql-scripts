@@ -15,7 +15,7 @@ Instructions	: - Change @api_date accordingly
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-SET @api_date = '20171030-20171105';
+SET @api_date = '20171218-20171224';
 
 USE refrain_live;
 
@@ -89,7 +89,7 @@ FROM
             SUM(IFNULL(fsoi.manual_shipping_fee_lzd, 0)) 'manual_shipping_fee_lzd',
             SUM(IFNULL(fsoi.manual_shipping_fee_3p, 0)) 'manual_shipping_fee_3p',
             SUM(IFNULL(fsoi.shipping_fee_adjustment, 0)) 'shipping_fee_adjustment',
-            fsoi.api_type,
+            fsoi.fk_api_type,
             fsoi.shipment_scheme,
             fsoi.campaign,
             SUM(IFNULL(fsoi.formula_weight_seller, 0)) 'formula_weight_seller',
@@ -123,9 +123,10 @@ FROM
             SUM(IF(charge_type = 'DELIVERY', total_amount, 0)) 'delivery_total_amount',
             MAX(IF(charge_type = 'DELIVERY', status, '')) 'delivery_status'
     FROM
-        api_data_direct_billing
+        api_data
     WHERE
         api_date = @api_date
+			AND fk_api_type = 10001
     GROUP BY package_number , short_code) adma
     LEFT JOIN fms_sales_order_item fsoi ON adma.package_number = fsoi.package_number
         AND adma.short_code = fsoi.short_code
