@@ -528,6 +528,23 @@ CREATE TABLE IF NOT EXISTS `map_shipment_scheme` (
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Shipment scheme';
 
+CREATE TABLE IF NOT EXISTS `map_tbc_category_mapping` (
+    `id_tbc_variable` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `regional_key` VARCHAR(12) DEFAULT NULL,
+    `primary_category` INT(10) UNSIGNED DEFAULT NULL,
+    `category_lv_1` VARCHAR(255) DEFAULT NULL,
+    `category_lv_2` VARCHAR(255) DEFAULT NULL,
+    `category_deepest` VARCHAR(255) DEFAULT NULL,
+    `shipping_rate` DECIMAL(20 , 4 ) DEFAULT NULL,
+    `start_date` DATETIME DEFAULT NULL,
+    `end_date` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id_tbc_variable`),
+    KEY (`regional_key`),
+    KEY (`primary_category`),
+    KEY (`start_date`),
+    KEY (`end_date`)
+)  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='TBC Variable Rate';
+
 CREATE TABLE IF NOT EXISTS `map_weight_threshold_seller` (
     `id_weight_threshold_seller` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
     `item_weight_threshold` DECIMAL(20 , 4 ) DEFAULT NULL,
