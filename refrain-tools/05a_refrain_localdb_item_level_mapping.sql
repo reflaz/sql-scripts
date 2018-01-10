@@ -113,7 +113,7 @@ Map seller campaign and override seller charge components
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE tmp_item_level til
-        JOIN
+        LEFT JOIN
     map_campaign_tracker mct ON til.bob_id_supplier = mct.bob_id_supplier
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mct.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mct.end_date
