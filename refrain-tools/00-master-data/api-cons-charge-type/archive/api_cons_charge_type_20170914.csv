@@ -4,4 +4,3 @@ NULL,FAILED DELIVERY,Charged when a package failed to reach destination,2017-09-
 NULL,PICKUP,Charged for pickup items,2017-09-14 00:00:00,2017-09-14 00:00:00
 NULL,COD,Charged for items delivered using CashOnDelivery payment method,2017-09-14 00:00:00,2017-09-14 00:00:00
 NULL,INSURANCE,Shipment Insurance,2017-09-14 00:00:00,2017-09-14 00:00:00
-NULL,SELLER FEE,Shipping fee that will be charged to seller,2017-09-14 00:00:00,2017-09-14 00:00:00

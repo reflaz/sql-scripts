@@ -1,3 +1,5 @@
-id_weight_threshold_seller,item_weight_threshold,item_weight_no_bulky,item_weight_offset,item_weight_max,package_weight_threshold,package_weight_no_bulky,package_weight_offset,package_weight_max,start_date,end_date
-NULL,7,1,0,0,NULL,NULL,NULL,NULL,1900-01-01 00:00:00,2016-12-31 23:59:59
-NULL,NULL,NULL,NULL,NULL,2,0,0,1,2017-01-01 00:00:00,9999-12-31 23:59:59
+id_weight_threshold_seller,rate_card_scheme,item_weight_threshold,item_weight_no_bulky,item_weight_offset,item_weight_max,package_weight_threshold,package_weight_no_bulky,package_weight_offset,package_weight_max,start_date,end_date
+NULL,LEL,7,1,0,0,NULL,NULL,NULL,NULL,1900-01-01 00:00:00,2016-12-31 23:59:59
+NULL,LEL,NULL,NULL,NULL,NULL,2,0,0,1,2017-01-01 00:00:00,9999-12-31 23:59:59
+NULL,JNE,7,1,0,0,NULL,NULL,NULL,NULL,1900-01-01 00:00:00,2016-12-31 23:59:59
+NULL,JNE,NULL,NULL,NULL,NULL,2,0,0,1,2017-01-01 00:00:00,9999-12-31 23:59:59

@@ -426,7 +426,7 @@ CREATE TABLE IF NOT EXISTS `map_default_charges` (
 
 CREATE TABLE IF NOT EXISTS `map_default_insurance` (
     `id_default_insurance` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `rate_card_scheme` VARCHAR(50) DEFAULT NULL,
+    `rate_card_scheme` VARCHAR(12) DEFAULT NULL,
     `type` VARCHAR(50) DEFAULT NULL,
     `is_marketplace` TINYINT(4) DEFAULT NULL,
     `min_package_value` DECIMAL(20 , 4 ) DEFAULT NULL,
@@ -547,6 +547,7 @@ CREATE TABLE IF NOT EXISTS `map_tbc_category_mapping` (
 
 CREATE TABLE IF NOT EXISTS `map_weight_threshold_seller` (
     `id_weight_threshold_seller` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `rate_card_scheme` VARCHAR(12) DEFAULT NULL,
     `item_weight_threshold` DECIMAL(20 , 4 ) DEFAULT NULL,
     `item_weight_no_bulky` TINYINT(4) DEFAULT NULL,
     `item_weight_offset` TINYINT(4) DEFAULT NULL,
@@ -558,6 +559,7 @@ CREATE TABLE IF NOT EXISTS `map_weight_threshold_seller` (
     `start_date` DATETIME DEFAULT NULL,
     `end_date` DATETIME DEFAULT NULL,
     PRIMARY KEY (`id_weight_threshold_seller`),
+    KEY (`rate_card_scheme`),
     KEY (`start_date`),
     KEY (`end_date`)
 )  ENGINE=INNODB DEFAULT CHARSET=UTF8 COMMENT='Seller weight threshold';

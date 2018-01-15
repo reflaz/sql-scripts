@@ -14,7 +14,7 @@ Instructions	: - Run the query by pressing the execute button
 -------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
-SET @api_date = '20171111-20171120';
+SET @api_date = '20171204-20171217';
 
 USE refrain_live;
 
@@ -74,7 +74,7 @@ SELECT
     SUM(IFNULL(til.payment_flat_cost, 0)) 'payment_flat_cost',
     SUM(IFNULL(til.payment_mdr_cost, 0)) 'payment_mdr_cost',
     SUM(IFNULL(til.payment_ipp_cost, 0)) 'payment_ipp_cost',
-    til.api_type,
+    til.fk_api_type,
     til.shipment_scheme,
     til.campaign,
     til.weight weight,
@@ -164,9 +164,10 @@ FROM
             SUM(IF(charge_type = 'INSURANCE', total_amount, 0)) 'insurance_total_amount',
             MAX(IF(charge_type = 'INSURANCE', status, '')) 'insurance_status'
     FROM
-        api_data_master_account
+        api_data
     WHERE
         api_date = @api_date
+            AND fk_api_type = 10002
     GROUP BY package_number , short_code) adma
         LEFT JOIN
     tmp_item_level til ON adma.package_number = til.package_number
