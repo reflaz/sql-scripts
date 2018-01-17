@@ -51,6 +51,7 @@ UPDATE tmp_item_level til
         JOIN
     map_weight_threshold_seller mwts ON GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mwts.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mwts.end_date
+        AND IFNULL(mdc.rate_card_scheme, 'rate_card_scheme') = COALESCE(mwts.rate_card_scheme, mdc.rate_card_scheme, 'rate_card_scheme')
         JOIN
     (SELECT 
         order_nr,

@@ -65,8 +65,16 @@ UPDATE tmp_package_level tpl
         AND ins.charge_type = 'INSURANCE'
         AND ins.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
+    api_data self ON tpl.id_package_dispatching = self.id_package_dispatching
+        AND tpl.bob_id_supplier = self.bob_id_supplier
+        AND tpl.fk_api_type = self.fk_api_type
+        AND ins.posting_type = 'INCOMING'
+        AND ins.charge_type = 'SELLER FEE'
+        AND ins.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
+        LEFT JOIN
 	map_weight_threshold_seller mwts ON GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) >= mwts.start_date
         AND GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) <= mwts.end_date
+        AND IFNULL(tpl.rate_card_scheme, 'rate_card_scheme') = IFNULL(mwts.rate_card_scheme, 'rate_card_scheme')
 SET
 	tpl.payment_mdr_cost = cod.total_amount,
 	tpl.chargeable_weight_seller = COALESCE(delv.rounded_weight, delv.formula_weight, fdel.rounded_weight, fdel.formula_weight, 0),
@@ -87,7 +95,10 @@ SET
 			END
 		END,
 	tpl.seller_flat_charge = IFNULL(tpl.seller_flat_charge_rate, 0),
-	tpl.seller_charge = IFNULL(tpl.chargeable_weight_seller, 0) * IFNULL(tpl.seller_charge_rate, 0),
+	tpl.seller_charge = CASE
+			WHEN self.total_amount IS NOT NULL THEN self.total_amount
+			ELSE IFNULL(tpl.chargeable_weight_seller, 0) * IFNULL(tpl.seller_charge_rate, 0)
+		END,
     tpl.insurance_seller = CASE
 			WHEN tpl.insurance_rate_seller = 0 THEN 0
 			ELSE IFNULL(ins.amount, 0) * -1
