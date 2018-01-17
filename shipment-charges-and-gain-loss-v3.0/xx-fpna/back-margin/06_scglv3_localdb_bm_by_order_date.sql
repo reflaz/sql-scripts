@@ -44,4 +44,6 @@ FROM
 WHERE
     ac.order_date >= @extractstart
         AND ac.order_date < @extractend
+        AND ac.delivered_date IS NOT NULL
+        AND ac.refund_completed_date IS NULL
 GROUP BY bob_id_supplier , sku , bm_date , level1_id

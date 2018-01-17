@@ -38,8 +38,12 @@ SELECT
             OR res.failed_flag = 1,
         res.delivery_cost,
         0)) 'delivery_cost',
-    SUM(IF(ordered_flag = 1, res.payment_cost, 0)) 'payment_cost',
-    SUM(res.backmargin) 'backmargin',
+    SUM(IF(ordered_flag = 1,
+        res.payment_cost,
+        0)) 'payment_cost',
+    SUM(IF(delivered_flag = 1,
+        res.backmargin,
+        0)) 'backmargin',
     - SUM(IF(delivered_flag = 1, discount, 0)) 'voucher'
 FROM
     (SELECT 
@@ -54,8 +58,8 @@ FROM
             COUNT(ac.bob_id_sales_order_item) 'item',
             SUM(IFNULL(ac.order_flat_item, 0) + IFNULL(ac.mdr_item, 0) + IFNULL(ac.ipp_item, 0)) 'payment_cost',
             SUM(IFNULL(ac.total_delivery_cost_item, 0)) 'delivery_cost',
-            SUM(IFNULL(discount, 0)) 'discount',
-            SUM(IFNULL(bm.backmargin,0)) 'backmargin'
+            SUM(IFNULL(ac.discount, 0)) 'discount',
+            SUM(IF(ac.refund_completed_date IS NULL, bm.backmargin, 0)) 'backmargin'
     FROM
         (SELECT 
         ac.*,
