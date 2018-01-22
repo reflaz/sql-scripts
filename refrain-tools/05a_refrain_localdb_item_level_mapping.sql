@@ -55,13 +55,13 @@ UPDATE tmp_item_level til
         JOIN
     (SELECT 
         order_nr,
-            bob_id_supplier,
+            short_code,
             id_package_dispatching,
             SUM(IFNULL(unit_price, 0)) 'package_value'
     FROM
         tmp_item_level
-    GROUP BY order_nr , bob_id_supplier , id_package_dispatching) pckval ON til.order_nr = pckval.order_nr
-        AND til.bob_id_supplier = pckval.bob_id_supplier
+    GROUP BY order_nr , short_code , id_package_dispatching) pckval ON til.order_nr = pckval.order_nr
+        AND IFNULL(til.short_code, 'short_code') = COALESCE(pckval.short_code, til.short_code, 'short_code')
         AND IFNULL(til.id_package_dispatching, 1) = IFNULL(pckval.id_package_dispatching, 1)
         LEFT JOIN
     map_default_insurance mdisel ON mdc.rate_card_scheme = mdisel.rate_card_scheme
@@ -249,7 +249,7 @@ FROM
             SUM(IFNULL(insurance_vat_3pl, 0)) 'insurance_vat_3pl_tmp'
     FROM
         tmp_item_level til
-    GROUP BY order_nr , bob_id_supplier , id_package_dispatching) tpl;
+    GROUP BY order_nr , short_code , id_package_dispatching) tpl;
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Commit Transaction

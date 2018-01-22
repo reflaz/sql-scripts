@@ -1,7 +1,7 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
 Refrain Tools
-Delete Direct Billing API Data by API Date
+Delete API Data by API Date
 
 Prepared by		: R Maliangkay
 Modified by		: RM
@@ -17,6 +17,6 @@ Instructions	: - Change @api_date accordingly
 
 USE refrain_live;
 
-DELETE FROM api_data_direct_billing 
+DELETE FROM api_data 
 WHERE
-    api_date = '20171030-20171105';
+    api_date = '20151030-20151105';

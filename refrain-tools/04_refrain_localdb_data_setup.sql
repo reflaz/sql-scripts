@@ -80,7 +80,22 @@ SET
     created_at = DATE_FORMAT(SUBSTRING_INDEX(api_date, '-', - 1), '%Y-%m-%d %T'),
     updated_at = @updated_at
 WHERE
-    status IS NULL OR status NOT IN ('ACTIVE', 'DELETED', 'API_TYPE_CONFLICT', 'REVERSED');
+    (status IS NULL
+		OR status NOT IN ('ACTIVE', 'DELETED', 'API_TYPE_CONFLICT', 'REVERSED'))
+		AND charge_type NOT IN ('SELLER FEE');
+
+UPDATE api_data
+SET 
+    amount = ABS(IFNULL(amount, 0)),
+    discount = ABS(IFNULL(discount, 0)) * - 1,
+    tax_amount = ABS(IFNULL(tax_amount, 0)),
+    total_amount = ABS(IFNULL(total_amount, 0)),
+    created_at = DATE_FORMAT(SUBSTRING_INDEX(api_date, '-', - 1), '%Y-%m-%d %T'),
+    updated_at = @updated_at
+WHERE
+    (status IS NULL
+		OR status NOT IN ('ACTIVE', 'DELETED', 'API_TYPE_CONFLICT', 'REVERSED'))
+		AND charge_type IN ('SELLER FEE');
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check if temporary API data exists in different types of APIs
@@ -186,7 +201,7 @@ Complete missing API fields from ANON DB data extract
 UPDATE tmp_item_level til
         JOIN
     api_data ad ON til.package_number = ad.package_number
-        AND til.short_code = ad.short_code 
+        AND IFNULL(til.short_code, 'short_code') = COALESCE(ad.short_code, til.short_code, 'short_code')
 SET 
     til.fk_api_type = CASE
         WHEN til.id_package_dispatching IS NOT NULL AND til.bob_id_supplier IS NOT NULL THEN ad.fk_api_type

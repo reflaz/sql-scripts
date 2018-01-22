@@ -31,46 +31,46 @@ Map 3pl charge components to API data and calculate shipping charge components o
 UPDATE tmp_package_level tpl
         LEFT JOIN
     api_data delv ON tpl.id_package_dispatching = delv.id_package_dispatching
-        AND tpl.bob_id_supplier = delv.bob_id_supplier
+        AND IFNULL(tpl.short_code, 'short_code') = COALESCE(delv.short_code, tpl.short_code, 'short_code')
         AND tpl.fk_api_type = delv.fk_api_type
         AND delv.posting_type = 'INCOMING'
         AND delv.charge_type = 'DELIVERY'
         AND delv.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
     api_data fdel ON tpl.id_package_dispatching = fdel.id_package_dispatching
-        AND tpl.bob_id_supplier = fdel.bob_id_supplier
+        AND IFNULL(tpl.short_code, 'short_code') = COALESCE(fdel.short_code, tpl.short_code, 'short_code')
         AND tpl.fk_api_type = fdel.fk_api_type
         AND fdel.posting_type = 'INCOMING'
         AND fdel.charge_type = 'FAILED DELIVERY'
         AND fdel.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
     api_data pckc ON tpl.id_package_dispatching = pckc.id_package_dispatching
-        AND tpl.bob_id_supplier = pckc.bob_id_supplier
+        AND IFNULL(tpl.short_code, 'short_code') = COALESCE(pckc.short_code, tpl.short_code, 'short_code')
         AND tpl.fk_api_type = pckc.fk_api_type
         AND pckc.posting_type = 'INCOMING'
         AND pckc.charge_type = 'PICKUP'
         AND pckc.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
     api_data cod ON tpl.id_package_dispatching = cod.id_package_dispatching
-        AND tpl.bob_id_supplier = cod.bob_id_supplier
+        AND IFNULL(tpl.short_code, 'short_code') = COALESCE(cod.short_code, tpl.short_code, 'short_code')
         AND tpl.fk_api_type = cod.fk_api_type
         AND cod.posting_type = 'INCOMING'
         AND cod.charge_type = 'COD'
         AND cod.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
     api_data ins ON tpl.id_package_dispatching = ins.id_package_dispatching
-        AND tpl.bob_id_supplier = ins.bob_id_supplier
+        AND IFNULL(tpl.short_code, 'short_code') = COALESCE(ins.short_code, tpl.short_code, 'short_code')
         AND tpl.fk_api_type = ins.fk_api_type
         AND ins.posting_type = 'INCOMING'
         AND ins.charge_type = 'INSURANCE'
         AND ins.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
     api_data self ON tpl.id_package_dispatching = self.id_package_dispatching
-        AND tpl.bob_id_supplier = self.bob_id_supplier
+        AND IFNULL(tpl.short_code, 'short_code') = COALESCE(self.short_code, tpl.short_code, 'short_code')
         AND tpl.fk_api_type = self.fk_api_type
-        AND ins.posting_type = 'INCOMING'
-        AND ins.charge_type = 'SELLER FEE'
-        AND ins.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
+        AND self.posting_type = 'INCOMING'
+        AND self.charge_type = 'SELLER FEE'
+        AND self.status IN ('COMPLETE' , 'INCOMPLETE', 'NO_DFD_DATE', 'ACTIVE')
         LEFT JOIN
 	map_weight_threshold_seller mwts ON GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) >= mwts.start_date
         AND GREATEST(tpl.order_date, IFNULL(tpl.first_shipped_date, '1900-01-01')) <= mwts.end_date
@@ -187,7 +187,7 @@ Calculate shipping charges on item level
 UPDATE tmp_item_level til
 		LEFT JOIN
 	tmp_package_level tpl ON til.order_nr = tpl.order_nr
-        AND til.bob_id_supplier = tpl.bob_id_supplier
+        AND IFNULL(til.short_code, 'short_code') = COALESCE(tpl.short_code, til.short_code, 'short_code')
         AND IFNULL(til.id_package_dispatching, 1) = IFNULL(tpl.id_package_dispatching, 1)
 SET
 	til.package_seller_value = tpl.package_seller_value,
@@ -249,8 +249,12 @@ UPDATE
 	map_category_tree ct ON til.primary_category = ct.id_catalog_category
 		LEFT JOIN
 	map_tbc_category_mapping mtcm ON ct.resulting_regional_key = mtcm.regional_key
+		AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mtcm.start_date
+        AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mtcm.end_date
 		LEFT JOIN
-	map_tbc_category_mapping def ON def.regional_key IS NULL
+	map_tbc_category_mapping def ON GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= def.start_date
+        AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= def.end_date
+        AND def.regional_key IS NULL
 SET
 	til.seller_flat_charge = IFNULL(mtcm.shipping_rate, def.shipping_rate),
     til.total_seller_charge = IFNULL(mtcm.shipping_rate, def.shipping_rate)
