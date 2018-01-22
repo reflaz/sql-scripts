@@ -101,15 +101,17 @@ WHERE
 Check if temporary API data exists in different types of APIs
 Temporary data checked to all data regardless of its posting and charge type
 Comparing data status is not 'DELETED'
-If data exists in MA and Other API, then set MA data status to API_TYPE_CONFLICT
+If data exists in Other API, then set status to API_TYPE_CONFLICT
+This one is for MA only
+Exclude Retail APIs in checking, assuming MA API is more reliable
 -----------------------------------------------------------------------------------------------------------------------------------*/
 
 UPDATE api_data adma
         JOIN
     api_data addb ON adma.package_number = addb.package_number
-        AND adma.short_code = addb.short_code
+        AND IFNULL(adma.short_code, 'short_code') = COALESCE(addb.short_code, adma.short_code, 'short_code')
         AND adma.is_actual = addb.is_actual
-        AND addb.fk_api_type <> 10002
+        AND addb.fk_api_type NOT IN (10002, 20001)
         AND addb.status NOT IN ('DELETED', 'NO_REFERENCE', 'API_TYPE_CONFLICT', 'NO_DELIVERY_DETAILS', 'REVERSED')
 SET 
     adma.status = 'API_TYPE_CONFLICT'
@@ -120,7 +122,7 @@ WHERE
 UPDATE api_data addb
         JOIN
     api_data adma ON addb.package_number = adma.package_number
-        AND addb.short_code = adma.short_code
+        AND IFNULL(addb.short_code, 'short_code') = COALESCE(adma.short_code, adma.short_code, 'short_code')
         AND addb.is_actual = adma.is_actual
         AND adma.fk_api_type = 10002
         AND adma.status NOT IN ('DELETED', 'NO_REFERENCE', 'API_TYPE_CONFLICT', 'NO_DELIVERY_DETAILS', 'REVERSED')
@@ -128,7 +130,41 @@ SET
     adma.status = 'API_TYPE_CONFLICT'
 WHERE
     addb.status IN ('TEMPORARY')
-		AND addb.fk_api_type <> 10002;
+		AND addb.fk_api_type NOT IN (10002, 20001);
+
+/*-----------------------------------------------------------------------------------------------------------------------------------
+Check if temporary API data exists in different types of APIs
+Temporary data checked to all data regardless of its posting and charge type
+Comparing data status is not 'DELETED'
+If data exists in Other API, then set status to API_TYPE_CONFLICT
+This one is for Retail only
+-----------------------------------------------------------------------------------------------------------------------------------*/
+
+UPDATE api_data adma
+        JOIN
+    api_data addb ON adma.package_number = addb.package_number
+        AND IFNULL(adma.short_code, 'short_code') = COALESCE(addb.short_code, adma.short_code, 'short_code')
+        AND adma.is_actual = addb.is_actual
+        AND addb.fk_api_type NOT IN (20001)
+        AND addb.status NOT IN ('DELETED', 'NO_REFERENCE', 'API_TYPE_CONFLICT', 'NO_DELIVERY_DETAILS', 'REVERSED')
+SET 
+    adma.status = 'API_TYPE_CONFLICT'
+WHERE
+    adma.status IN ('TEMPORARY' , 'API_TYPE_CONFLICT')
+		AND adma.fk_api_type = 20001;
+
+UPDATE api_data addb
+        JOIN
+    api_data adma ON addb.package_number = adma.package_number
+        AND IFNULL(addb.short_code, 'short_code') = COALESCE(adma.short_code, adma.short_code, 'short_code')
+        AND addb.is_actual = adma.is_actual
+        AND adma.fk_api_type = 20001
+        AND adma.status NOT IN ('DELETED', 'NO_REFERENCE', 'API_TYPE_CONFLICT', 'NO_DELIVERY_DETAILS', 'REVERSED')
+SET 
+    adma.status = 'API_TYPE_CONFLICT'
+WHERE
+    addb.status IN ('TEMPORARY')
+		AND addb.fk_api_type NOT IN (20001);
 
 /*-----------------------------------------------------------------------------------------------------------------------------------
 Check for duplicate API data entries
@@ -137,7 +173,7 @@ Check for duplicate API data entries
 UPDATE api_data ad1
         JOIN
     api_data ad2 ON ad1.package_number = ad2.package_number
-        AND ad1.short_code = ad2.short_code
+        AND IFNULL(ad1.short_code, 'short_code') = COALESCE(ad2.short_code, ad1.short_code, 'short_code')
         AND ad1.fk_api_type = ad2.fk_api_type
         AND ad1.posting_type = ad2.posting_type
         AND ad1.charge_type = ad2.charge_type
@@ -156,7 +192,7 @@ Check delivery referrence
 UPDATE api_data ad1
         LEFT JOIN
     api_data ad2 ON ad1.package_number = ad2.package_number
-        AND ad1.short_code = ad2.short_code
+        AND IFNULL(ad1.short_code, 'short_code') = COALESCE(ad2.short_code, ad1.short_code, 'short_code')
         AND ad1.fk_api_type = ad2.fk_api_type
         AND ad1.id_api_data <> ad2.id_api_data
         AND ad2.posting_type = 'INCOMING'
@@ -178,7 +214,7 @@ Check reference for reversal and adjustment API data
 UPDATE api_data ad1
         LEFT JOIN
     api_data ad2 ON ad1.package_number = ad2.package_number
-        AND ad1.short_code = ad2.short_code
+        AND IFNULL(ad1.short_code, 'short_code') = COALESCE(ad2.short_code, ad1.short_code, 'short_code')
         AND ad1.fk_api_type = ad2.fk_api_type
         AND ad1.charge_type = ad2.charge_type
         AND ad1.id_api_data <> ad2.id_api_data
