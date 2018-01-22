@@ -177,7 +177,7 @@ FROM
             IFNULL(bob_weight, 0) 'weight',
             IFNULL(bob_volumetric_weight, 0) 'volumetric_weight',
             CASE
-                WHEN fsoi.fk_api_type IN (10001 , 10002) THEN 1
+                WHEN fsoi.fk_api_type <> 0 THEN 1
                 WHEN ABS(IFNULL(total_delivery_cost, 0) / unit_price) > 5 THEN 0
                 WHEN shipping_amount + shipping_surcharge > 40000000 THEN 0
                 ELSE 1
@@ -194,6 +194,5 @@ FROM
             AND delivery_type NOT IN ('express' , 'nextday', 'sameday')
             AND fsoi.shipment_scheme IN ('RETAIL' , 'DIRECT BILLING', 'FBL', 'MASTER ACCOUNT')
     HAVING pass = 1) fsoi
-    GROUP BY order_nr , id_package_dispatching
-    HAVING customer_weight <= 400) pck
+    GROUP BY order_nr , id_package_dispatching) pck
     GROUP BY order_date , origin , id_city , tier , range_price , range_kg , threshold_price , threshold_kg , is_free) city

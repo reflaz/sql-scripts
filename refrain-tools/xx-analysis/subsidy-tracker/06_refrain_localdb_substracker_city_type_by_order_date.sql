@@ -106,6 +106,7 @@ FROM
             ac.total_seller_charge,
             ac.total_delivery_cost,
             CASE
+				WHEN fk_api_type <> 0 THEN 1
                 WHEN ABS(total_delivery_cost / unit_price) > 5 THEN 0
                 WHEN shipping_amount + shipping_surcharge > 40000000 THEN 0
                 ELSE 1
