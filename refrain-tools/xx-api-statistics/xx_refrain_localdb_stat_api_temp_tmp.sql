@@ -27,6 +27,7 @@ FROM
             ad.is_actual,
             ad.status,
             COUNT(ad.id_api_data) 'total_temporary_api_data',
+            SUM(IFNULL(ad.formula_weight, 0)) 'formula_weight',
             SUM(IFNULL(ad.amount, 0)) 'amount',
             SUM(IFNULL(ad.discount, 0)) 'discount',
             SUM(IFNULL(ad.tax_amount, 0)) 'tax_amount',
@@ -62,7 +63,7 @@ FROM
     LEFT JOIN api_cons_type act ON ad.fk_api_type = act.id_api_type
     WHERE
         ad.created_at IS NULL
-    GROUP BY api_date , posting_type , charge_type , is_actual , status) statistics;
+    GROUP BY fk_api_type , api_date , posting_type , charge_type , is_actual , is_marketplace , status) statistics;
 
 SELECT 
     *
