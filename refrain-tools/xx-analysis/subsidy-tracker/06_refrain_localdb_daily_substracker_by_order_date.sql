@@ -1,8 +1,8 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
 Daily Subsidy Tracker by Order Date
- 
-Prepared by		: Ryan Disastra
+
+Prepared by		: RM
 Modified by		: 
 Version			: 1.0
 Changes made	: 
@@ -18,8 +18,8 @@ USE refrain_live;
 
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
-SET @extractstart = '2017-12-25';
-SET @extractend = '2018-01-08';-- This MUST be D + 1
+SET @extractstart = '2017-12-28';
+SET @extractend = '2018-01-22';-- This MUST be D + 1
 
 SELECT 
     *

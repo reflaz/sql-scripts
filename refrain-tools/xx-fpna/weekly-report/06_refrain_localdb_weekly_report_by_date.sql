@@ -2,7 +2,7 @@
 -------------------------------------------------------------------------------------------------------------------------------------
 Weekly Report
 
-Prepared by		: R Maliangkay
+Prepared by		: 
 Modified by		: 
 Version			: 1.0
 Changes made	: 
