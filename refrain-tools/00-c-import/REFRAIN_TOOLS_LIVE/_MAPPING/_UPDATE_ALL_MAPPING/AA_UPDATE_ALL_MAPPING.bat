@@ -56,6 +56,9 @@ del /q "C:\REFRAIN_TOOLS_LIVE\_MAPPING\MAP_RATE_CARD_3PL\*.csv" >nul
 echo deleting old MAP Shipment Scheme...
 del /q "C:\REFRAIN_TOOLS_LIVE\_MAPPING\MAP_SHIPMENT_SCHEME\*.csv" >nul
 
+echo deleting old MAP TBC Category Mapping...
+del /q "C:\REFRAIN_TOOLS_LIVE\_MAPPING\MAP_TBC_CATEGORY_MAPPING\*.csv" >nul
+
 echo deleting old MAP Weight Threshold Seller...
 del /q "C:\REFRAIN_TOOLS_LIVE\_MAPPING\MAP_WEIGHT_THRESHOLD_SELLER\*.csv" >nul
 
@@ -114,6 +117,9 @@ copy "C:\REFRAIN_TOOLS_LIVE\_MAPPING\_UPDATE_ALL_MAPPING\map-rate-card-3pl\*.csv
 
 echo copying new MAP Shipment Scheme...
 copy "C:\REFRAIN_TOOLS_LIVE\_MAPPING\_UPDATE_ALL_MAPPING\map-shipment-scheme\*.csv" "C:\REFRAIN_TOOLS_LIVE\_MAPPING\MAP_SHIPMENT_SCHEME\" >nul
+
+echo copying new MAP TBC Category Mapping...
+copy "C:\REFRAIN_TOOLS_LIVE\_MAPPING\_UPDATE_ALL_MAPPING\map-tbc-category-mapping\*.csv" "C:\REFRAIN_TOOLS_LIVE\_MAPPING\MAP_TBC_CATEGORY_MAPPING\" >nul
 
 echo copying new MAP Weight Threshold Seller...
 copy "C:\REFRAIN_TOOLS_LIVE\_MAPPING\_UPDATE_ALL_MAPPING\map-weight-threshold-seller\*.csv" "C:\REFRAIN_TOOLS_LIVE\_MAPPING\MAP_WEIGHT_THRESHOLD_SELLER\" >nul
@@ -175,6 +181,9 @@ call AA_MAP_RATE_CARD_3PL.bat
 
 cd "C:\REFRAIN_TOOLS_LIVE\_MAPPING\MAP_SHIPMENT_SCHEME\"
 call AA_MAP_SHIPMENT_SCHEME.bat
+
+cd "C:\REFRAIN_TOOLS_LIVE\_MAPPING\MAP_TBC_CATEGORY_MAPPING\"
+call AA_MAP_TBC_CATEGORY_MAPPING.bat
 
 cd "C:\REFRAIN_TOOLS_LIVE\_MAPPING\MAP_WEIGHT_THRESHOLD_SELLER\"
 call AA_MAP_WEIGHT_THRESHOLD_SELLER.bat
