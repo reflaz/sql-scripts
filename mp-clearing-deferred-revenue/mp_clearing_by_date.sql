@@ -8,6 +8,7 @@ Version			: 1.0
 Changes made	: 
 
 Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
+				  - Change @statusend to a specific cutoff date
                   - Run the query by pressing the execute button
                   - Wait until the query finished, then export the result
                   - Close the query WITHOUT SAVING ANY CHANGES
@@ -30,9 +31,7 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 SET @extractstart = '2017-01-01';
 SET @extractend = '2017-04-01';-- This MUST be D + 1
 
-SET @statusend = '2017-04-01';
-
-SET @is_marketplace = 0;
+SET @statusend = '2017-04-01';-- Cutoff date
 
 SELECT 
     *
@@ -123,7 +122,7 @@ FROM
     WHERE
         so.created_at >= @extractstart
             AND so.created_at < @extractend
-            AND soi.is_marketplace = @is_marketplace) soi
+            AND soi.is_marketplace = 1) soi
     LEFT JOIN oms_live.ims_sales_order_item_status_history soish ON soi.id_sales_order_item = soish.fk_sales_order_item
         AND soish.fk_sales_order_item_status IN (69 , 67, 9, 5, 6, 27, 56, 57, 78)
         AND soish.created_at < @statusend
