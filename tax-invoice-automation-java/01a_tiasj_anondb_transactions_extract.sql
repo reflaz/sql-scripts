@@ -17,7 +17,7 @@ Instructions	: - Change @extractstart and @extractend for a specific weekly/mont
 -- Change this before running the script
 -- The format must be in 'YYYY-MM-DD'
 SET @extractstart = '2016-12-01';
-SET @extractend = '2017-01-01';-- This MUST be H + 1
+SET @extractend = '2017-01-01';-- This MUST be D + 1
 
 SELECT 
     *

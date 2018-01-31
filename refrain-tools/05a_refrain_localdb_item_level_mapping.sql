@@ -154,6 +154,7 @@ SELECT
     bob_id_supplier,
     short_code,
     is_marketplace,
+    tax_class,
     order_date,
     first_shipped_date,
     failed_delivery_date,

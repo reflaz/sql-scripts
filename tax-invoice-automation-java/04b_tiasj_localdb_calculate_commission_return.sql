@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------------
-Tax Invoice Automation System - Monthly Invoice Data
+Tax Invoice Automation System - Commission Return
 
 Prepared by		: R Maliangkay
 Modified by		: 
@@ -43,7 +43,8 @@ FROM
             result.*
     FROM
         (SELECT 
-        transaction_type,
+        delivered_month,
+            transaction_type,
             SUM(amount_paid_to_seller) 'amount_paid_to_seller',
             SUM(amount_subjected_to_tax) 'amount_subjected_to_tax',
             SUM(tax_amount) 'tax_amount',
@@ -59,17 +60,18 @@ FROM
                     transaction_type IN ('Commission Credit' , 'Reversal Commission', '')
                         AND delivered_date < @extractstart
                 THEN
-                    0
+                    1
                 WHEN
                     transaction_type IN ('Commission Credit' , 'Reversal Commission', '')
                         AND delivered_date IS NULL
                 THEN
-                    0
-                ELSE 1
-            END 'pass'
+                    1
+                ELSE 0
+            END 'pass',
+            DATE_FORMAT(delivered_date, '%Y-%m') 'delivered_month'
     FROM
         tias_java.transaction
     HAVING pass = 1) tr
-    GROUP BY bob_id_supplier , transaction_type
+    GROUP BY delivered_month , bob_id_supplier , transaction_type
     HAVING bob_id_supplier IS NOT NULL) result
     LEFT JOIN tias_java.seller_details sd ON result.bob_id_supplier = sd.bob_id_supplier) result

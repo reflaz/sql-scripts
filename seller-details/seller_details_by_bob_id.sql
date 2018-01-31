@@ -26,7 +26,10 @@ FROM
             sel.short_code 'SC Seller ID',
             sup.name 'Seller Name',
             sup.name_company 'Legal Name',
-            sel.tax_class 'Tax Class',
+            CASE
+                WHEN sel.tax_class = 0 THEN 'local'
+                WHEN sel.tax_class = 1 THEN 'international'
+            END 'Tax Class',
             sup.vat_number 'NPWP No',
             usr.last_login 'Last Login',
             sa.address1 'BOB Address',

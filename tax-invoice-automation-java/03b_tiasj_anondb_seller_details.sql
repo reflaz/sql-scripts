@@ -7,7 +7,10 @@ Modified by		:
 Version			: 1.0
 Changes made	: 
 
-Instructions	: - Change @extractstart and @extractend for a specific weekly/monthly time frame before generating the report
+Instructions	: - Go to your excel file
+				  - Format the parameters in excel using this formula: ="'"&Column&"'," --> change Column accordingly
+				  - Insert formatted parameters
+                  - Delete the last comma (,)
                   - Run the query by pressing the execute button
                   - Wait until the query finished, then export the result
                   - Close the query WITHOUT SAVING ANY CHANGES

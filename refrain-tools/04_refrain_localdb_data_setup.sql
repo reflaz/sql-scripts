@@ -238,6 +238,7 @@ UPDATE tmp_item_level til
         JOIN
     api_data ad ON til.package_number = ad.package_number
         AND IFNULL(til.short_code, 'short_code') = COALESCE(ad.short_code, til.short_code, 'short_code')
+        AND IFNULL(til.tax_class, 'tax_class') = COALESCE(ad.tax_class, til.tax_class, 'tax_class')
         AND til.is_marketplace = ad.is_marketplace
 SET 
     til.fk_api_type = CASE

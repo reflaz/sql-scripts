@@ -32,6 +32,7 @@ UPDATE tmp_package_level tpl
         LEFT JOIN
     api_data delv ON tpl.id_package_dispatching = delv.id_package_dispatching
         AND IFNULL(tpl.short_code, 'short_code') = COALESCE(delv.short_code, tpl.short_code, 'short_code')
+        AND IFNULL(tpl.tax_class, 'tax_class') = COALESCE(delv.tax_class, tpl.tax_class, 'tax_class')
         AND tpl.fk_api_type = delv.fk_api_type
         AND delv.posting_type = 'INCOMING'
         AND delv.charge_type = 'DELIVERY'
@@ -39,6 +40,7 @@ UPDATE tmp_package_level tpl
         LEFT JOIN
     api_data fdel ON tpl.id_package_dispatching = fdel.id_package_dispatching
         AND IFNULL(tpl.short_code, 'short_code') = COALESCE(fdel.short_code, tpl.short_code, 'short_code')
+        AND IFNULL(tpl.tax_class, 'tax_class') = COALESCE(fdel.tax_class, tpl.tax_class, 'tax_class')
         AND tpl.fk_api_type = fdel.fk_api_type
         AND fdel.posting_type = 'INCOMING'
         AND fdel.charge_type = 'FAILED DELIVERY'
@@ -46,6 +48,7 @@ UPDATE tmp_package_level tpl
         LEFT JOIN
     api_data pckc ON tpl.id_package_dispatching = pckc.id_package_dispatching
         AND IFNULL(tpl.short_code, 'short_code') = COALESCE(pckc.short_code, tpl.short_code, 'short_code')
+        AND IFNULL(tpl.tax_class, 'tax_class') = COALESCE(pckc.tax_class, tpl.tax_class, 'tax_class')
         AND tpl.fk_api_type = pckc.fk_api_type
         AND pckc.posting_type = 'INCOMING'
         AND pckc.charge_type = 'PICKUP'
@@ -53,6 +56,7 @@ UPDATE tmp_package_level tpl
         LEFT JOIN
     api_data cod ON tpl.id_package_dispatching = cod.id_package_dispatching
         AND IFNULL(tpl.short_code, 'short_code') = COALESCE(cod.short_code, tpl.short_code, 'short_code')
+        AND IFNULL(tpl.tax_class, 'tax_class') = COALESCE(cod.tax_class, tpl.tax_class, 'tax_class')
         AND tpl.fk_api_type = cod.fk_api_type
         AND cod.posting_type = 'INCOMING'
         AND cod.charge_type = 'COD'
@@ -60,6 +64,7 @@ UPDATE tmp_package_level tpl
         LEFT JOIN
     api_data ins ON tpl.id_package_dispatching = ins.id_package_dispatching
         AND IFNULL(tpl.short_code, 'short_code') = COALESCE(ins.short_code, tpl.short_code, 'short_code')
+        AND IFNULL(tpl.tax_class, 'tax_class') = COALESCE(ins.tax_class, tpl.tax_class, 'tax_class')
         AND tpl.fk_api_type = ins.fk_api_type
         AND ins.posting_type = 'INCOMING'
         AND ins.charge_type = 'INSURANCE'
@@ -67,6 +72,7 @@ UPDATE tmp_package_level tpl
         LEFT JOIN
     api_data self ON tpl.id_package_dispatching = self.id_package_dispatching
         AND IFNULL(tpl.short_code, 'short_code') = COALESCE(self.short_code, tpl.short_code, 'short_code')
+        AND IFNULL(tpl.tax_class, 'tax_class') = COALESCE(self.tax_class, tpl.tax_class, 'tax_class')
         AND tpl.fk_api_type = self.fk_api_type
         AND self.posting_type = 'INCOMING'
         AND self.charge_type = 'SELLER FEE'
