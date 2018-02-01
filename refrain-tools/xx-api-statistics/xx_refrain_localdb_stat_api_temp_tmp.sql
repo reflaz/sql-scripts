@@ -79,3 +79,29 @@ FROM
         ad.created_at IS NULL
             AND til.bob_id_sales_order_item IS NULL) mpn
 GROUP BY missing_package_number_reference;
+
+SELECT 
+    *
+FROM
+    (SELECT 
+        act.api_type,
+            ad.api_date,
+            ad.posting_type,
+            ad.charge_type,
+            ad.is_actual,
+            ad.package_number,
+            ad.short_code,
+            CASE
+                WHEN ad.is_marketplace <> til.is_marketplace THEN 1
+                WHEN IFNULL(ad.tax_class, 'tax_class') <> COALESCE(til.tax_class, ad.tax_class, 'tax_class') THEN 1
+                ELSE 0
+            END 'wrong_bu'
+    FROM
+        api_data ad
+    JOIN api_cons_type act ON ad.fk_api_type = act.id_api_type
+    JOIN tmp_item_level til ON ad.package_number = til.package_number
+        AND IFNULL(ad.short_code, 'short_code') = COALESCE(til.short_code, ad.short_code, 'short_code')
+    WHERE
+        ad.created_at IS NULL
+    GROUP BY ad.fk_api_type , ad.api_date , ad.posting_type , ad.charge_type , ad.is_actual , ad.package_number , ad.short_code
+    HAVING wrong_bu > 1) wrong_bu

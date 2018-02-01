@@ -48,7 +48,7 @@ UPDATE tmp_item_level til
         AND IFNULL(til.first_shipment_provider, 'first_shipment_provider') LIKE CONCAT('%', COALESCE(mdc.first_shipment_provider, til.first_shipment_provider, 'first_shipment_provider'), '%')
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mdc.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mdc.end_date
-        JOIN
+        LEFT JOIN
     map_weight_threshold_seller mwts ON GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) >= mwts.start_date
         AND GREATEST(til.order_date, IFNULL(til.first_shipped_date, '1900-01-01')) <= mwts.end_date
         AND IFNULL(mdc.rate_card_scheme, 'rate_card_scheme') = COALESCE(mwts.rate_card_scheme, mdc.rate_card_scheme, 'rate_card_scheme')
